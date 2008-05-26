@@ -4,8 +4,32 @@
  * Provides community plugin / theme directory as well as beacon update services.
  */
 
+require 'beaconhandler.php';
+require 'pluginrepo.php';
+
 	class PluginServer extends Plugin
 	{
+		private $info_feilds = array(
+			'url',
+			'guid',
+			'author',
+			'author_url',
+			'license'
+			);
+		
+		private $version_feilds = array(
+			'post_id',
+			'description',
+			'url',
+			'version',
+			'md5',
+			'status',
+			'max_habari_version',
+			'min_habari_version',
+			'requires',
+			'provides',
+			'recomends'
+			);
 		
 		const VERSION = '0.1';
 		
@@ -37,6 +61,17 @@
 			// add our rule to the stack
 			$rules[] = $rule;
 			
+			// put together our rule
+			$rule['name'] = 'repo_server';
+			$rule['parse_regex'] = '%^packages[/]?$%i';
+			$rule['build_str'] = 'packages';
+			$rule['handler'] = 'PluginRepo';
+			$rule['action'] = 'xmlrpc_call';
+			$rule['description'] = 'Plugin Repo Server';
+			
+			// add our rule to the stack
+			$rules[] = $rule;
+			
 			// and pass it along
 			return $rules;
 			
@@ -48,7 +83,31 @@
 			
 				// add or activate our custom post type
 				Post::add_new_type( 'plugin_directory' );
+
+				DB::register_table( 'plugin_versions' );
+				switch ( DB::get_driver_name() ) {
+					case 'mysql':
+						$schema= "CREATE TABLE " . DB::table('plugin_versions') . " (
+						id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+						post_id INT UNSIGNED NOT NULL,
+						url VARCHAR(255) NOT NULL,
+						version VARCHAR(255) NOT NULL,
+						md5 VARCHAR(255) NOT NULL,
+						status VARCHAR(255) NOT NULL,
+						max_habari_version VARCHAR(255) NOT NULL,
+						min_habari_version VARCHAR(255) NOT NULL,
+						requires VARCHAR(255) NOT NULL,
+						provides VARCHAR(255) NOT NULL,
+						recomends VARCHAR(255) NOT NULL,
+						description TEXT,
+						UNIQUE KEY id (id)
+						);";
+						break;
+				}
 				
+				if ( DB::dbdelta( $schema ) ) {
+					Session::notice( _t( 'updated plugin_versions table', 'blogroll' ) );
+				}
 			}
 			
 		}
@@ -81,12 +140,15 @@
 			if ( Controller::get_handler()->handler_vars['content_type'] == Post::type('plugin_directory') ) {
 				
 				ob_start();
-				
 				include( 'plugin_directory_pane.php' );
-				
 				$contents = ob_get_clean();
-				
 				$controls[ 'Plugin Details' ] = $contents;
+				
+				ob_start();
+				$version_feilds = $this->version_feilds;
+				include 'plugin_version_pane.php';
+				$contents = ob_get_clean();
+				$controls[ 'Plugin Versions' ] = $contents;
 				
 				// remove the 'settings' tab, it's not needed for directory entries
 				//unset( $controls[ 'Settings' ] );		@todo uncomment this when it doesn't break the publish page
@@ -95,6 +157,53 @@
 			
 			return $controls;
 			
+		}
+
+		public function action_post_update_before( $post )
+		{
+			if ( $post->content_type == Post::type('plugin_directory') ) {
+				foreach ( $this->info_feilds as $info_feild ) {
+					if ( Controller::get_var( 'plugin_details_' . $info_feild ) ) {
+						$post->info->{$info_feild} = Controller::get_var( 'plugin_details_' . $info_feild );
+					}
+				}
+
+				$this->save_versions( $post );
+			}
+		}
+		
+		/**
+		 * @todo check for required inputs
+		 */
+		public function save_versions( $post )
+		{
+			$plugin_version = Controller::get_var( 'plugin_version' );
+			if ( !empty( $plugin_version['version'] ) ) {
+				$plugin_version['post_id'] = $post->id;
+				$plugin_version['md5'] = $this->get_version_md5( $plugin_version['url'] );
+				$version_vals = array();
+				foreach ( $this->version_feilds as $version_feild ) {
+					$version_vals[] = $plugin_version[$version_feild];
+				}
+				Session::notice( 'we made it!' );
+
+				DB::query( 'INSERT INTO {plugin_versions}
+					(' . implode( ',', $this->version_feilds ) . ')
+					VALUES (' . Utils::placeholder_string( count($this->version_feilds) ) . ')',
+					$version_vals
+					);
+			}
+		}
+		
+		public function get_version_md5( $url )
+		{
+			$file = RemoteRequest::get_contents( $url );
+			return md5( $file );
+		}
+		
+		public function filter_post_versions( $versions, $post )
+		{
+			return DB::get_results( 'SELECT * FROM {plugin_versions} WHERE post_id = ?', array( $post->id ) );
 		}
 		
 		public static function licenses ( ) {
@@ -112,96 +221,9 @@
 		
 		public function action_init ( ) {
 			
-			// nothing, yet
-			
+			DB::register_table( 'plugin_versions' );			
 		}
 		
-		
-	}
-	
-	class BeaconHandler extends ActionHandler {
-		
-		public function __construct ( ) {
-			
-			
-		}
-		
-		public function act_request ( ) {
-			
-			/*
-			 * @todo refactor this so we Posts::get() only those GUIDs requested:
-			 * 			array( ... 'info:any' => array( 'guid1', 'guid2', ... ) );
-			 * @todo potentially cache individual plugins seperately, or eliminate caching all together
-			 */
-			
-			if ( Cache::has( 'plugin_directory:plugins' ) && false ) {
-				
-				$plugins = Cache::get( 'plugin_directory:plugins' );
-				
-				$from_cache = true;
-				
-			}
-			else {
-				
-				// get the entire list of plugins from our directory based on their custom content type
-				$plugins = Posts::get( array( 'content_type' => 'plugin_directory', 'nolimit' => true ) );
-				
-				$from_cache = false;
-				
-			}
-			
-			
-			
-			// build the xml output
-			$xml = new SimpleXMLElement( '<updates></updates>' );
-			
-			foreach ( $plugins as $plugin ) {
-				
-				// only include this one if it was requested
-				if ( in_array( $plugin->info->guid, array_keys( $this->handler_vars ) ) ) {
-					
-					// create the beacon's node
-					$beacon_node = $xml->addChild( 'beacon' );
-					$beacon_node->addAttribute( 'id', $plugin->info->guid );
-					$beacon_node->addAttribute( 'url', $plugin->info->url );
-					$beacon_node->addAttribute( 'name', $plugin->title );
-					
-					foreach ( array( 'critical', 'bugfix', 'feature' ) as $status ) {
-						
-						// does this plugin currently have one of this type?
-						if ( $version = $plugin->info->$status ) {
-							
-							$status_content = $status . '_content';
-							
-							// create an update node for the beacon  with the status' message
-							$update_node = $beacon_node->addChild( 'update', $plugin->info->$status_content );
-							$update_node->addAttribute( 'severity', $status );
-							$update_node->addAttribute( 'version', $version );
-							
-						}
-						
-					}
-					
-				}
-				
-			}
-			
-			Utils::debug($plugins, 'Plugins');
-			
-			// only cache this set of plugins if it wasn't already from the cache
-			if ( $from_cache == false ) {
-				Cache::set( 'plugin_directory:plugins', $plugins );
-			}
-			
-			$xml= Plugins::filter( 'plugin_directory_beacon_xml', $xml, $this->handler_vars );
-			$xml= $xml->asXML();
-			
-			// @todo uncomment when we're actually outputting xml again
-			//ob_clean();
-			//header( 'Content-Type: application/xml' );
-			echo $xml;
-			
-		}
 		
 	}
 	
