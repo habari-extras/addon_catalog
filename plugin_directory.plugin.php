@@ -14,7 +14,8 @@ require 'pluginrepo.php';
 			'guid',
 			'author',
 			'author_url',
-			'license'
+			'license',
+			'screenshot'
 			);
 		
 		private $version_feilds = array(
@@ -72,9 +73,28 @@ require 'pluginrepo.php';
 			// add our rule to the stack
 			$rules[] = $rule;
 			
+			// put together our rule
+			$rule['name'] = 'repo_browser';
+			$rule['parse_regex'] = '%^packages/browse(?:page/(?P<page>[2-9]|[1-9][0-9]+))?/?$%';
+			$rule['build_str'] = 'packages/browse';
+			$rule['handler'] = 'UserThemeHandler';
+			$rule['action'] = 'display_packages';
+			$rule['priority'] = 3;
+			$rule['description'] = 'Plugin Repo Server Browser';
+			
+			// add our rule to the stack
+			$rules[] = $rule;
+			
 			// and pass it along
 			return $rules;
 			
+		}
+		
+		public function filter_theme_act_display_packages( $handled, $theme )
+		{
+			$theme->posts = Posts::get( array( 'content_type' => 'plugin_directory', 'limit' => 20 ) );
+			$theme->display( 'packages' );
+			return true;
 		}
 		
 		public function action_plugin_activation ( $file='' ) {
@@ -183,14 +203,14 @@ require 'pluginrepo.php';
 				$plugin_version['md5'] = $this->get_version_md5( $plugin_version['url'] );
 				$version_vals = array();
 				foreach ( $this->version_feilds as $version_feild ) {
-					$version_vals[] = $plugin_version[$version_feild];
+					$version_vals[$version_feild] = $plugin_version[$version_feild];
 				}
 				Session::notice( 'we made it!' );
 
-				DB::query( 'INSERT INTO {plugin_versions}
-					(' . implode( ',', $this->version_feilds ) . ')
-					VALUES (' . Utils::placeholder_string( count($this->version_feilds) ) . ')',
-					$version_vals
+				DB::update(
+					DB::table( 'plugin_versions' ),
+					$version_vals,
+					array( 'version' => $version_vals['version'], 'post_id' => $post->id )
 					);
 			}
 		}
@@ -221,7 +241,8 @@ require 'pluginrepo.php';
 		
 		public function action_init ( ) {
 			
-			DB::register_table( 'plugin_versions' );			
+			DB::register_table( 'plugin_versions' );
+			$this->add_template( 'packages', dirname(__FILE__) . '/packages.php' );		
 		}
 		
 		

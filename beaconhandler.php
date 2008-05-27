@@ -39,31 +39,24 @@ class BeaconHandler extends ActionHandler {
 			$xml = new SimpleXMLElement( '<updates></updates>' );
 			
 			foreach ( $plugins as $plugin ) {
+				if ( ! $versions = $plugin->versions || $version->status == 'release' ) continue;
 				
-				// only include this one if it was requested
-				if ( in_array( $plugin->info->guid, array_keys( $this->handler_vars ) ) ) {
-					if ( ! $versions = $plugin->versions ) continue;
-					
-					$version= $plugin->versions[count($plugin->versions)-1];
-					
-					// create the beacon's node
-					$beacon_node = $xml->addChild( 'beacon' );
-					$beacon_node->addAttribute( 'id', $plugin->info->guid );
-					$beacon_node->addAttribute( 'url', $version->url );
-					$beacon_node->addAttribute( 'name', $plugin->title );
-					
-					// does this plugin currently have one of this type?
-					if ( $version->status != 'release' ) {
-						$status = $version->status;
-						$status_content = $version->description;
-						
-						// create an update node for the beacon  with the status' message
-						$update_node = $beacon_node->addChild( 'update', $status_content );
-						$update_node->addAttribute( 'severity', $status );
-						$update_node->addAttribute( 'version', $version->version );
-						
-					}
-				}
+				$version= $plugin->versions[count($plugin->versions)-1];
+				
+				// create the beacon's node
+				$beacon_node = $xml->addChild( 'beacon' );
+				$beacon_node->addAttribute( 'id', $plugin->info->guid );
+				$beacon_node->addAttribute( 'url', $version->url );
+				$beacon_node->addAttribute( 'name', $plugin->title );
+				
+				// does this plugin currently have one of this type?
+				$status = $version->status;
+				$status_content = $version->description;
+				
+				// create an update node for the beacon  with the status' message
+				$update_node = $beacon_node->addChild( 'update', $status_content );
+				$update_node->addAttribute( 'severity', $status );
+				$update_node->addAttribute( 'version', $version->version );
 			}
 			
 			//Utils::debug($plugins, 'Plugins');

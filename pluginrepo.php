@@ -29,7 +29,7 @@ class PluginRepo extends XMLRPCServer
 			$version= $package->versions[count($package->versions)-1];
 			
 			$package_xml->addChild( 'name', utf8_encode($package->title) );
-			$package_xml->addChild( 'description', utf8_encode(Utils::truncate(strip_tags($package->content))) ); // this won't work too well
+			$package_xml->addChild( 'description', utf8_encode(Format::summarize(strip_tags($package->content))) ); // this won't work too well
 			$package_xml->addChild( 'guid', utf8_encode($package->info->guid) );
 			$package_xml->addChild( 'author', utf8_encode($package->info->author) );
 			$package_xml->addChild( 'author_url', utf8_encode($package->info->author_url) );
@@ -50,13 +50,13 @@ class PluginRepo extends XMLRPCServer
 	/**
 	 * @todo update this info
 	 */
-	public function server_getInfo()
+	public function server_getInfo( $returnvalue, $params )
 	{
 		$xml= new SimpleXMLElement('<server/>');
 		$info= $xml->addChild('info');
-		$info->addChild('name', 'Wicket');
-		$info->addChild('url', 'http://packages.drunkenmonkey.org/repo/');
-		$info->addChild('browser_url', 'http://packages.drunkenmonkey.org/repo/');
+		$info->addChild('name', 'Oceanus');
+		$info->addChild('url', 'http://mattread.com.natasha/packages');
+		$info->addChild('browser_url', 'http://mattread.com/packages/browse');
 		$info->addChild('description', 'Package repo for testing purposes.');
 		$info->addChild('owner', 'Matt Read');
 		$info->addChild('signature', 'Awsom3');

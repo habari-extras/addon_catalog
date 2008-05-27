@@ -15,6 +15,20 @@
 <div class="container">
 
 	<p class="pct25">
+		<?php _e( 'Screenhot/Icon URL' ); ?>
+	</p>
+	
+	<p class="pct75">
+		<input type="text" name="plugin_details_screenshot" id="plugin_details_screenshot" class="styledformelement" value="<?php echo $post->info->screenshot; ?>" />
+	</p>
+
+</div>
+
+<hr />
+
+<div class="container">
+
+	<p class="pct25">
 		<?php _e( 'GUID' ); ?>
 	</p>
 	
