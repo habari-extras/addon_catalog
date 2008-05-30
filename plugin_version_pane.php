@@ -64,12 +64,11 @@
 <div class="container">
 
 	<p class="pct25">
-		<?php _e( 'Minimmum and Maximum Habari Version' ); ?>
+		<?php _e( 'Compatible Habari Version' ); ?>
 	</p>
 	
 	<p class="pct75">
-		<label><input type="text" name="plugin_version[min_habari_version]" id="plugin_version_min_habari_version" class="styledformelement" value="" /> Minimum Habari </label><br />
-		<label><input type="text" name="plugin_version[max_habari_version]" id="plugin_version_max_habari_version" class="styledformelement" value="" /> Maximum Habari</label>
+		<input type="text" name="plugin_version[habari_version]" id="plugin_version_habari_version" class="styledformelement" value="" />
 	</p>
 
 </div>

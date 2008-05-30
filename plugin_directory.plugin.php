@@ -25,8 +25,7 @@ require 'pluginrepo.php';
 			'version',
 			'md5',
 			'status',
-			'max_habari_version',
-			'min_habari_version',
+			'habari_version',
 			'requires',
 			'provides',
 			'recomends'
@@ -67,7 +66,7 @@ require 'pluginrepo.php';
 			$rule['parse_regex'] = '%^packages[/]?$%i';
 			$rule['build_str'] = 'packages';
 			$rule['handler'] = 'PluginRepo';
-			$rule['action'] = 'xmlrpc_call';
+			$rule['action'] = 'packages';
 			$rule['description'] = 'Plugin Repo Server';
 			
 			// add our rule to the stack
@@ -114,8 +113,7 @@ require 'pluginrepo.php';
 						version VARCHAR(255) NOT NULL,
 						md5 VARCHAR(255) NOT NULL,
 						status VARCHAR(255) NOT NULL,
-						max_habari_version VARCHAR(255) NOT NULL,
-						min_habari_version VARCHAR(255) NOT NULL,
+						habari_version VARCHAR(255) NOT NULL,
 						requires VARCHAR(255) NOT NULL,
 						provides VARCHAR(255) NOT NULL,
 						recomends VARCHAR(255) NOT NULL,
@@ -171,14 +169,19 @@ require 'pluginrepo.php';
 				$controls[ 'Plugin Versions' ] = $contents;
 				
 				// remove the 'settings' tab, it's not needed for directory entries
-				//unset( $controls[ 'Settings' ] );		@todo uncomment this when it doesn't break the publish page
+				// unset( $controls[ 'Settings' ] );		// @todo uncomment this when it doesn't break the publish page
 				
 			}
 			
 			return $controls;
 			
 		}
-
+		
+		public function action_post_insert_before( $post )
+		{
+			$this->action_post_update_before( $post );
+		}
+		
 		public function action_post_update_before( $post )
 		{
 			if ( $post->content_type == Post::type('plugin_directory') ) {

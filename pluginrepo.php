@@ -1,74 +1,76 @@
 <?php
 
-class PluginRepo extends XMLRPCServer
+class PluginRepo extends ActionHandler
 {
-	public function act_xmlrpc_call()
+	public function act_packages()
 	{
-		Plugins::register(array($this, 'packages_update'), 'xmlrpc', 'packages.update');
-		//Plugins::register(array($this, 'packages_list'), 'xmlrpc', 'packages.list');
-		//Plugins::register(array($this, 'packages_get'), 'xmlrpc', 'packages.get');
-		
-		Plugins::register(array($this, 'server_getInfo'), 'xmlrpc', 'server.getInfo');
-		
-		parent::act_xmlrpc_call();
+		if ( isset( $this->handler_vars['action'] ) ) {
+			$action = $this->handler_vars['action'];
+			if ( method_exists( $this, "packages_$action" ) ) {
+				$this->{"packages_$action"}();
+			}
+			else {
+				Plugins::act( "pluginrepo_packages_$action", $this );
+			}
+		}
 	}
 	
 	/**
 	 * @todo send the right version for the request params
 	 */
-	public function packages_update( $returnvalue, $params )
+	public function packages_update()
 	{
-		$packages= Posts::get( array( 'content_type' => 'plugin_directory', 'nolimit' => true ) );
+		extract( $this->handler_vars );
+		if ( empty( $habari_version ) ) {
+			return;
+		}
+		$packages = Posts::get( array( 
+			'content_type' => 'plugin_directory',
+			'nolimit' => true,
+			) );
 		
-		$xml= new SimpleXMLElement('<packages/>');
-		$xml->addChild( 'version', time() );
-		$xml->addChild( 'signature', 'Awsom3' );
+		$xml = new SimpleXMLElement('<packages/>');
 		
 		foreach ( $packages as $package ) {
-			$package_xml= $xml->addChild('package');
-			$version= $package->versions[count($package->versions)-1];
+			if( ! $package->info->guid ) {
+				continue;
+			}
+			$package_xml = $xml->addChild( 'package' );
+			$package_xml->addChild( 'description', utf8_encode(Format::summarize(strip_tags($package->content))) );
 			
-			$package_xml->addChild( 'name', utf8_encode($package->title) );
-			$package_xml->addChild( 'description', utf8_encode(Format::summarize(strip_tags($package->content))) ); // this won't work too well
-			$package_xml->addChild( 'guid', utf8_encode($package->info->guid) );
-			$package_xml->addChild( 'author', utf8_encode($package->info->author) );
-			$package_xml->addChild( 'author_url', utf8_encode($package->info->author_url) );
-			$package_xml->addChild( 'type', utf8_encode('plugin') );
-			$package_xml->addChild( 'version', utf8_encode($version->version) );
-			$package_xml->addChild( 'archive_md5', utf8_encode($version->md5) );
-			$package_xml->addChild( 'archive_url', utf8_encode($version->url) );
-			$package_xml->addChild( 'max_habari_version', utf8_encode($version->max_habari_version) );
-			$package_xml->addChild( 'min_habari_version', utf8_encode($version->min_habari_version) );
-			//$package_xml->addChild( 'requires', utf8_encode($version->requires) );
-			//$package_xml->addChild( 'provides', utf8_encode($version->provides) );
-			//$package_xml->addChild( 'recomends', utf8_encode($version->recomends) );
+			$package_xml->addAttribute( 'guid', $package->info->guid );
+			$package_xml->addAttribute( 'name', $package->title );
+			if($package->info->author) $package_xml->addAttribute( 'author', $package->info->author );
+			if($package->info->author_url) $package_xml->addAttribute( 'author_url', $package->info->author_url );
+			$package_xml->addAttribute( 'type', 'plugin' );
+			$package_xml->addAttribute( 'tags', implode( ',', (array) $package->tags ) );
+			
+			$versions_xml = $package_xml->addChild( 'versions' );
+			foreach( $package->versions as $version ) {
+				$version_xml = $versions_xml->addChild( 'version' );
+				$version_xml->addAttribute( 'version', $version->version );
+				if($version->md5) $version_xml->addAttribute( 'archive_md5', $version->md5 );
+				if($version->url) $version_xml->addAttribute( 'archive_url', $version->url );
+				if($version->habari_version) $version_xml->addAttribute( 'habari_version', $version->habari_version );
+			}
 		}
 		
-		return $xml->asXml();
+		echo $xml->asXml();
 	}
 	
-	/**
-	 * @todo update this info
-	 */
-	public function server_getInfo( $returnvalue, $params )
+	public function packages_list()
 	{
-		$xml= new SimpleXMLElement('<server/>');
-		$info= $xml->addChild('info');
-		$info->addChild('name', 'Oceanus');
-		$info->addChild('url', 'http://mattread.com.natasha/packages');
-		$info->addChild('browser_url', 'http://mattread.com/packages/browse');
-		$info->addChild('description', 'Package repo for testing purposes.');
-		$info->addChild('owner', 'Matt Read');
-		$info->addChild('signature', 'Awsom3');
-		return $xml->asXml();
-	}
-	
-	private function to_xml( SimpleXMLElement $parent, $data )
-	{
-		foreach ( $data as $key => $value ) {
-			$parent->addChild( $key, utf8_encode($value) );
+		$packages= Posts::get( array( 'content_type' => 'plugin_directory', 'nolimit' => true ) );
+		$xml= new SimpleXMLElement('<packages/>');
+		
+		foreach ( $packages as $package ) {
+			if( ! $package->versions || ! $package->info->guid ) {
+				continue;
+			}
+			$package_xml = $xml->addChild('package');
+			$package_xml->addAttribute( 'guid', utf8_encode($package->info->guid) );
 		}
-		return $parent;
+		echo $xml->asXml();
 	}
 }
 
