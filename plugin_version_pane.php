@@ -64,7 +64,7 @@
 <div class="container">
 
 	<p class="pct25">
-		<?php _e( 'Compatible Habari Version' ); ?>
+		<?php _e( 'Compatible Habari Version ("x" is a wildcard, eg. 0.5.x)' ); ?>
 	</p>
 	
 	<p class="pct75">
