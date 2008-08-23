@@ -143,16 +143,17 @@ class PluginServer extends Plugin
 	 **/
 	public function action_form_publish($form, $post)
 	{
-		if ( $post->content_type == Post::type('plugin_directory') ) {
+		// FORMUI is 
+		if ( $form->content_type->value == Post::type('plugin_directory') ) {
 			// todo Remove the settings tab, as it's not needed
 			$plugin_details = array(
-													'url' => $post->info->url,
-													'screenshot' => $post->info->screenshot,
-													'guid' => $post->info->guid,
-													'author' => $post->info->author,
-													'author_url' => $post->info->author_url,
-													'license' => $post->info->license
-												);
+					'url' => $post->info->url,
+					'screenshot' => $post->info->screenshot,
+					'guid' => $post->info->guid,
+					'author' => $post->info->author,
+					'author_url' => $post->info->author_url,
+					'license' => $post->info->license
+				);
 			$plugin_fields = $form->publish_controls->append('fieldset', 'plugin_details', 'Plugin Details');
 
 			foreach ( $plugin_details as $field => $value ) {
@@ -160,7 +161,7 @@ class PluginServer extends Plugin
 				$plugin_field->value = $value;
 				$plugin_field->template = 'tabcontrol_text';
 			}
-
+			
 			if ( $post->slug != '' ) {
 				$plugin_versions = $form->publish_controls->append('fieldset', 'plugin_versions', 'Current Versions');
 				foreach ( (array) $post->versions as $version ) {
@@ -168,26 +169,34 @@ class PluginServer extends Plugin
 					$plugin_versions->append('static', 'version_info', $version_info);
 				}
 			}
-			// todo Allow addition of new version
+			
+			$add_versions = $form->publish_controls->append('fieldset', 'plugin_versions', 'Add Version');
+			$version_feilds = array(
+					'version',
+					'description',
+					'url',
+					'habari_version',
+					'status'
+				);
+			foreach ( $version_feilds as $field ) {
+				$version_field = $add_versions->append('text', "plugin_version_$field", 'null:null', ucfirst(str_replace('_', ' ', $field)));
+				$version_field->template = 'tabcontrol_text';
+			}
 
 		}
 	}
 
-	public function action_post_insert_before( $post )
+	public function action_publish_post( $post, $form )
 	{
-		$this->action_post_update_before( $post );
-	}
-
-	public function action_post_update_before( $post )
-	{
+		Utils::debug($form);
 		if ( $post->content_type == Post::type('plugin_directory') ) {
 			foreach ( $this->info_fields as $info_field ) {
-				if ( Controller::get_var( 'plugin_details_' . $info_field ) ) {
-					$post->info->{$info_field} = Controller::get_var( 'plugin_details_' . $info_field );
+				if (  $form->{"plugin_details_$info_field"}->value ) {
+					$post->info->{$info_field} = $form->{"plugin_details_$info_field"}->value;
 				}
 			}
 
-			$this->save_versions( $post );
+			//$this->save_versions( $post, $form );
 		}
 	}
 
