@@ -104,43 +104,10 @@ require 'pluginrepo.php';
 				Post::add_new_type( 'plugin_directory' );
 
 				DB::register_table( 'plugin_versions' );
-				switch ( DB::get_driver_name() ) {
-					case 'mysql':
-						$schema= "CREATE TABLE " . DB::table('plugin_versions') . " (
-						id INT UNSIGNED NOT NULL AUTO_INCREMENT,
-						post_id INT UNSIGNED NOT NULL,
-						url VARCHAR(255) NOT NULL,
-						version VARCHAR(255) NOT NULL,
-						md5 VARCHAR(255) NOT NULL,
-						status VARCHAR(255) NOT NULL,
-						habari_version VARCHAR(255) NOT NULL,
-						requires VARCHAR(255) NOT NULL,
-						provides VARCHAR(255) NOT NULL,
-						recomends VARCHAR(255) NOT NULL,
-						description TEXT,
-						UNIQUE KEY id (id)
-						);";
-						break;
-					case 'sqlite':
-						$schema= "CREATE TABLE " . DB::table('plugin_versions') . " (
-						id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-						post_id INTEGER UNSIGNED NOT NULL,
-						url VARCHAR(255) NOT NULL,
-						version VARCHAR(255) NOT NULL,
-						md5 VARCHAR(255) NOT NULL,
-						status VARCHAR(255) NOT NULL,
-						habari_version VARCHAR(255) NOT NULL,
-						requires VARCHAR(255) NOT NULL,
-						provides VARCHAR(255) NOT NULL,
-						recomends VARCHAR(255) NOT NULL,
-						description TEXT
-						);";
-						break;
-				}
-				
-				if ( DB::dbdelta( $schema ) ) {
-					Session::notice( _t( 'updated plugin_versions table', 'blogroll' ) );
-				}
+				// Create the database table, or upgrade it
+				DB::dbdelta( $this->get_db_schema() );
+
+				Session::notice( _t( 'updated plugin_versions table', 'plugins_directory' ) );
 			}
 			
 		}
