@@ -143,17 +143,17 @@ class PluginServer extends Plugin
 	 **/
 	public function action_form_publish($form, $post)
 	{
-		// FORMUI is 
 		if ( $form->content_type->value == Post::type('plugin_directory') ) {
 			// todo Remove the settings tab, as it's not needed
 			$plugin_details = array(
-					'url' => $post->info->url,
-					'screenshot' => $post->info->screenshot,
-					'guid' => $post->info->guid,
-					'author' => $post->info->author,
-					'author_url' => $post->info->author_url,
-					'license' => $post->info->license
-				);
+				'url' => $post->info->url,
+				'screenshot' => $post->info->screenshot,
+				'guid' => $post->info->guid,
+				'author' => $post->info->author,
+				'author_url' => $post->info->author_url,
+				'license' => $post->info->license
+			);
+
 			$plugin_fields = $form->publish_controls->append('fieldset', 'plugin_details', 'Plugin Details');
 
 			foreach ( $plugin_details as $field => $value ) {
@@ -162,27 +162,35 @@ class PluginServer extends Plugin
 				$plugin_field->template = 'tabcontrol_text';
 			}
 			
+			$plugin_versions = $form->publish_controls->append('fieldset', 'plugin_versions', 'Plugin Versions');
 			if ( $post->slug != '' ) {
-				$plugin_versions = $form->publish_controls->append('fieldset', 'plugin_versions', 'Current Versions');
+				$current_versions = $form->plugin_versions->append('wrapper', 'current_versions', 'Current Versions');
 				foreach ( (array) $post->versions as $version ) {
 					$version_info = $version->status . ": " . $post->title . " " . $version->version . " -- " . $version->description;
-					$plugin_versions->append('static', 'version_info', $version_info);
+					$current_versions->append('static', 'version_info', $version_info);
 				}
 			}
-			
-			$add_versions = $form->publish_controls->append('fieldset', 'plugin_versions', 'Add Version');
-			$version_feilds = array(
-					'version',
-					'description',
-					'url',
-					'habari_version',
-					'status'
-				);
-			foreach ( $version_feilds as $field ) {
-				$version_field = $add_versions->append('text', "plugin_version_$field", 'null:null', ucfirst(str_replace('_', ' ', $field)));
-				$version_field->template = 'tabcontrol_text';
-			}
 
+			$new_version = $form->plugin_versions->append('wrapper', 'new_version', 'Add New Version');
+			$version = $new_version->append('text', 'plugin_version[version]', 'null:null', _t( 'Version Number' ));
+			$version->template = 'tabcontrol_text';
+			$description = $new_version->append('text', 'plugin_version[description]', 'null:null', _t( 'Version Description' ));
+			$description->template = 'tabcontrol_text';
+			$url = $new_version->append('text', 'plugin_version[url]', 'null:null', _t( 'Archive URL' ));
+			$url->template = 'tabcontrol_text';
+			$habari_version = $new_version->append('text', 'plugin_version[habari_version]', 'null:null', _t( 'Compatible Habari Version ("x" is a wildcard, eg. 0.5.x)' ));
+			$habari_version->template = 'tabcontrol_text';
+
+			$new_version->append( 'radio', 'status', 'null:null', _t( 'Critical' ) );
+			$new_version->append( 'radio', 'status', 'null:null', _t( 'Bugfix' ) );
+			$new_version->append( 'radio', 'status', 'null:null', _t( 'Feature' ) );
+
+			$requires = $new_version->append('text', 'plugin_version[requires]', 'null:null', _t( 'Requires' ));
+			$requires->template = 'tabcontrol_text';
+			$provides = $new_version->append('text', 'plugin_version[provides]', 'null:null', _t( 'Provides' ));
+			$provides->template = 'tabcontrol_text';
+			$recommends = $new_version->append('text', 'plugin_version[recommends]', 'null:null', _t( 'Recommends' ));
+			$recommends->template = 'tabcontrol_text';
 		}
 	}
 
@@ -219,7 +227,7 @@ class PluginServer extends Plugin
 				DB::table( 'plugin_versions' ),
 				$version_vals,
 				array( 'version' => $version_vals['version'], 'post_id' => $post->id )
-				);
+			);
 		}
 	}
 
@@ -234,7 +242,8 @@ class PluginServer extends Plugin
 		return DB::get_results( 'SELECT * FROM {plugin_versions} WHERE post_id = ?', array( $post->id ) );
 	}
 
-	public static function licenses() {
+	public static function licenses()
+	{
 
 		// @todo make this configurable through the plugin options - MellerTime
 
@@ -247,12 +256,12 @@ class PluginServer extends Plugin
 
 	}
 
-	public function action_init() {
+	public function action_init()
+	{
 
 		DB::register_table( 'plugin_versions' );
 		$this->add_template( 'packages', dirname(__FILE__) . '/packages.php' );
 	}
-
 
 }
 
