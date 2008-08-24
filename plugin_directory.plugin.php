@@ -91,7 +91,7 @@ class PluginServer extends Plugin
 
 	public function filter_theme_act_display_packages( $handled, $theme )
 	{
-		$theme->posts = Posts::get( array( 'content_type' => 'plugin_directory', 'limit' => 20 ) );
+		$theme->posts = Posts::get( array( 'content_type' => 'plugin', 'limit' => 20 ) );
 		$theme->display( 'packages' );
 		return true;
 	}
@@ -101,13 +101,14 @@ class PluginServer extends Plugin
 		if ( Plugins::id_from_file( $file ) == Plugins::id_from_file( __FILE__ ) ) {
 
 			// add or activate our custom post type
-			Post::add_new_type( 'plugin_directory' );
+			Post::add_new_type( 'plugin' );
 
 			DB::register_table( 'plugin_versions' );
+
 			// Create the database table, or upgrade it
 			DB::dbdelta( $this->get_db_schema() );
 
-			Session::notice( _t( 'updated plugin_versions table', 'plugins_directory' ) );
+			Session::notice( _t( 'updated plugin_versions table', 'plugin_directory' ) );
 		}
 
 	}
@@ -119,7 +120,7 @@ class PluginServer extends Plugin
 			// @todo it has yet been decided whether or not this is a good idea - MellerTime
 			/*
 			// get all the posts of our update type, so we can delete them
-			$posts = Posts::get( array( 'content_type' => 'plugin_directory', 'nolimit' => true ) );
+			$posts = Posts::get( array( 'content_type' => 'plugin', 'nolimit' => true ) );
 
 			foreach ( $posts as $post ) {
 
@@ -129,7 +130,7 @@ class PluginServer extends Plugin
 			*/
 
 			// deactivate our custom post type
-			Post::deactivate_post_type( 'plugin_directory' );
+			Post::deactivate_post_type( 'plugin' );
 
 		}
 
@@ -143,7 +144,7 @@ class PluginServer extends Plugin
 	 **/
 	public function action_form_publish($form, $post)
 	{
-		if ( $form->content_type->value == Post::type('plugin_directory') ) {
+		if ( $form->content_type->value == Post::type('plugin') ) {
 			// todo Remove the settings tab, as it's not needed
 			$plugin_details = array(
 				'url' => $post->info->url,
@@ -164,44 +165,54 @@ class PluginServer extends Plugin
 			
 			$plugin_versions = $form->publish_controls->append('fieldset', 'plugin_versions', 'Plugin Versions');
 			if ( $post->slug != '' ) {
-				$current_versions = $form->plugin_versions->append('wrapper', 'current_versions', 'Current Versions');
+				$form->plugin_versions->append('static', 'current_versions', 'Current Versions');
 				foreach ( (array) $post->versions as $version ) {
 					$version_info = $version->status . ": " . $post->title . " " . $version->version . " -- " . $version->description;
-					$current_versions->append('static', 'version_info', $version_info);
+					$plugin_versions->append('static', 'version_info', $version_info);
 				}
 			}
 
-			$new_version = $form->plugin_versions->append('wrapper', 'new_version', 'Add New Version');
-			$version = $new_version->append('text', 'plugin_version[version]', 'null:null', _t( 'Version Number' ));
+			$form->plugin_versions->append('static', 'new_version', 'Add New Version');
+			$version = $plugin_versions->append('text', 'plugin_version_number', 'null:null', _t( 'Version Number' ));
 			$version->template = 'tabcontrol_text';
-			$description = $new_version->append('text', 'plugin_version[description]', 'null:null', _t( 'Version Description' ));
+			$description = $plugin_versions->append('text', 'plugin_version_description', 'null:null', _t( 'Version Description' ));
 			$description->template = 'tabcontrol_text';
-			$url = $new_version->append('text', 'plugin_version[url]', 'null:null', _t( 'Archive URL' ));
+			$url = $plugin_versions->append('text', 'plugin_version_url', 'null:null', _t( 'Archive URL' ));
 			$url->template = 'tabcontrol_text';
-			$habari_version = $new_version->append('text', 'plugin_version[habari_version]', 'null:null', _t( 'Compatible Habari Version ("x" is a wildcard, eg. 0.5.x)' ));
+			$habari_version = $plugin_versions->append('text', 'plugin_version_habari_version', 'null:null', _t( 'Compatible Habari Version <br> ("x" is a wildcard, eg. 0.5.x)' ));
 			$habari_version->template = 'tabcontrol_text';
 
-			$new_version->append( 'radio', 'status', 'null:null', _t( 'Critical' ) );
-			$new_version->append( 'radio', 'status', 'null:null', _t( 'Bugfix' ) );
-			$new_version->append( 'radio', 'status', 'null:null', _t( 'Feature' ) );
+			//$plugin_versions->append( 'radio', 'status', 'null:null', _t( 'Critical' ) );
+			//$plugin_versions->append( 'radio', 'status', 'null:null', _t( 'Bugfix' ) );
+			//$plugin_versions->append( 'radio', 'status', 'null:null', _t( 'Feature' ) );
 
-			$requires = $new_version->append('text', 'plugin_version[requires]', 'null:null', _t( 'Requires' ));
-			$requires->template = 'tabcontrol_text';
-			$provides = $new_version->append('text', 'plugin_version[provides]', 'null:null', _t( 'Provides' ));
-			$provides->template = 'tabcontrol_text';
-			$recommends = $new_version->append('text', 'plugin_version[recommends]', 'null:null', _t( 'Recommends' ));
-			$recommends->template = 'tabcontrol_text';
+			//$requires = $plugin_versions->append('text', 'plugin_version[requires]', 'null:null', _t( 'Requires' ));
+			//$requires->template = 'tabcontrol_text';
+			//$provides = $plugin_versions->append('text', 'plugin_version[provides]', 'null:null', _t( 'Provides' ));
+			//$provides->template = 'tabcontrol_text';
+			//$recommends = $plugin_versions->append('text', 'plugin_version[recommends]', 'null:null', _t( 'Recommends' ));
+			//$recommends->template = 'tabcontrol_text';
 		}
 	}
 
 	public function action_publish_post( $post, $form )
 	{
-		Utils::debug($form);
-		if ( $post->content_type == Post::type('plugin_directory') ) {
+		if ( $post->content_type == Post::type('plugin') ) {
 			foreach ( $this->info_fields as $info_field ) {
-				if (  $form->{"plugin_details_$info_field"}->value ) {
+				if ( $form->{"plugin_details_$info_field"}->value ) {
 					$post->info->{$info_field} = $form->{"plugin_details_$info_field"}->value;
 				}
+			}
+
+			// Check if new version information has been uploaded
+			if ( $form->{"plugin_version_number"}->value ) {
+				foreach ( $this->version_fields as $version_field ) {
+					// todo Do something sensible with the new version information
+					//if ( $form->{"plugin_version_$version_field"}->value ) {
+					//	$post->info->{$version_field} = $form->{"plugin_details_$version_field"}->value;
+					//}
+				}
+				Session::notice( 'Added version number ' . $form->{"plugin_version_number"}->value );
 			}
 
 			//$this->save_versions( $post, $form );
