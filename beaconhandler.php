@@ -27,7 +27,7 @@ class BeaconHandler extends ActionHandler {
 			else {
 				
 				// get the entire list of plugins from our directory based on their custom content type
-				$plugins = Posts::get( array( 'content_type' => 'plugin_directory', 'nolimit' => true ) );
+				$plugins = Posts::get( array( 'content_type' => 'plugin', 'nolimit' => true ) );
 				
 				$from_cache = false;
 				

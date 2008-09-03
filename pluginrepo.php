@@ -5,7 +5,7 @@ class PluginRepo extends ActionHandler
 	public function act_packages()
 	{
 		$packages = Posts::get( array( 
-			'content_type' => 'plugin_directory',
+			'content_type' => 'plugin',
 			'nolimit' => true,
 			) );
 		

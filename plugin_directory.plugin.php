@@ -73,7 +73,7 @@ class PluginServer extends Plugin
 		$rules[] = $rule;
 
 		// put together our rule
-		$rule['name'] = 'repo_browser';
+		$rule['name'] = 'display_plugin';
 		$rule['parse_regex'] = '%^packages/browse(?:page/(?P<page>[2-9]|[1-9][0-9]+))?/?$%';
 		$rule['build_str'] = 'packages/browse';
 		$rule['handler'] = 'UserThemeHandler';
@@ -173,7 +173,7 @@ class PluginServer extends Plugin
 			}
 
 			$form->plugin_versions->append('static', 'new_version', 'Add New Version');
-			$version = $plugin_versions->append('text', 'plugin_version_number', 'null:null', _t( 'Version Number' ));
+			$version = $plugin_versions->append('text', 'plugin_version_version', 'null:null', _t( 'Version Number' ));
 			$version->template = 'tabcontrol_text';
 			$description = $plugin_versions->append('text', 'plugin_version_description', 'null:null', _t( 'Version Description' ));
 			$description->template = 'tabcontrol_text';
@@ -182,9 +182,12 @@ class PluginServer extends Plugin
 			$habari_version = $plugin_versions->append('text', 'plugin_version_habari_version', 'null:null', _t( 'Compatible Habari Version <br> ("x" is a wildcard, eg. 0.5.x)' ));
 			$habari_version->template = 'tabcontrol_text';
 
-			//$plugin_versions->append( 'radio', 'status', 'null:null', _t( 'Critical' ) );
-			//$plugin_versions->append( 'radio', 'status', 'null:null', _t( 'Bugfix' ) );
-			//$plugin_versions->append( 'radio', 'status', 'null:null', _t( 'Feature' ) );
+			$status = $plugin_versions->append( 'radio', 'plugin_version_status', 'null:null');
+			$status->options = array(
+				'critical' => 'Critical',
+				'bugfix' => 'Bugfix',
+				'feature' => 'Feature',
+				);
 
 			//$requires = $plugin_versions->append('text', 'plugin_version[requires]', 'null:null', _t( 'Requires' ));
 			//$requires->template = 'tabcontrol_text';
@@ -203,42 +206,38 @@ class PluginServer extends Plugin
 					$post->info->{$info_field} = $form->{"plugin_details_$info_field"}->value;
 				}
 			}
-
-			// Check if new version information has been uploaded
-			if ( $form->{"plugin_version_number"}->value ) {
-				foreach ( $this->version_fields as $version_field ) {
-					// todo Do something sensible with the new version information
-					//if ( $form->{"plugin_version_$version_field"}->value ) {
-					//	$post->info->{$version_field} = $form->{"plugin_details_$version_field"}->value;
-					//}
-				}
-				Session::notice( 'Added version number ' . $form->{"plugin_version_number"}->value );
-			}
-
-			//$this->save_versions( $post, $form );
+			
+			$this->save_versions( $post, $form );
 		}
 	}
 
 	/**
 		* @todo check for required inputs
 		*/
-	public function save_versions( $post )
+	public function save_versions( $post, $form )
 	{
-		$plugin_version = Controller::get_var( 'plugin_version' );
-		if ( !empty( $plugin_version['version'] ) ) {
-			$plugin_version['post_id'] = $post->id;
-			$plugin_version['md5'] = $this->get_version_md5( $plugin_version['url'] );
+		if ( $form->plugin_version_version->value ) {
 			$version_vals = array();
 			foreach ( $this->version_fields as $version_field ) {
-				$version_vals[$version_field] = $plugin_version[$version_field];
+				if ( $form->{"plugin_version_$version_field"} ) {
+					$version_vals[$version_field] = $form->{"plugin_version_$version_field"}->value;
+					Utils::debug($form->{"plugin_version_$version_field"}->value);
+				}
+				else {
+					$version_vals[$version_field] = '';
+				}
+				Utils::debug($version_field );
 			}
-			Session::notice( 'we made it!' );
-
+			$version_vals['post_id'] = $post->id;
+			$version_vals['md5'] = $this->get_version_md5( $version_vals['url'] );
+			
 			DB::update(
 				DB::table( 'plugin_versions' ),
 				$version_vals,
 				array( 'version' => $version_vals['version'], 'post_id' => $post->id )
 			);
+			
+			Session::notice( 'Added version number ' . $version_vals['version'] );
 		}
 	}
 
