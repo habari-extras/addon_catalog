@@ -74,10 +74,22 @@ class PluginServer extends Plugin
 
 		// put together our rule
 		$rule['name'] = 'display_plugin';
-		$rule['parse_regex'] = '%^packages/browse(?:page/(?P<page>[2-9]|[1-9][0-9]+))?/?$%';
-		$rule['build_str'] = 'packages/browse';
+		$rule['parse_regex'] = '%^explore/plugins/(?P<slug>.+)/?$%';
+		$rule['build_str'] = 'explore/plugins/{$slug}';
 		$rule['handler'] = 'UserThemeHandler';
-		$rule['action'] = 'display_packages';
+		$rule['action'] = 'display_plugin';
+		$rule['priority'] = 3;
+		$rule['description'] = 'Plugin Repo Server Browser';
+
+		// add our rule to the stack
+		$rules[] = $rule;
+		
+		// put together our rule
+		$rule['name'] = 'display_plugins';
+		$rule['parse_regex'] = '%^explore/plugins/?$%';
+		$rule['build_str'] = 'explore/plugins/';
+		$rule['handler'] = 'UserThemeHandler';
+		$rule['action'] = 'display_plugins';
 		$rule['priority'] = 3;
 		$rule['description'] = 'Plugin Repo Server Browser';
 
@@ -89,10 +101,20 @@ class PluginServer extends Plugin
 
 	}
 
-	public function filter_theme_act_display_packages( $handled, $theme )
+	/**
+	 * @ todo make uoe own template for these
+	 */
+	public function filter_theme_act_display_plugins( $handled, $theme )
 	{
 		$theme->posts = Posts::get( array( 'content_type' => 'plugin', 'limit' => 20 ) );
-		$theme->display( 'packages' );
+		$theme->display( 'home' );
+		return true;
+	}
+	
+	public function filter_theme_act_display_plugin( $handled, $theme )
+	{
+		$theme->post = Post::get( array( 'content_type' => 'plugin' ) );
+		$theme->display( 'entry.single' );
 		return true;
 	}
 
