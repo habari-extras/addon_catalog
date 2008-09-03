@@ -145,11 +145,19 @@ class PluginServer extends Plugin
 	public function action_form_publish($form, $post)
 	{
 		if ( $form->content_type->value == Post::type('plugin') ) {
+			// remove silos we don't need them, do we?
+			$form->remove($form->silos);
+			
+			// add guid after title
+			$guid = $form->append('text', 'plugin_details_guid', 'null:null', 'GUID');
+			$guid->value = $post->info->guid;
+			$guid->template = 'admincontrol_text';
+			$form->move_after($form->plugin_details_guid, $form->title);
+				
 			// todo Remove the settings tab, as it's not needed
 			$plugin_details = array(
 				'url' => $post->info->url,
 				'screenshot' => $post->info->screenshot,
-				'guid' => $post->info->guid,
 				'author' => $post->info->author,
 				'author_url' => $post->info->author_url,
 				'license' => $post->info->license
