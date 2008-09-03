@@ -221,12 +221,10 @@ class PluginServer extends Plugin
 			foreach ( $this->version_fields as $version_field ) {
 				if ( $form->{"plugin_version_$version_field"} ) {
 					$version_vals[$version_field] = $form->{"plugin_version_$version_field"}->value;
-					Utils::debug($form->{"plugin_version_$version_field"}->value);
 				}
 				else {
 					$version_vals[$version_field] = '';
 				}
-				Utils::debug($version_field );
 			}
 			$version_vals['post_id'] = $post->id;
 			$version_vals['md5'] = $this->get_version_md5( $version_vals['url'] );
