@@ -106,15 +106,19 @@ class PluginServer extends Plugin
 	 */
 	public function filter_theme_act_display_plugins( $handled, $theme )
 	{
-		$theme->posts = Posts::get( array( 'content_type' => 'plugin', 'limit' => 20 ) );
-		$theme->display( 'home' );
+		$default_filters= array(
+			'content_type' => Post::type( 'plugin' ),
+		);
+		$theme->act_display_entries( $default_filters );
 		return true;
 	}
 	
 	public function filter_theme_act_display_plugin( $handled, $theme )
 	{
-		$theme->post = Post::get( array( 'content_type' => 'plugin' ) );
-		$theme->display( 'entry.single' );
+		$default_filters= array(
+			'content_type' => Post::type( 'plugin' ),
+		);
+		$theme->act_display_post( $default_filters );
 		return true;
 	}
 
@@ -298,7 +302,8 @@ class PluginServer extends Plugin
 	{
 
 		DB::register_table( 'plugin_versions' );
-		$this->add_template( 'packages', dirname(__FILE__) . '/packages.php' );
+		$this->add_template( 'plugin.multiple', dirname(__FILE__) . '/templates/plugin.multiple.php' );
+		$this->add_template( 'plugin.single', dirname(__FILE__) . '/templates/plugin.single.php' );
 	}
 
 }
