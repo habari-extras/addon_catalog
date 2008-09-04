@@ -78,7 +78,7 @@ class PluginServer extends Plugin
 		$rule['build_str'] = 'explore/plugins/{$slug}';
 		$rule['handler'] = 'UserThemeHandler';
 		$rule['action'] = 'display_plugin';
-		$rule['priority'] = 3;
+		$rule['priority'] = 1;
 		$rule['description'] = 'Plugin Repo Server Browser';
 
 		// add our rule to the stack
@@ -90,7 +90,7 @@ class PluginServer extends Plugin
 		$rule['build_str'] = 'explore/plugins/';
 		$rule['handler'] = 'UserThemeHandler';
 		$rule['action'] = 'display_plugins';
-		$rule['priority'] = 3;
+		$rule['priority'] = 2;
 		$rule['description'] = 'Plugin Repo Server Browser';
 
 		// add our rule to the stack
@@ -106,10 +106,19 @@ class PluginServer extends Plugin
 	 */
 	public function filter_theme_act_display_plugins( $handled, $theme )
 	{
+		$paramarray['fallback']= array(
+		 	'plugin.multiple',
+			'multiple',
+		);
+
+		// Makes sure home displays only entries
 		$default_filters= array(
 			'content_type' => Post::type( 'plugin' ),
 		);
-		$theme->act_display_entries( $default_filters );
+
+		$paramarray['user_filters']= $default_filters;
+
+		$theme->act_display( $paramarray );
 		return true;
 	}
 	
@@ -161,7 +170,12 @@ class PluginServer extends Plugin
 		}
 
 	}
-
+	
+	public function action_auth_ajax_generate_guid( $handler )
+	{
+		echo UUID::get();
+	}
+	
 	/**
 	 *Manipulate the controls on the publish page
 	 *
@@ -177,7 +191,7 @@ class PluginServer extends Plugin
 			// add guid after title
 			$guid = $form->append('text', 'plugin_details_guid', 'null:null', 'GUID');
 			$guid->value = $post->info->guid;
-			$guid->template = 'admincontrol_text';
+			$guid->template = ($post->slug) ? 'admincontrol_text' : 'guidcontrol';
 			$form->move_after($form->plugin_details_guid, $form->title);
 				
 			// todo Remove the settings tab, as it's not needed
@@ -216,19 +230,21 @@ class PluginServer extends Plugin
 			$habari_version = $plugin_versions->append('text', 'plugin_version_habari_version', 'null:null', _t( 'Compatible Habari Version <br> ("x" is a wildcard, eg. 0.5.x)' ));
 			$habari_version->template = 'tabcontrol_text';
 
-			$status = $plugin_versions->append( 'radio', 'plugin_version_status', 'null:null');
+			$status = $plugin_versions->append( 'select', 'plugin_version_status', 'null:null', 'Status');
+			$status->template = 'tabcontrol_select';
 			$status->options = array(
+				'release' => 'Release',
 				'critical' => 'Critical',
 				'bugfix' => 'Bugfix',
 				'feature' => 'Feature',
 				);
 
-			//$requires = $plugin_versions->append('text', 'plugin_version[requires]', 'null:null', _t( 'Requires' ));
-			//$requires->template = 'tabcontrol_text';
-			//$provides = $plugin_versions->append('text', 'plugin_version[provides]', 'null:null', _t( 'Provides' ));
-			//$provides->template = 'tabcontrol_text';
-			//$recommends = $plugin_versions->append('text', 'plugin_version[recommends]', 'null:null', _t( 'Recommends' ));
-			//$recommends->template = 'tabcontrol_text';
+			$requires = $plugin_versions->append('text', 'plugin_version_requires', 'null:null', _t( 'Requires' ));
+			$requires->template = 'tabcontrol_text';
+			$provides = $plugin_versions->append('text', 'plugin_version_provides', 'null:null', _t( 'Provides' ));
+			$provides->template = 'tabcontrol_text';
+			$recommends = $plugin_versions->append('text', 'plugin_version_recommends', 'null:null', _t( 'Recommends' ));
+			$recommends->template = 'tabcontrol_text';
 		}
 	}
 
@@ -304,6 +320,7 @@ class PluginServer extends Plugin
 		DB::register_table( 'plugin_versions' );
 		$this->add_template( 'plugin.multiple', dirname(__FILE__) . '/templates/plugin.multiple.php' );
 		$this->add_template( 'plugin.single', dirname(__FILE__) . '/templates/plugin.single.php' );
+		$this->add_template( 'guidcontrol', dirname(__FILE__) . '/templates/guidcontrol.php' );
 	}
 
 }
