@@ -28,6 +28,17 @@ $theme->display('header');
 
 		<?php echo $post->content_out; ?>
 		
+		<?php if ($post->info->screenshot) : ?>
+			<img src="<?php echo $post->info->screenshot; ?>" alt="screenshot of <?php echo $post->title_out; ?>">
+		<?php endif; ?>
+		
+		<h3>Info</h3>
+		
+		<ul>
+		<li>Author: <a href="<?php echo $post->info->author_url; ?>" rel="nofollow"><?php echo $post->info->author; ?></a></li>
+		<li>License: <?php echo $post->info->license; ?></li>
+		</ul>
+		
 		<h3>Versions</h3>
 		  <?php foreach( (array) $post->versions as $version ) : ?>
 		  <li>
