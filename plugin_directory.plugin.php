@@ -78,7 +78,7 @@ class PluginServer extends Plugin
 		$rule['build_str'] = 'explore/plugins/{$slug}';
 		$rule['handler'] = 'UserThemeHandler';
 		$rule['action'] = 'display_plugin';
-		$rule['priority'] = 1;
+		$rule['priority'] = 3;
 		$rule['description'] = 'Plugin Repo Server Browser';
 
 		// add our rule to the stack
