@@ -1,5 +1,6 @@
 <?php
 
+
 /**
  * Rino theme home page
  */
@@ -31,6 +32,8 @@ $theme->display('header');
 	  </div>
 	<?php endforeach; ?>
 
+	<hr>
+	<p><?php $theme->prev_page_link(); ?> <?php $theme->page_selector( null, array( 'leftSide' => 2, 'rightSide' => 2 ) ); ?> <?php $theme->next_page_link(); ?></p>
 	</div>
-
+	
 <?php $theme->display('footer'); ?>

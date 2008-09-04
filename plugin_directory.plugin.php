@@ -86,8 +86,8 @@ class PluginServer extends Plugin
 		
 		// put together our rule
 		$rule['name'] = 'display_plugins';
-		$rule['parse_regex'] = '%^explore/plugins/?$%';
-		$rule['build_str'] = 'explore/plugins/';
+		$rule['parse_regex'] = '%^explore/plugins(?:/page/(?P<page>\d+))?/?$%';
+		$rule['build_str'] = 'explore/plugins(/page/{$page})';
 		$rule['handler'] = 'UserThemeHandler';
 		$rule['action'] = 'display_plugins';
 		$rule['priority'] = 2;
@@ -95,12 +95,12 @@ class PluginServer extends Plugin
 
 		// add our rule to the stack
 		$rules[] = $rule;
-
+		
 		// and pass it along
 		return $rules;
 
 	}
-
+	
 	/**
 	 * @ todo make uoe own template for these
 	 */
