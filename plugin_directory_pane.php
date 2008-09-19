@@ -94,8 +94,8 @@
 	
 	<?php
 
-		$licenses= PluginServer::licenses();
-		$i= 0;
+		$licenses = PluginServer::licenses();
+		$i = 0;
 	
 		foreach ( $licenses as $value => $name ) {
 			
@@ -106,15 +106,15 @@
 			
 			<?php
 			
-			$box= '<input type="checkbox" name="' . $name . '" id="' . $name . '" value="' . $value . '"';
+			$box = '<input type="checkbox" name="' . $name . '" id="' . $name . '" value="' . $value . '"';
 			
 			if ( !empty( $post->info->licenses ) && in_array( $value, $post->info->licenses ) ) {
-				$box= $box . ' checked="checked"';
+				$box = $box . ' checked="checked"';
 			}
 			
-			$box= $box . '>';
+			$box = $box . '>';
 			
-			$box= $box . '<label for="' . $name . '">' . $name . '</label>';
+			$box = $box . '<label for="' . $name . '">' . $name . '</label>';
 			
 			echo $box;
 			

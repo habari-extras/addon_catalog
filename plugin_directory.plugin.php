@@ -112,7 +112,7 @@ class PluginServer extends Plugin
 		);
 
 		// Makes sure home displays only entries
-		$default_filters= array(
+		$default_filters = array(
 			'content_type' => Post::type( 'plugin' ),
 		);
 
@@ -124,14 +124,14 @@ class PluginServer extends Plugin
 	
 	public function filter_theme_act_display_plugin( $handled, $theme )
 	{
-		$default_filters= array(
+		$default_filters = array(
 			'content_type' => Post::type( 'plugin' ),
 		);
 		$theme->act_display_post( $default_filters );
 		return true;
 	}
 
-	public function action_plugin_activation ( $file='' ) {
+	public function action_plugin_activation ( $file ='' ) {
 
 		if ( Plugins::id_from_file( $file ) == Plugins::id_from_file( __FILE__ ) ) {
 
@@ -148,7 +148,7 @@ class PluginServer extends Plugin
 
 	}
 
-	public function action_plugin_deactivation( $file='' ) {
+	public function action_plugin_deactivation( $file ='' ) {
 
 		if ( Plugins::id_from_file( $file ) == Plugins::id_from_file( __FILE__ ) ) {
 

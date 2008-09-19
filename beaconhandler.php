@@ -65,8 +65,8 @@ class BeaconHandler extends ActionHandler {
 				Cache::set( 'plugin_directory:plugins', $plugins );
 			}
 			
-			$xml= Plugins::filter( 'plugin_directory_beacon_xml', $xml, $this->handler_vars );
-			$xml= $xml->asXML();
+			$xml = Plugins::filter( 'plugin_directory_beacon_xml', $xml, $this->handler_vars );
+			$xml = $xml->asXML();
 			
 			// @todo uncomment when we're actually outputting xml again
 			ob_clean();
