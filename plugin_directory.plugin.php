@@ -2,6 +2,10 @@
 
 /**
  * Provides community plugin / theme directory as well as beacon update services.
+ * 
+ * cross reference between compatible themes/plugins - morydd
+ * 'People who downloaded this also downloaded X' - randyw
+ * if 2 plugins have 4 or more tags in common, say something like "This plugin not what you want? Try foo, bar, or baz" - randyw
  */
 
 require 'beaconhandler.php';
@@ -15,7 +19,9 @@ class PluginServer extends Plugin
 		'author',
 		'author_url',
 		'license',
-		'screenshot'
+		'screenshot',
+		'instructions'
+
 	);
 
 	private $version_fields = array(
@@ -28,7 +34,8 @@ class PluginServer extends Plugin
 		'habari_version',
 		'requires',
 		'provides',
-		'recomends'
+		'recommends',
+		'source_link'
 	);
 
 	const VERSION = '0.2alpha';
@@ -193,7 +200,16 @@ class PluginServer extends Plugin
 			$guid->value = $post->info->guid;
 			$guid->template = ($post->slug) ? 'admincontrol_text' : 'guidcontrol';
 			$form->move_after($form->plugin_details_guid, $form->title);
-				
+
+			// add instructions after content
+			$instructions = $form->append('textarea','plugin_details_instructions', 'null:null', 'Instructions');
+			$instructions->value = $post->info->instructions;
+			$instructions->class[] = 'resizable';
+			$instructions->template = 'admincontrol_textarea';
+			$form->move_after($form->plugin_details_instructions, $form->content);
+
+			// todo Fix all the tabindexes - there are two #2s right now and GUID has none.
+
 			// todo Remove the settings tab, as it's not needed
 			$plugin_details = array(
 				'url' => $post->info->url,
@@ -245,6 +261,11 @@ class PluginServer extends Plugin
 			$provides->template = 'tabcontrol_text';
 			$recommends = $plugin_versions->append('text', 'plugin_version_recommends', 'null:null', _t( 'Recommends' ));
 			$recommends->template = 'tabcontrol_text';
+
+			$sourcelink = $plugin_versions->append('text', 'plugin_version_source_link', 
+'null:null', _t( 'Link to Source' ));
+			$sourcelink->template = 'tabcontrol_text';
+			/* @todo validate sourcelink */
 		}
 	}
 
