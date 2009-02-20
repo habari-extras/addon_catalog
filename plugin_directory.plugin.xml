@@ -1,0 +1,10 @@
+<plugin>
+	<name>Plugin Server</name>
+	<url>http://habariproject.org</url>
+	<author>Habari Community</author>
+	<authorurl>http://habariproject.org</authorurl>
+	<license>Apache License 2.0</license>
+	<description>Provides plugin directory and update beacon services.</description>
+	<copyright>2008</copyright>
+</plugin>
+
