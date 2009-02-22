@@ -8,6 +8,7 @@ CREATE TABLE {plugin_versions} (
   habari_version VARCHAR(255) NOT NULL,
   requires VARCHAR(255) NOT NULL,
   provides VARCHAR(255) NOT NULL,
-  recomends VARCHAR(255) NOT NULL,
-  description TEXT
+  recommends VARCHAR(255) NOT NULL,
+  description TEXT,
+  source_link VARCHAR(255) NOT NULL
 );
