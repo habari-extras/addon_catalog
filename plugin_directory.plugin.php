@@ -145,7 +145,7 @@ class PluginServer extends Plugin
 			// add or activate our custom post type
 			Post::add_new_type( 'plugin' );
 
-			DB::register_table( 'plugin_versions' );
+			DB::register_table( 'dir_plugin_versions' );
 
 			// Create the database table, or upgrade it
 			DB::dbdelta( $this->get_db_schema() );
@@ -301,7 +301,7 @@ class PluginServer extends Plugin
 			$version_vals['md5'] = $this->get_version_md5( $version_vals['url'] );
 			
 			DB::update(
-				DB::table( 'plugin_versions' ),
+				DB::table( 'dir_plugin_versions' ),
 				$version_vals,
 				array( 'version' => $version_vals['version'], 'post_id' => $post->id )
 			);
@@ -318,7 +318,7 @@ class PluginServer extends Plugin
 
 	public function filter_post_versions( $versions, $post )
 	{
-		return DB::get_results( 'SELECT * FROM {plugin_versions} WHERE post_id = ?', array( $post->id ) );
+		return DB::get_results( 'SELECT * FROM {dir_plugin_versions} WHERE post_id = ?', array( $post->id ) );
 	}
 
 	public static function licenses()
@@ -338,7 +338,7 @@ class PluginServer extends Plugin
 	public function action_init()
 	{
 
-		DB::register_table( 'plugin_versions' );
+		DB::register_table( 'dir_plugin_versions' );
 		$this->add_template( 'plugin.multiple', dirname(__FILE__) . '/templates/plugin.multiple.php' );
 		$this->add_template( 'plugin.single', dirname(__FILE__) . '/templates/plugin.single.php' );
 		$this->add_template( 'guidcontrol', dirname(__FILE__) . '/templates/guidcontrol.php' );

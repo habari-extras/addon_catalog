@@ -1,4 +1,4 @@
-CREATE TABLE {plugin_versions} (
+CREATE TABLE {dir_plugin_versions} (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT,
   post_id INT UNSIGNED NOT NULL,
   url VARCHAR(255) NOT NULL,
