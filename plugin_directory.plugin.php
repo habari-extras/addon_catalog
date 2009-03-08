@@ -14,31 +14,35 @@ require 'pluginrepo.php';
 class PluginServer extends Plugin
 {
 	private $info_fields = array(
-		'url',
-		'guid',
-		'author',
-		'author_url',
-		'license',
-		'screenshot',
-		'instructions'
-
+		'guid'
 	);
 
 	private $version_fields = array(
 		'post_id',
-		'description',
-		'url',
 		'version',
 		'md5',
-		'status',
 		'habari_version',
+		'description',
+		'author',
+		'author_url',
+		'license',
+		'screenshot',
+		'instructions',
+		'url',
+		'status',
 		'requires',
 		'provides',
 		'recommends',
 		'source_link'
 	);
 
-	const VERSION = '0.2alpha';
+	private $license_fields = array(
+		'simpletext',
+		'shortname',
+		'link'
+	);
+
+	const VERSION = '0.2alpha2';
 
 	public function info() {
 
@@ -50,7 +54,7 @@ class PluginServer extends Plugin
 			'authorurl' => 'http://habariproject.org',
 			'license' => 'Apache License 2.0',
 			'description' => 'Provides plugin directory and update beacon services.',
-			'copyright' => '2008'
+			'copyright' => '2009'
 		);
 
 	}
@@ -102,6 +106,18 @@ class PluginServer extends Plugin
 
 		// add our rule to the stack
 		$rules[] = $rule;
+
+		// put together our rule
+		$rule['name'] = 'display_license';
+		$rule['parse_regex'] = '%^explore/other/license/(?P<slug>.+)/?$%';
+		$rule['build_str'] = 'explore/other/license/{$slug}';
+		$rule['handler'] = 'UserThemeHandler';
+		$rule['action'] = 'display_license';
+		$rule['priority'] = 2;
+		$rule['description'] = 'Plugin Repo Server Browser';
+
+		// add our rule to the stack
+		$rules[] = $rule;
 		
 		// and pass it along
 		return $rules;
@@ -138,12 +154,43 @@ class PluginServer extends Plugin
 		return true;
 	}
 
+
+	public function filter_theme_act_display_licenses( $handled, $theme )
+	{
+		$paramarray['fallback']= array(
+			'license.multiple',
+			'multiple',
+		);
+
+		// Makes sure home displays only entries
+		$default_filters = array(
+			'content_type' => Post::type( 'license' ),
+		);
+
+		$paramarray['user_filters']= $default_filters;
+
+		$theme->act_display( $paramarray );
+		return true;
+	}
+
+	public function filter_theme_act_display_license( $handled, $theme )
+	{
+		$default_filters = array(
+			'content_type' => Post::type( 'license' ),
+		);
+		$theme->act_display_post( $default_filters );
+		return true;
+	}
+
+
+
 	public function action_plugin_activation ( $file ='' ) {
 
 		if ( Plugins::id_from_file( $file ) == Plugins::id_from_file( __FILE__ ) ) {
 
 			// add or activate our custom post type
 			Post::add_new_type( 'plugin' );
+			Post::add_new_type( 'license' );
 
 			DB::register_table( 'dir_plugin_versions' );
 
@@ -262,10 +309,38 @@ class PluginServer extends Plugin
 			$recommends = $plugin_versions->append('text', 'plugin_version_recommends', 'null:null', _t( 'Recommends' ));
 			$recommends->template = 'tabcontrol_text';
 
-			$sourcelink = $plugin_versions->append('text', 'plugin_version_source_link', 
-'null:null', _t( 'Link to Source' ));
+			$sourcelink = $plugin_versions->append('text', 'plugin_version_source_link', 'null:null', _t( 'Link to Source' ));
 			$sourcelink->template = 'tabcontrol_text';
 			/* @todo validate sourcelink */
+		}
+		else if ( $form->content_type->value == Post::type( 'license' ) ) {
+			// clean up the form a little...
+			$form->remove( $form->silos );
+			$form->remove( $form->content );
+			$form->remove( $form->tags );
+			$settings = $form->publish_controls->settings;
+			$settings->minor_edit->remove();
+			$settings->comments_enabled->remove();
+			$settings->pubdate->remove();
+
+			// add shortname after title
+			$shortname = $form->append('text', 'license_shortname', 'null:null', _t('Short Name') );
+			$shortname->value = $post->info->shortname;
+			$shortname->template = 'admincontrol_text';
+			$form->move_after($form->license_shortname, $form->title);
+
+			// add simpletext after shortname
+			$simpletext = $form->append('textarea','license_simpletext', 'null:null', _t('Simplified Text') );
+			$simpletext->value = $post->info->simpletext;
+			$simpletext->class[] = 'resizable';
+			$simpletext->template = 'admincontrol_textarea';
+			$form->move_after($form->license_simpletext, $form->license_shortname);
+
+			// add link after simpletext
+			$link = $form->append('text', 'license_link', 'null:null', _t('Link') );
+			$link->value = $post->info->link;
+			$link->template = 'admincontrol_text';
+			$form->move_after($form->license_link, $form->license_simpletext);
 		}
 	}
 
@@ -279,6 +354,14 @@ class PluginServer extends Plugin
 			}
 			
 			$this->save_versions( $post, $form );
+		}
+		else if ( $post->content_type == Post::type('license') ) {
+			foreach ( $this->license_fields as $field ) {
+				if ( $form->{"license_$field"}->value ) {
+					$post->info->{$field} = $form->{"license_$field"}->value;
+				}
+			}
+			
 		}
 	}
 
