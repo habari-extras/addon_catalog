@@ -17,7 +17,26 @@ class PluginServer extends Plugin
 		'guid'
 	);
 
-	private $version_fields = array(
+	private $plugin_fields = array(
+		'post_id',
+		'version',
+		'md5',
+		'habari_version',
+		'description',
+		'author',
+		'author_url',
+		'license',
+		'screenshot',
+		'instructions',
+		'url',
+		'status',
+		'requires',
+		'provides',
+		'recommends',
+		'source_link'
+	);
+
+	private $theme_fields = array(
 		'post_id',
 		'version',
 		'md5',
@@ -42,7 +61,7 @@ class PluginServer extends Plugin
 		'link'
 	);
 
-	const VERSION = '0.2alpha2';
+	const VERSION = '0.2alpha3';
 
 	public function info() {
 
@@ -53,7 +72,7 @@ class PluginServer extends Plugin
 			'author' => 'Habari Community',
 			'authorurl' => 'http://habariproject.org',
 			'license' => 'Apache License 2.0',
-			'description' => 'Provides plugin directory and update beacon services.',
+			'description' => 'Provides plugin & theme directory and update beacon services.',
 			'copyright' => '2009'
 		);
 
@@ -107,7 +126,24 @@ class PluginServer extends Plugin
 		// add our rule to the stack
 		$rules[] = $rule;
 
-		// put together our rule
+		$rule['name'] = 'display_theme';
+		$rule['parse_regex'] = '%^explore/themes/(?P<slug>.+)/?$%';
+		$rule['build_str'] = 'explore/themes/{$slug}';
+		$rule['handler'] = 'UserThemeHandler';
+		$rule['action'] = 'display_theme';
+		$rule['priority'] = 3;
+		$rule['description'] = 'Plugin Repo Server Browser';
+		$rules[] = $rule;
+		
+		$rule['name'] = 'display_themes';
+		$rule['parse_regex'] = '%^explore/themes(?:/page/(?P<page>\d+))?/?$%';
+		$rule['build_str'] = 'explore/themes(/page/{$page})';
+		$rule['handler'] = 'UserThemeHandler';
+		$rule['action'] = 'display_themes';
+		$rule['priority'] = 2;
+		$rule['description'] = 'Plugin Repo Server Browser';
+		$rules[] = $rule;
+
 		$rule['name'] = 'display_license';
 		$rule['parse_regex'] = '%^explore/other/license/(?P<slug>.+)/?$%';
 		$rule['build_str'] = 'explore/other/license/{$slug}';
@@ -115,8 +151,6 @@ class PluginServer extends Plugin
 		$rule['action'] = 'display_license';
 		$rule['priority'] = 2;
 		$rule['description'] = 'Plugin Repo Server Browser';
-
-		// add our rule to the stack
 		$rules[] = $rule;
 		
 		// and pass it along
@@ -154,6 +188,32 @@ class PluginServer extends Plugin
 		return true;
 	}
 
+	public function filter_theme_act_display_themes( $handled, $theme )
+	{
+		$paramarray['fallback']= array(
+		 	'theme.multiple',
+			'multiple',
+		);
+
+		// Makes sure home displays only entries
+		$default_filters = array(
+			'content_type' => Post::type( 'theme' ),
+		);
+
+		$paramarray['user_filters']= $default_filters;
+
+		$theme->act_display( $paramarray );
+		return true;
+	}
+	
+	public function filter_theme_act_display_theme( $handled, $theme )
+	{
+		$default_filters = array(
+			'content_type' => Post::type( 'theme' ),
+		);
+		$theme->act_display_post( $default_filters );
+		return true;
+	}
 
 	public function filter_theme_act_display_licenses( $handled, $theme )
 	{
@@ -191,8 +251,10 @@ class PluginServer extends Plugin
 			// add or activate our custom post type
 			Post::add_new_type( 'plugin' );
 			Post::add_new_type( 'license' );
+			Post::add_new_type( 'theme' );
 
 			DB::register_table( 'dir_plugin_versions' );
+			DB::register_table( 'dir_theme_versions' );
 
 			// Create the database table, or upgrade it
 			DB::dbdelta( $this->get_db_schema() );
@@ -266,10 +328,10 @@ class PluginServer extends Plugin
 				'license' => $post->info->license
 			);
 
-			$plugin_fields = $form->publish_controls->append('fieldset', 'plugin_details', 'Plugin Details');
+			$plugin_form_fields = $form->publish_controls->append('fieldset', 'plugin_details', 'Plugin Details');
 
 			foreach ( $plugin_details as $field => $value ) {
-				$plugin_field = $plugin_fields->append('text', 'plugin_details_' . $field, 'null:null', ucfirst(str_replace('_', ' ', $field)));
+				$plugin_field = $plugin_form_fields->append('text', 'plugin_details_' . $field, 'null:null', ucfirst(str_replace('_', ' ', $field)));
 				$plugin_field->value = $value;
 				$plugin_field->template = 'tabcontrol_text';
 			}
@@ -355,6 +417,8 @@ class PluginServer extends Plugin
 			
 			$this->save_versions( $post, $form );
 		}
+			/* NEED THEME STUFF HERE */
+		
 		else if ( $post->content_type == Post::type('license') ) {
 			foreach ( $this->license_fields as $field ) {
 				if ( $form->{"license_$field"}->value ) {
@@ -372,7 +436,7 @@ class PluginServer extends Plugin
 	{
 		if ( $form->plugin_version_version->value ) {
 			$version_vals = array();
-			foreach ( $this->version_fields as $version_field ) {
+			foreach ( $this->plugin_fields as $version_field ) {
 				if ( $form->{"plugin_version_$version_field"} ) {
 					$version_vals[$version_field] = $form->{"plugin_version_$version_field"}->value;
 				}
@@ -391,6 +455,7 @@ class PluginServer extends Plugin
 			
 			Session::notice( 'Added version number ' . $version_vals['version'] );
 		}
+			/* NEED THEME STUFF HERE */
 	}
 
 	public function get_version_md5( $url )
@@ -401,7 +466,8 @@ class PluginServer extends Plugin
 
 	public function filter_post_versions( $versions, $post )
 	{
-		return DB::get_results( 'SELECT * FROM {dir_plugin_versions} WHERE post_id = ?', array( $post->id ) );
+		$table='{dir_' . $post->typename . '_versions}';
+		return DB::get_results( 'SELECT * FROM ' . $table . ' WHERE post_id = ?', array( $post->id ) );
 	}
 
 	public static function licenses()
@@ -422,6 +488,7 @@ class PluginServer extends Plugin
 	{
 
 		DB::register_table( 'dir_plugin_versions' );
+		DB::register_table( 'dir_theme_versions' );
 		$this->add_template( 'plugin.multiple', dirname(__FILE__) . '/templates/plugin.multiple.php' );
 		$this->add_template( 'plugin.single', dirname(__FILE__) . '/templates/plugin.single.php' );
 		$this->add_template( 'guidcontrol', dirname(__FILE__) . '/templates/guidcontrol.php' );
