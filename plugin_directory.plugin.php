@@ -63,21 +63,6 @@ class PluginServer extends Plugin
 
 	const VERSION = '0.2alpha3';
 
-	public function info() {
-
-		return array(
-			'name' => 'Plugin Server',
-			'version' => self::VERSION,
-			'url' => 'http://habariproject.org',
-			'author' => 'Habari Community',
-			'authorurl' => 'http://habariproject.org',
-			'license' => 'Apache License 2.0',
-			'description' => 'Provides plugin & theme directory and update beacon services.',
-			'copyright' => '2009'
-		);
-
-	}
-
 	public function filter_default_rewrite_rules( $rules ) {
 
 		// put together our rule
