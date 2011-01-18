@@ -1,0 +1,5 @@
+The Apache License 2.0 was created by the Apache Software Foundation as the official open source license for all their projects and was adopted in 2004. It is a permissive license which allows the use of ASL-licensed works in both commercial and proprietary projects as long as attribution is maintained.
+
+The Apache License 2.0 does not require that modified versions of the software to be released under the same license and is used by all core Habari code. It is considered the best open source license to place your contributions under.
+
+The Open Source Initiative has approved the Apache License, version 2.0, as an open source license. It is considered by the Free Software Foundation to be compatible with version 3 of the GPL.
