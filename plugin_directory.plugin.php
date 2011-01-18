@@ -599,9 +599,17 @@
 			
 		}
 		
-		public function action_ajax_plugindirectory_info ( $handler ) {
+		public function action_ajax_plugindirectory_update ( $handler ) {
 			
+			if ( !isset( $_POST['api_key'] ) ) {
+				throw new Exception( _t('No API Key specified!', 'plugin_directory' ) );
+			}
 			
+			$api_key = $_POST['api_key'];
+			
+			if ( !in_array( $api_key, $this->api_keys ) ) {
+				throw new Exception( _t('Invalid API key!', 'plugin_directory' ) );
+			}
 			
 		}
 		
