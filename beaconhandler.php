@@ -25,7 +25,7 @@
 				$beacon = $xml->addChild( 'beacon' );
 				$beacon['id'] = $plugin->info->guid;
 				$beacon['name'] = $plugin->title;
-				$beacon['url'] = $plugin->permalink;		// @todo is this right?
+				$beacon['url'] = $plugin->permalink;
 				$beacon['type'] = $plugin->info->type;
 				
 				foreach ( $plugin->versions as $version ) {
