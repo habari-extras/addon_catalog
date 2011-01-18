@@ -22,6 +22,18 @@
 			'url',
 		);
 		
+		// fields each version should have
+		private $version_fields = array(
+			'version',
+			'description',
+			'url',
+			'habari_version',
+			'severity',
+			'requires',
+			'provides',
+			'recommends',
+		);
+		
 		public function action_plugin_activation ( $file ) {
 			
 			Post::add_new_type( 'addon' );
@@ -293,14 +305,13 @@
 			// create the addon versions wrapper pane
 			$addon_versions = $form->publish_controls->append( 'fieldset', 'addon_versions', _t('Versions', 'plugin_directory') );
 			
-			// only append current versions if there is a slug - ie: the post has been saved
 			if ( $post->info->versions ) {
 				
 				$form->addon_versions->append( 'static', 'current_versions', _t('Current Versions', 'plugin_directory') );
 				
 				foreach ( $post->info->versions as $version ) {
 					
-					$version_info = $version->status . ': ' . $post->title . ' ' . $version->version . ' -- ' . $version->description;
+					$version_info = $version['severity'] . ': ' . $post->title . ' ' . $version['version'] . ' -- ' . $version['description'];
 					$addon_versions->append( 'static', 'version_info', $version_info );
 					
 				}
@@ -446,7 +457,28 @@
 		
 		private function save_versions ( $post, $form ) {
 			
-			
+			// first see if a version is trying to be added
+			if ( $form->addon_version_version != '' ) {
+				
+				// create an array to store all the version info
+				$version = array();
+				
+				// loop through all the fields and add them to our array
+				foreach ( $this->version_fields as $field ) {
+					
+					$version[ $field ] = $form->{'addon_version_' . $field}->value;
+					
+				}
+				
+				// if there are no current versions, initialize it
+				if ( !isset( $post->info->versions ) ) {
+					$post->info->versions = array();
+				}
+				
+				// and add it to the list -- array_merge because [] = doesn't work with postinfo fields
+				$post->info->versions = array_merge( $post->info->versions, array( $version['version'] => $version ) );
+				
+			}
 			
 		}
 		
