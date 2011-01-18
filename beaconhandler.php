@@ -36,7 +36,7 @@
 					$update['version'] = $version['version'];
 					$update['habari_version'] = $version['habari_version'];
 					$update['url'] = $version['url'];
-					//$update['date'] = $version->date;
+					$update['date'] = HabariDateTime::date_create( $version->date )->format('c');
 					
 				}
 				
