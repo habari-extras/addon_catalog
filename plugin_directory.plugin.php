@@ -368,6 +368,11 @@
 			$version = $addon_versions->append( 'text', 'addon_version_version', 'null:null', _t('Version Number', 'plugin_directory') );
 			$version->template = 'tabcontrol_text';
 			
+			// the version release date
+			$version_release = $addon_versions->append( 'text', 'addon_version_release', 'null:null', _t('Release Date', 'plugin_directory') );
+			$version_release->template = 'tabcontrol_text';
+			$version_release->value = HabariDateTime::date_create()->format();
+			
 			// the version description
 			$version_description = $addon_versions->append( 'text', 'addon_version_description', 'null:null', _t('Version Description', 'plugin_directory') );
 			$version_description->template = 'tabcontrol_text';
