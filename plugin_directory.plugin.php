@@ -57,7 +57,7 @@
 				$habari = Post::create( array(
 					'content_type' => Post::type( 'addon' ),
 					'title' => 'Habari',
-					'content' => '',
+					'content' => file_get_contents( dirname( __FILE__ ) . '/addon.habari.txt' ),
 					'status' => Post::status('published'),
 					'tags' => array( 'habari' ),
 					'pubdate' => HabariDateTime::date_create(),
