@@ -25,6 +25,7 @@
 		// fields each version should have
 		private $version_fields = array(
 			'version',
+			'release',
 			'description',
 			'url',
 			'habari_version',
