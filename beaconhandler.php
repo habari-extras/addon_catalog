@@ -10,7 +10,7 @@
 		public function act_request ( ) {
 			
 			// @todo limit this to GUIDs POST'd
-			$plugins = Posts::get( array( 'content_type' => 'plugin', 'nolimit' => true, 'status' => Post::status('published') ) );
+			$plugins = Posts::get( array( 'content_type' => 'addon', 'nolimit' => true, 'status' => Post::status('published') ) );
 			
 			$xml = new SimpleXMLElement( '<updates></updates>' );
 			
@@ -40,12 +40,12 @@
 					
 				}
 				
-				// spit out the xml
-				ob_clean();
-				header( 'Content-type: application/xml' );
-				echo $xml->asXML();
-				
 			}
+			
+			// spit out the xml
+			ob_clean();		// clean the output buffer
+			header( 'Content-type: application/xml' );
+			echo $xml->asXML();
 			
 		}
 		
