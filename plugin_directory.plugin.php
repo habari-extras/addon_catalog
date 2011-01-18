@@ -93,6 +93,24 @@
 				$asl2->info->url = 'http://www.apache.org/licenses/LICENSE-2.0';
 				
 				$asl2->info->commit();
+				
+				
+				// assume that if there is no apache post there are no other licenses either
+				$public = Post::create( array(
+					'content_type' => Post::type( 'license' ),
+					'title' => 'Public Domain',
+					'content' => '',
+					'status' => Post::status('published'),
+					'pubdate' => HabariDateTime::date_create(),
+					'user_id' => User::identify()->id,
+					'slug' => 'public-domain',
+				) );
+				
+				$public->info->simpletext = file_get_contents( dirname( __FILE__ ) . '/license.public-domain.txt' );
+				$public->info->shortname = 'public-domain';
+				$public->info->url = 'http://creativecommons.org/publicdomain/zero/1.0';
+				
+				$public->info->commit();
 			}
 			
 		}
