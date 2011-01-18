@@ -356,7 +356,7 @@
 				foreach ( $post->info->versions as $version ) {
 					
 					$version_info = $version['severity'] . ': ' . $post->title . ' ' . $version['version'] . ' -- ' . $version['description'];
-					$addon_versions->append( 'static', 'version_info', $version_info );
+					$addon_versions->append( 'static', 'version_info_' . $version['version'], $version_info );
 					
 				}
 				
