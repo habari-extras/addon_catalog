@@ -73,6 +73,42 @@
 				$habari->info->license = 'asl2';
 				$habari->info->type = 'core';
 				
+				$habari->info->versions = array(
+					'0.6' => array(
+						'version' => '0.6',
+						'description' => '',
+						'url' => 'http://habariproject.org',
+						'habari_version' => '0.6',
+						'severity' => 'feature',
+						'requires' => '',
+						'provides' => '',
+						'recommends' => '',
+						'release' => HabariDateTime::date_create('2009-04-06')->sql,
+					),
+					'0.6.6' => array(
+						'version' => '0.6.6',
+						'description' => '',
+						'url' => 'http://habariproject.org',
+						'habari_version' => '0.6',
+						'severity' => 'security',
+						'requires' => '',
+						'provides' => '',
+						'recommends' => '',
+						'release' => HabariDateTime::date_create('2010-12-04')->sql,
+					),
+					'0.7' => array(
+						'version' => '0.7',
+						'description' => '',
+						'url' => 'http://habariproject.org',
+						'habari_version' => '0.7',
+						'severity' => 'feature',
+						'requires' => '',
+						'provides' => '',
+						'recommends' => '',
+						'release' => '',
+					),
+				);
+				
 				$habari->info->commit();
 			}
 			
