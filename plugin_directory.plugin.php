@@ -76,8 +76,8 @@
 				$habari->info->versions = array(
 					'0.6' => array(
 						'version' => '0.6',
-						'description' => '',
-						'url' => 'http://habariproject.org',
+						'description' => 'Adds ACL support, increases SQLite performance, improves support for the HiEngine template engine, and improves UTF8 support.',
+						'url' => 'http://wiki.habariproject.org/en/Releases/0.6',
 						'habari_version' => '0.6',
 						'severity' => 'feature',
 						'requires' => '',
@@ -87,8 +87,8 @@
 					),
 					'0.6.6' => array(
 						'version' => '0.6.6',
-						'description' => '',
-						'url' => 'http://habariproject.org',
+						'description' => 'Fixes three potential security exploits and corrects known bugs in the Habari Silo.',
+						'url' => 'http://wiki.habariproject.org/en/Releases/0.6.6',
 						'habari_version' => '0.6',
 						'severity' => 'security',
 						'requires' => '',
@@ -98,14 +98,14 @@
 					),
 					'0.7' => array(
 						'version' => '0.7',
-						'description' => '',
-						'url' => 'http://habariproject.org',
+						'description' => 'The bestest release ever!',
+						'url' => 'http://wiki.habariproject.org/en/Releases/0.7',
 						'habari_version' => '0.7',
 						'severity' => 'feature',
 						'requires' => '',
 						'provides' => '',
 						'recommends' => '',
-						'release' => '',
+						'release' => HabariDateTime::date_create('2011-06-01')->sql,
 					),
 				);
 				
