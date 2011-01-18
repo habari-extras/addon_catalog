@@ -142,21 +142,40 @@
 				
 				
 				// assume that if there is no apache post there are no other licenses either
-				$public = Post::create( array(
+				$bsd = Post::create( array(
 					'content_type' => Post::type( 'license' ),
-					'title' => 'Public Domain',
-					'content' => '',
+					'title' => 'New BSD',
+					'content' => file_get_contents( dirname( __FILE__ ) . '/license.bsd.description.txt' ),
 					'status' => Post::status('published'),
 					'pubdate' => HabariDateTime::date_create(),
 					'user_id' => User::identify()->id,
-					'slug' => 'public-domain',
+					'slug' => 'bsd',
 				) );
 				
-				$public->info->simpletext = file_get_contents( dirname( __FILE__ ) . '/license.public-domain.txt' );
-				$public->info->shortname = 'public-domain';
-				$public->info->url = 'http://creativecommons.org/publicdomain/zero/1.0';
+				$bsd->info->simpletext = file_get_contents( dirname( __FILE__ ) . '/license.bsd.txt' );
+				$bsd->info->shortname = 'bsd';
+				$bsd->info->url = 'http://opensource.org/licenses/bsd-license.php';
 				
-				$public->info->commit();
+				$bsd->info->commit();
+				
+				
+				$mit = Post::create( array(
+					'content_type' => Post::type( 'license' ),
+					'title' => 'MIT',
+					'content' => file_get_contents( dirname( __FILE__ ) . '/license.mit.description.txt' ),
+					'status' => Post::status('published'),
+					'pubdate' => HabariDateTime::date_create(),
+					'user_id' => User::identify()->id,
+					'slug' => 'mit',
+				) );
+				
+				$mit->info->simpletext = file_get_contents( dirname( __FILE__ ) . '/license.mit.txt' );
+				$mit->info->shortname = 'mit';
+				$mit->info->url = 'http://opensource.org/licenses/mit-license.php';
+				
+				$mit->info->commit();
+				
+				
 			}
 			
 		}
@@ -262,15 +281,29 @@
 			// add it to the stack
 			$rules[] = $rule;
 			
-			// create the addon post display rule
+			// create the addon post display rule for plugins
 			$rule = array(
-				'name' => 'display_addon',
-				'parse_regex' => '#^addon/(?P<slug>[^/]+)(?:/page/(?P<page>\d+))?/?$#i',
-				'build_str' => 'addon/{$slug}(/page/{$page})',
+				'name' => 'display_addon_plugins',
+				'parse_regex' => '#^explore/plugins/(?P<slug>[^/]+)(?:/page/(?P<page>\d+))?/?$#i',
+				'build_str' => 'explore/plugins/{$slug}(/page/{$page})',
 				'handler' => 'UserThemeHandler',
-				'action' => 'display_post',
-				'parameters' => serialize( array( 'require_match' => array( 'Posts', 'rewrite_match_type' ), 'content_type' => 'addon' ) ),
-				'description' => 'Display addon directory posts',
+				'action' => 'display_plugin',
+				'parameters' => serialize( array( 'require_match' => array( 'Posts', 'rewrite_match_type' ), 'content_type' => 'addon', 'info' => array( 'type' => 'plugin' ) ) ),
+				'description' => 'Display addon directory posts of the type plugin',
+			);
+			
+			// add it to the stack
+			$rules[] = $rule;
+			
+			// create the addon post display rule for themes
+			$rule = array(
+				'name' => 'display_addon_themes',
+				'parse_regex' => '#^explore/themes/(?P<slug>[^/]+)(?:/page/(?P<page>\d+))?/?$#i',
+				'build_str' => 'explore/themes/{$slug}(/page/{$page})',
+				'handler' => 'UserThemeHandler',
+				'action' => 'display_theme',
+				'parameters' => serialize( array( 'require_match' => array( 'Posts', 'rewrite_match_type' ), 'content_type' => 'addon', 'info' => array( 'type' => 'theme' ) ) ),
+				'description' => 'Display addon directory posts of the type theme',
 			);
 			
 			// add it to the stack
@@ -279,8 +312,8 @@
 			// create the license display rule
 			$rule = array(
 				'name' => 'display_license',
-				'parse_regex' => '#^license/(?P<slug>[^/]+)(?:/page/(?P<page>\d+))?/?$#i',
-				'build_str' => 'license/{$slug}(/page/{$page})',
+				'parse_regex' => '#^explore/license/(?P<slug>[^/]+)(?:/page/(?P<page>\d+))?/?$#i',
+				'build_str' => 'explore/license/{$slug}(/page/{$page})',
 				'handler' => 'UserThemeHandler',
 				'action' => 'display_post',
 				'parameters' => serialize( array( 'require_match' => array( 'Posts', 'rewrite_match_type' ), 'content_type' => 'license' ) ),
@@ -483,9 +516,6 @@
 			// remove silos, we don't need them
 			$form->remove( $form->silos );
 			
-			// remove the content, we use our own content field
-			$form->remove( $form->content );
-			
 			// remove the tags, we don't use those
 			$form->remove( $form->tags );
 			
@@ -610,6 +640,19 @@
 			if ( !in_array( $api_key, $this->api_keys ) ) {
 				throw new Exception( _t('Invalid API key!', 'plugin_directory' ) );
 			}
+			
+		}
+		
+		public function filter_theme_act_display_plugin ( $handled, $theme ) {
+			
+			$default_filters = array(
+				'content_type' => Post::type('addon'),
+				'info' => array( 'type' => 'plugin' ),
+			);
+			
+			$theme->act_display_post( $default_filters );
+			
+			return true;
 			
 		}
 		
