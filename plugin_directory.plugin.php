@@ -127,7 +127,7 @@
 				$asl2 = Post::create( array(
 					'content_type' => Post::type( 'license' ),
 					'title' => 'Apache Software License, version 2.0',
-					'content' => '',
+					'content' => file_get_contents( dirname( __FILE__ ) . '/license.asl2.description.txt' ),
 					'status' => Post::status('published'),
 					'pubdate' => HabariDateTime::date_create(),
 					'user_id' => User::identify()->id,
