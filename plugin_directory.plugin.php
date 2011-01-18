@@ -198,8 +198,33 @@
 			// add it to the stack
 			$rules[] = $rule;
 			
+			// create the addon post display rule
+			$rule = array(
+				'name' => 'display_addon',
+				'parse_regex' => '#^addon/(?P<slug>[^/]+)(?:/page/(?P<page>\d+))?/?$#i',
+				'build_str' => 'addon/{$slug}(/page/{$page})',
+				'handler' => 'UserThemeHandler',
+				'action' => 'display_post',
+				'parameters' => serialize( array( 'require_match' => array( 'Posts', 'rewrite_match_type' ), 'content_type' => 'addon' ) ),
+				'description' => 'Display addon directory posts',
+			);
 			
+			// add it to the stack
+			$rules[] = $rule;
 			
+			// create the license display rule
+			$rule = array(
+				'name' => 'display_license',
+				'parse_regex' => '#^license/(?P<slug>[^/]+)(?:/page/(?P<page>\d+))?/?$#i',
+				'build_str' => 'license/{$slug}(/page/{$page})',
+				'handler' => 'UserThemeHandler',
+				'action' => 'display_post',
+				'parameters' => serialize( array( 'require_match' => array( 'Posts', 'rewrite_match_type' ), 'content_type' => 'license' ) ),
+				'description' => 'Display addon directory license posts',
+			);
+			
+			// add it to the stack
+			$rules[] = $rule;
 			
 			// always return the rules
 			return $rules;
