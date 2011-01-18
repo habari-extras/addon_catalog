@@ -17,7 +17,7 @@
 			foreach ( $plugins as $plugin ) {
 				
 				// if we don't have any versions, skip this plugin
-				if ( !$plugin->versions ) {
+				if ( empty( $plugin->info->versions ) ) {
 					//continue;
 				}
 				
@@ -28,15 +28,15 @@
 				$beacon['url'] = $plugin->permalink;
 				$beacon['type'] = $plugin->info->type;
 				
-				foreach ( $plugin->versions as $version ) {
+				foreach ( $plugin->info->versions as $version ) {
 					
 					// @todo limit this to only versions older than the one POST'd
-					$update = $beacon->addChild( 'update', $version->description );
-					$update['severity'] = $verison->status;
-					$update['version'] = $version->version;
-					$update['habari_version'] = $version->habari_version;
-					$update['url'] = $version->url;
-					$update['date'] = $version->date;
+					$update = $beacon->addChild( 'update', $version['description'] );
+					$update['severity'] = $version['severity'];
+					$update['version'] = $version['version'];
+					$update['habari_version'] = $version['habari_version'];
+					$update['url'] = $version['url'];
+					//$update['date'] = $version->date;
 					
 				}
 				
