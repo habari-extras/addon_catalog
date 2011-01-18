@@ -511,6 +511,8 @@
 			
 			// register our custom guid FormUI control for the post publish page
 			$this->add_template( 'guidcontrol', dirname(__FILE__) . '/templates/guidcontrol.php' );
+			$this->add_template( 'addon.multiple', dirname(__FILE__) . '/templates/addon.multiple.php' );
+			$this->add_template( 'addon.single', dirname(__FILE__) . '/templates/addon.single.php' );
 			
 			// register the custom db table
 			//DB::register_table( 'dir_addon_versions' );
