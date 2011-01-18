@@ -1,0 +1,54 @@
+<?php
+
+	class BeaconHandler extends ActionHandler {
+		
+		public function __construct ( ) {
+			
+			
+		}
+		
+		public function act_request ( ) {
+			
+			// @todo limit this to GUIDs POST'd
+			$plugins = Posts::get( array( 'content_type' => 'plugin', 'nolimit' => true, 'status' => Post::status('published') ) );
+			
+			$xml = new SimpleXMLElement( '<updates></updates>' );
+			
+			foreach ( $plugins as $plugin ) {
+				
+				// if we don't have any versions, skip this plugin
+				if ( !$plugin->versions ) {
+					//continue;
+				}
+				
+				// create the beacon's node
+				$beacon = $xml->addChild( 'beacon' );
+				$beacon['id'] = $plugin->info->guid;
+				$beacon['name'] = $plugin->title;
+				$beacon['url'] = $plugin->permalink;		// @todo is this right?
+				$beacon['type'] = $plugin->info->type;
+				
+				foreach ( $plugin->versions as $version ) {
+					
+					// @todo limit this to only versions older than the one POST'd
+					$update = $beacon->addChild( 'update', $version->description );
+					$update['severity'] = $verison->status;
+					$update['version'] = $version->version;
+					$update['habari_version'] = $version->habari_version;
+					$update['url'] = $version->url;
+					$update['date'] = $version->date;
+					
+				}
+				
+				// spit out the xml
+				ob_clean();
+				header( 'Content-type: application/xml' );
+				echo $xml->asXML();
+				
+			}
+			
+		}
+		
+	}
+
+?>
