@@ -61,7 +61,7 @@
 		
 		private function create_default_content ( ) {
 			
-			$habari_addon = Posts::get( array( 'content_type' => Post::type( 'addon' ), 'slug' => 'habari' ) );
+			$habari_addon = Posts::get( array( 'content_type' => 'addon', 'slug' => 'habari' ) );
 			
 			if ( count( $habari_addon ) == 0 ) {
 				$habari = Post::create( array(
@@ -121,7 +121,7 @@
 				$habari->info->commit();
 			}
 			
-			$apache_license = Posts::get( array( 'content_type' => Post::type( 'license' ), 'slug' => 'asl2' ) );
+			$apache_license = Posts::get( array( 'content_type' => 'license', 'slug' => 'asl2' ) );
 			
 			if ( count( $apache_license ) == 0 ) {
 				$asl2 = Post::create( array(
@@ -229,7 +229,7 @@
 		public function action_plugin_ui_uninstall ( ) {
 
 			// get all the posts of the types we're deleting
-			$addons = Posts::get( array( 'content_type' => array( Post::type( 'addon' ), Post::type( 'license' ) ), 'nolimit' => true ) );
+			$addons = Posts::get( array( 'content_type' => array( 'addon', 'license' ), 'nolimit' => true ) );
 			
 			foreach ( $addons as $addon ) {
 				$addon->delete();
@@ -492,7 +492,7 @@
 		
 		private function get_license_options ( ) {
 			
-			$licenses = Posts::get( array( 'content_type' => Post::type( 'license' ), 'nolimit' => true ) );
+			$licenses = Posts::get( array( 'content_type' => 'license', 'nolimit' => true ) );
 			
 			$l = array( '' => '' );		// start with a blank option
 			foreach ( $licenses as $license ) {
