@@ -351,7 +351,7 @@
 		public function filter_theme_act_display_plugins( $handled, $theme )
 		{
 			$paramarray[ 'fallback' ] = array(
-				'addons.multiple',
+				'addon.multiple',
 				'multiple',
 			);
 
