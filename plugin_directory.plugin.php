@@ -281,9 +281,9 @@
 			// add it to the stack
 			$rules[] = $rule;
 			
-			// create the addon post display rule for plugins
+			// create the addon post display rule for one plugin
 			$rule = array(
-				'name' => 'display_addon_plugins',
+				'name' => 'display_addon_plugin',
 				'parse_regex' => '#^explore/plugins/(?P<slug>[^/]+)(?:/page/(?P<page>\d+))?/?$#i',
 				'build_str' => 'explore/plugins/{$slug}(/page/{$page})',
 				'handler' => 'UserThemeHandler',
@@ -294,6 +294,20 @@
 			
 			// add it to the stack
 			$rules[] = $rule;
+
+			// create the addon post display rule for plugins
+			$rule = array(
+				'name' => 'display_addon_plugins',
+				'parse_regex' => '%^explore/plugins(?:/page/(?P<page>\d+))?/?$%',
+				'build_str' => 'explore/plugins(/page/{$page})',
+				'handler' => 'UserThemeHandler',
+				'action' => 'display_plugins',
+				'priority' => 2,
+				'description' => 'Plugin Repo Server Browser',
+			);
+
+			// add it to the stack
+			$rules[] = $rule;	
 			
 			// create the addon post display rule for themes
 			$rule = array(
@@ -326,6 +340,30 @@
 			// always return the rules
 			return $rules;
 			
+		}
+
+		/**
+		 * Handle requests for multiple plugins
+		 * 
+		 * @param ?? $handled 
+		 * @param Theme $post 
+		 */	
+		public function filter_theme_act_display_plugins( $handled, $theme )
+		{
+			$paramarray[ 'fallback' ] = array(
+				'addons.multiple',
+				'multiple',
+			);
+
+			$default_filters = array(
+				'content_type' => Post::type( 'addon' ),
+				'info' => array( 'type' => 'plugin' ),
+			);
+
+			$paramarray['user_filters'] = $default_filters;
+
+			$theme->act_display( $paramarray );
+			return true;
 		}
 		
 		/**
