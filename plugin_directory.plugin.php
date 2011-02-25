@@ -365,6 +365,15 @@
 			$theme->act_display( $paramarray );
 			return true;
 		}
+
+		public function filter_template_where_filters( $filters )
+		{
+			$vars = Controller::get_handler_vars();
+			if( strlen( $vars['entire_match'] ) && strpos( $vars['entire_match'], 'explore/' ) !== FALSE ) {
+				$filters['orderby'] = 'title';
+			}
+			return $filters;
+		}
 		
 		/**
 		 * Manipulate the controls on the publish page
