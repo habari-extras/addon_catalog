@@ -26,8 +26,9 @@
 				<p>
 					<?php echo $post->content; ?>
 				</p>
+				<a href="<?php echo $post->info->url; ?>">Download <?php echo $post->title; ?></a>
 			</div>
-			
+			<hr>
 			<div class="entry-utility">
 				<?php 
 				
