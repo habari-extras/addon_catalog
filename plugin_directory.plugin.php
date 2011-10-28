@@ -253,16 +253,19 @@
 			$ui = new FormUI('plugin_directory');
 
 			//$ui->append( 'text', 'licenses', 'option:', _t( 'Licenses to use:', 'Lipsum' ) );
+			$ui->append( 'text', 'basepath', 'plugin_directory__basepath', _t( 'Base path (without trailing slash), e.g. <em>explore</em> :', 'plugin_directory' ) );
 
-			$ui->append( 'submit', 'save', _t( 'Save' ) );
+			$ui->append( 'submit', 'save', _t( 'Save', 'plugin_directory' ) );
 
-			$ui->on_success( array( $this, 'updated_config' ) );
+//			$ui->on_success( array( $this, 'updated_config' ) );
 
 			$ui->out();
 
 		}
 
 		public function filter_default_rewrite_rules ( $rules ) {
+
+			$basepath = Options::get( 'plugin_directory__basepath', 'explore' );
 
 			// create the beacon endpoint rule
 			$rule = array(
@@ -280,8 +283,8 @@
 			// create the addon post display rule for one plugin
 			$rule = array(
 				'name' => 'display_addon_plugin',
-				'parse_regex' => '#^explore/plugins/(?P<slug>[^/]+)(?:/page/(?P<page>\d+))?/?$#i',
-				'build_str' => 'explore/plugins/{$slug}(/page/{$page})',
+				'parse_regex' => '#^' . $basepath . '/plugins/(?P<slug>[^/]+)(?:/page/(?P<page>\d+))?/?$#i',
+				'build_str' => $basepath . '/plugins/{$slug}(/page/{$page})',
 				'handler' => 'UserThemeHandler',
 				'action' => 'display_plugin',
 				'parameters' => serialize( array( 'require_match' => array( 'Posts', 'rewrite_match_type' ), 'content_type' => 'addon', 'info' => array( 'type' => 'plugin' ) ) ),
@@ -294,8 +297,8 @@
 			// create the addon post display rule for plugins
 			$rule = array(
 				'name' => 'display_addon_plugins',
-				'parse_regex' => '%^explore/plugins(?:/page/(?P<page>\d+))?/?$%',
-				'build_str' => 'explore/plugins(/page/{$page})',
+				'parse_regex' => '%^' . $basepath . '/plugins(?:/page/(?P<page>\d+))?/?$%',
+				'build_str' => $basepath . '/plugins(/page/{$page})',
 				'handler' => 'UserThemeHandler',
 				'action' => 'display_plugins',
 				'priority' => 2,
@@ -308,8 +311,8 @@
 			// create the addon post display rule for themes
 			$rule = array(
 				'name' => 'display_addon_themes',
-				'parse_regex' => '#^explore/themes/(?P<slug>[^/]+)(?:/page/(?P<page>\d+))?/?$#i',
-				'build_str' => 'explore/themes/{$slug}(/page/{$page})',
+				'parse_regex' => '#^' . $basepath . '/themes/(?P<slug>[^/]+)(?:/page/(?P<page>\d+))?/?$#i',
+				'build_str' => $basepath . '/themes/{$slug}(/page/{$page})',
 				'handler' => 'UserThemeHandler',
 				'action' => 'display_theme',
 				'parameters' => serialize( array( 'require_match' => array( 'Posts', 'rewrite_match_type' ), 'content_type' => 'addon', 'info' => array( 'type' => 'theme' ) ) ),
@@ -322,8 +325,8 @@
 			// create the license display rule
 			$rule = array(
 				'name' => 'display_license',
-				'parse_regex' => '#^explore/license/(?P<slug>[^/]+)(?:/page/(?P<page>\d+))?/?$#i',
-				'build_str' => 'explore/license/{$slug}(/page/{$page})',
+				'parse_regex' => '#^' . $basepath . '/license/(?P<slug>[^/]+)(?:/page/(?P<page>\d+))?/?$#i',
+				'build_str' => $basepath . '/license/{$slug}(/page/{$page})',
 				'handler' => 'UserThemeHandler',
 				'action' => 'display_post',
 				'parameters' => serialize( array( 'require_match' => array( 'Posts', 'rewrite_match_type' ), 'content_type' => 'license' ) ),
@@ -364,8 +367,9 @@
 
 		public function filter_template_where_filters( $filters )
 		{
+			$basepath = Options::get( 'plugin_directory__basepath', 'explore' );
 			$vars = Controller::get_handler_vars();
-			if( strlen( $vars['entire_match'] ) && strpos( $vars['entire_match'], 'explore/' ) !== FALSE ) {
+			if( strlen( $vars['entire_match'] ) && strpos( $vars['entire_match'], $basepath . '/' ) !== FALSE ) {
 				$filters['orderby'] = 'title';
 			}
 			return $filters;
