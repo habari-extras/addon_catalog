@@ -51,6 +51,20 @@
 
 			$this->create_default_content();
 
+			// Add the addon vocabulary type
+			Vocabulary::add_object_type( 'addon' );
+
+			$vocabulary = Vocabulary::get( "Addon versions" ); // @TODO: $this->vocabulary and magic to go with it.
+			if ( ! $vocabulary ) { // should this be by slug or ID?
+				$params = array(
+					'name' => "Addon versions",
+					'description' => _t( 'A vocabulary for addon versions in the addons directory', 'plugin_directory' ),
+					);
+				$vocabulary = Vocabulary::create( $params );
+				// @TODO: notification/log of some sort?
+			}
+
+
 			// make sure it's registered before we try to modify the schema, so the table name gets replaced
 			//DB::register_table( 'dir_addon_versions' );
 
@@ -237,6 +251,8 @@
 
 			// delete our custom db table
 			DB::query( 'drop table {dir_addon_versions}' );
+
+			// @TODO: remove vocabulary and terms
 
 			// now deactivate the plugin
 			Plugins::deactivate_plugin( __FILE__ );
@@ -632,13 +648,27 @@
 				// create an array to store all the version info
 				$version = array();
 
-				// loop through all the fields and add them to our array
+				// loop through all the fields and add them to our array if they are set
 				foreach ( $this->version_fields as $field ) {
-
-					$version[ $field ] = $form->{'addon_version_' . $field}->value;
-
+					if ( isset( $form->{'addon_version_' . $field}->value ) ) {
+						$version[ $field ] = $form->{'addon_version_' . $field}->value;
+					}
 				}
 
+				$vocabulary = Vocabulary::get( "Addon versions" ); // @TODO: $this->vocabulary and magic to go with it.
+
+				// should format this like "addon title - 1.2 - release
+				$term_display = "{$post->title} - {$version[ 'version' ]}"
+					. ( isset( $version[ 'release' ] ) ? " - {$version[ 'release' ]} " : "" );
+				$term = new Term( array(
+					'term_display' => $term_display,
+				) );
+				foreach ( $version as $field => $value ) {
+					$term->info->$field = $value;
+				}
+				$vocabulary->add_term( $term );
+				$term->associate( 'addon', $post->id );
+/*
 				// if there are no current versions, initialize it
 				if ( !isset( $post->info->versions ) ) {
 					$post->info->versions = array();
@@ -646,7 +676,7 @@
 
 				// and add it to the list -- array_merge because [] = doesn't work with postinfo fields
 				$post->info->versions = array_merge( $post->info->versions, array( $version['version'] => $version ) );
-
+*/
 			}
 
 		}
