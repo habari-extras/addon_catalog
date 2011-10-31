@@ -640,21 +640,19 @@
 
 		}
 
-		private function save_versions ( $post, $form ) {
+		private function save_versions ( $post, $form ) { // @TODO: refactor this to accept a post and an array. No sense in mocking up lots of forms.
 
 			// first see if a version is trying to be added
 			if ( $form->addon_version_version != '' ) {
-
 				// create an array to store all the version info
 				$version = array();
 
 				// loop through all the fields and add them to our array if they are set
 				foreach ( $this->version_fields as $field ) {
-					if ( isset( $form->{'addon_version_' . $field}->value ) ) {
-						$version[ $field ] = $form->{'addon_version_' . $field}->value;
+					if ( $form->{"addon_version_$field"}->value != '' ) {
+						$version[ $field ] = $form->{"addon_version_$field"}->value;
 					}
 				}
-
 				$vocabulary = Vocabulary::get( "Addon versions" ); // @TODO: $this->vocabulary and magic to go with it.
 
 				// should format this like "addon title - 1.2 - release
