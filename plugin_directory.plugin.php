@@ -34,7 +34,7 @@
 		// fields each version should have
 		private $version_fields = array(
 			'version',
-			'release',
+			'release', /* release date */
 			'description',
 			'url',
 			'habari_version',
@@ -95,8 +95,9 @@
 				$habari->info->author_url = 'http://habariproject.org';
 				$habari->info->license = 'asl2';
 				$habari->info->type = 'core';
+				$habari->info->commit();
 
-				$habari->info->versions = array(
+				$versions = array(
 					'0.6' => array(
 						'version' => '0.6',
 						'description' => 'Adds ACL support, increases SQLite performance, improves support for the HiEngine template engine, and improves UTF8 support.',
@@ -128,11 +129,28 @@
 						'requires' => '',
 						'provides' => '',
 						'recommends' => '',
-						'release' => HabariDateTime::date_create('2011-06-01')->sql,
+						'release' => HabariDateTime::date_create('2011-04-01')->sql,
+					),
+					'0.7.1' => array(
+						'version' => '0.7.1',
+						'description' => 'Improvements upon the bestest release ever!',
+						'url' => 'http://wiki.habariproject.org/en/Releases/0.7.1',
+						'habari_version' => '0.7.1',
+						'severity' => 'feature',
+						'requires' => '',
+						'provides' => '',
+						'recommends' => '',
+						'release' => HabariDateTime::date_create('2011-05-12')->sql,
 					),
 				);
-
-				$habari->info->commit();
+				foreach ( $versions as $version => $field_array ) {
+					$form = new FormUI( 'fields_kludge' );
+					foreach( $field_array as $key => $value ) {
+						$field = $form->append( 'text', "addon_version_$key", 'null:null', '' );
+						$field->value = $value;
+					}
+					self::save_versions( $habari, $form );
+				}
 			}
 
 			$apache_license = Posts::get( array( 'content_type' => 'license', 'slug' => 'asl2' ) );
