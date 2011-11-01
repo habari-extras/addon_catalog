@@ -51,8 +51,8 @@
 			Post::add_new_type( 'license' );
 
 			// allow reading the new content types
-			UserGroup::get_by_name( 'anonymous' )->grant( 'addon', 'read' );
-			UserGroup::get_by_name( 'anonymous' )->grant( 'license', 'read' );
+			UserGroup::get_by_name( 'anonymous' )->grant( 'post_addon', 'read' );
+			UserGroup::get_by_name( 'anonymous' )->grant( 'post_license', 'read' );
 
 			// create the addon vocabulary (type)
 			Vocabulary::add_object_type( 'addon' );
@@ -752,7 +752,24 @@
 		 * Return an array of all versions associated with a post
 		 **/
 		public function filter_post_versions( $versions, $post ) {
-			return false;
+
+			if ( $post->content_type != Post::type( 'addon' ) ) {
+				return false;
+			}
+
+			$vocabulary = Vocabulary::get( "Addon versions" ); // @TODO: $this->vocabulary and magic to go with it.
+			if ( $vocabulary === false || $post->content_type != Post::type( 'addon' ) ) {
+				return false;
+			}
+
+			$terms = $vocabulary->get_all_object_terms( 'addon', $post->id );
+			if ( count( $terms ) > 0 ) {
+				// @TODO: order them here?
+				return $terms;
+			}
+			else {
+				return false;
+			}
 		}
 	}
 
