@@ -46,14 +46,16 @@
 
 		public function action_plugin_activation ( $file ) {
 
+			// add the new content types
 			Post::add_new_type( 'addon' );
 			Post::add_new_type( 'license' );
 
-			$this->create_default_content();
+			// allow reading the new content types
+			UserGroup::get_by_name( 'anonymous' )->grant( 'addon', 'read' );
+			UserGroup::get_by_name( 'anonymous' )->grant( 'license', 'read' );
 
-			// Add the addon vocabulary type
+			// create the addon vocabulary (type)
 			Vocabulary::add_object_type( 'addon' );
-
 			$vocabulary = Vocabulary::get( "Addon versions" ); // @TODO: $this->vocabulary and magic to go with it.
 			if ( ! $vocabulary ) { // should this be by slug or ID?
 				$params = array(
@@ -63,6 +65,9 @@
 				$vocabulary = Vocabulary::create( $params );
 				// @TODO: notification/log of some sort?
 			}
+
+			// create the default content
+			$this->create_default_content();
 		}
 
 		private function create_default_content ( ) {
@@ -259,10 +264,11 @@
 			Post::delete_post_type( 'addon' );
 			Post::delete_post_type( 'license' );
 
-			// delete our custom db table
-			DB::query( 'drop table {dir_addon_versions}' );
-
-			// @TODO: remove vocabulary and terms
+			// remove vocabulary and terms
+			$vocabulary = Vocabulary::get( "Addon versions" ); // @TODO: $this->vocabulary and magic to go with it.
+			if ( $vocabulary ) {
+				$vocabulary->delete();
+			}
 
 			// now deactivate the plugin
 			Plugins::deactivate_plugin( __FILE__ );
@@ -740,6 +746,13 @@
 
 			return true;
 
+		}
+
+		/**
+		 * Return an array of all versions associated with a post
+		 **/
+		public function filter_post_versions( $versions, $post ) {
+			return false;
 		}
 	}
 

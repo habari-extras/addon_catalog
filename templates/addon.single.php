@@ -26,7 +26,12 @@
 				</p>
 				<a href="<?php echo $post->info->url; ?>">Download <?php echo $post->title; ?></a>
 			</div>
-			<hr>
+			<hr><?php if ( $post->versions !== false ) { ?>
+
+			<div class="downloads">
+				<?php echo $post->versions; ?>
+			</div>
+			<?php } ?>
 			<div class="entry-utility">
 				<?php
 					if ( $tags != null ) {
@@ -35,10 +40,6 @@
 							<span class=meta-sep"> | </span>
 						<?php
 					}
-
-				?>
-				<span class="comments-link"><?php $theme->comments_link( $post ); ?></span>
-				<?php
 
 					if ( ACL::access_check( $post->get_access(), 'edit' ) ) {
 						?>
