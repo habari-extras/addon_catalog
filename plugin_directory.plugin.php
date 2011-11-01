@@ -36,7 +36,7 @@
 			'version',
 			'release', /* release date */
 			'description',
-			'url',
+			'url', /* download url */
 			'habari_version',
 			'severity',
 			'requires',
@@ -63,14 +63,6 @@
 				$vocabulary = Vocabulary::create( $params );
 				// @TODO: notification/log of some sort?
 			}
-
-
-			// make sure it's registered before we try to modify the schema, so the table name gets replaced
-			//DB::register_table( 'dir_addon_versions' );
-
-			// create the database table, or upgrade it
-			//DB::dbdelta( $this->get_db_schema() );
-
 		}
 
 		private function create_default_content ( ) {
@@ -709,9 +701,6 @@
 			$this->add_template( 'addon.multiple', dirname(__FILE__) . '/templates/addon.multiple.php' );
 			$this->add_template( 'addon.single', dirname(__FILE__) . '/templates/addon.single.php' );
 			$this->add_template( 'license.single', dirname(__FILE__) . '/templates/license.single.php' );
-
-			// register the custom db table
-			//DB::register_table( 'dir_addon_versions' );
 
 		}
 
