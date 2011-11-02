@@ -441,9 +441,6 @@
 		 */
 		private function form_publish_addon ( $form, $post ) {
 
-			// remove silos, we don't need them
-			$form->remove( $form->silos );
-
 			// remove the settings pane from the publish controls for non-admin users, we don't want anyone editing that
 			if ( User::identify()->can( 'superuser' ) == false ) {
 				$form->publish_controls->remove( $form->publish_controls->settings );
