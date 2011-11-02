@@ -28,9 +28,15 @@
 			</div>
 			<hr><?php if ( $post->versions !== false ) { ?>
 
-			<div class="downloads">
-				<?php echo $post->versions; ?>
-			</div>
+			<div class="downloads"><table>
+				<thead><tr><th>Version<th>Habari Version<th>Release Date<th>Download Link</tr>
+				</thead>
+				<tbody>
+
+				<?php foreach ( $post->versions as $v ) {
+					echo "<tr><td>{$v->info->version}<td>{$v->info->habari_version}<td>{$v->info->release}<td>{$v->info->url}</tr>";
+				} ?></tbody>
+			</table></div>
 			<?php } ?>
 			<div class="entry-utility">
 				<?php
