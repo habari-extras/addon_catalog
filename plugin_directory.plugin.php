@@ -36,6 +36,7 @@
 			'version',
 			'release', /* release date */
 			'description',
+			'info_url',
 			'url', /* download url */
 			'habari_version',
 			'severity',
@@ -98,7 +99,8 @@
 					'0.6' => array(
 						'version' => '0.6',
 						'description' => 'Adds ACL support, increases SQLite performance, improves support for the HiEngine template engine, and improves UTF8 support.',
-						'url' => 'http://wiki.habariproject.org/en/Releases/0.6',
+						'info_url' => 'http://wiki.habariproject.org/en/Releases/0.6',
+						'url' => 'http://habariproject.org/dist/habari-0.6.zip',
 						'habari_version' => '0.6',
 						'severity' => 'feature',
 						'requires' => '',
@@ -109,7 +111,8 @@
 					'0.6.6' => array(
 						'version' => '0.6.6',
 						'description' => 'Fixes three potential security exploits and corrects known bugs in the Habari Silo.',
-						'url' => 'http://wiki.habariproject.org/en/Releases/0.6.6',
+						'info_url' => 'http://wiki.habariproject.org/en/Releases/0.6.6',
+						'url' => 'http://habariproject.org/dist/habari-0.6.6.zip',
 						'habari_version' => '0.6',
 						'severity' => 'security',
 						'requires' => '',
@@ -120,7 +123,8 @@
 					'0.7' => array(
 						'version' => '0.7',
 						'description' => 'The bestest release ever!',
-						'url' => 'http://wiki.habariproject.org/en/Releases/0.7',
+						'info_url' => 'http://wiki.habariproject.org/en/Releases/0.7',
+						'url' => 'http://habariproject.org/dist/habari-0.7.zip',
 						'habari_version' => '0.7',
 						'severity' => 'feature',
 						'requires' => '',
@@ -131,8 +135,9 @@
 					'0.7.1' => array(
 						'version' => '0.7.1',
 						'description' => 'Improvements upon the bestest release ever!',
-						'url' => 'http://wiki.habariproject.org/en/Releases/0.7.1',
-						'habari_version' => '0.7.1',
+						'info_url' => 'http://wiki.habariproject.org/en/Releases/0.7.1',
+						'url' => 'http://habariproject.org/dist/habari-0.7.1.zip',
+						'habari_version' => '0.7',
 						'severity' => 'feature',
 						'requires' => '',
 						'provides' => '',
@@ -535,6 +540,10 @@
 			// the version description
 			$version_description = $addon_versions->append( 'text', 'addon_version_description', 'null:null', _t('Version Description', 'plugin_directory') );
 			$version_description->template = 'tabcontrol_text';
+
+			// the version information url
+			$info_url = $addon_versions->append( 'text', 'addon_version_info_url', 'null:null', _t('Information URL', 'plugin_directory') );
+			$info_url->template = 'tabcontrol_text';
 
 			// the version download url
 			$version_url = $addon_versions->append( 'text', 'addon_version_url', 'null:null', _t('Download URL', 'plugin_directory') );

@@ -29,12 +29,12 @@
 			<hr><?php if ( $post->versions !== false ) { ?>
 
 			<div class="downloads"><table>
-				<thead><tr><th>Version<th>Habari Version<th>Release Date<th>Download Link</tr>
+				<thead><tr><th>Version<th>Habari Version<th>Release Date<th>Information<th>Download Link</tr>
 				</thead>
 				<tbody>
 
 				<?php foreach ( $post->versions as $v ) {
-					echo "<tr><td>{$v->info->version}<td>{$v->info->habari_version}<td>{$v->info->release}<td>{$v->info->url}</tr>";
+					echo "<tr><td>{$v->info->version}<td>{$v->info->habari_version}<td>{$v->info->release}<td><a href='{$v->info->info_url}'>{$v->info->info_url}</a><td><a href='{$v->info->url}'>{$v->info->url}</a></tr>";
 				} ?></tbody>
 			</table></div>
 			<?php } ?>
