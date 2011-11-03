@@ -15,6 +15,7 @@
 
 		private $addon_fields = array(
 			'guid',
+			'description', /* shorter description of the plugin, such as the line from the pluggable xml */
 			'instructions',
 			'type',
 			'url',
@@ -45,6 +46,19 @@
 			'recommends',
 		);
 
+		private static $vocabulary = "Addon versions";
+		protected $_vocabulary;
+
+		public function __get( $name ) {
+			switch( $name ) {
+				case 'vocabulary':
+					if ( !isset( $this->_vocabulary ) ) {
+						$this->_vocabulary = Vocabulary::get( self::$vocabulary );
+					}
+					return $this->_vocabulary;
+			}
+		}
+
 		public function action_plugin_activation ( $file ) {
 
 			// add the new content types
@@ -57,15 +71,14 @@
 
 			// create the addon vocabulary (type)
 			Vocabulary::add_object_type( 'addon' );
-			$vocabulary = Vocabulary::get( "Addon versions" ); // @TODO: $this->vocabulary and magic to go with it.
-			if ( ! $vocabulary ) { // should this be by slug or ID?
-				$params = array(
-					'name' => "Addon versions",
-					'description' => _t( 'A vocabulary for addon versions in the addons directory', 'plugin_directory' ),
-					);
-				$vocabulary = Vocabulary::create( $params );
-				// @TODO: notification/log of some sort?
-			}
+
+			// create the addon vocabulary
+			$params = array(
+				'name' => self::$vocabulary,
+				'description' => _t( 'A vocabulary for addon versions in the addons directory', 'plugin_directory' ),
+				);
+			$vocabulary = Vocabulary::create( $params );
+			// @TODO: notification/log of some sort?
 
 			// create the default content
 			$this->create_default_content();
@@ -263,7 +276,7 @@
 			Post::delete_post_type( 'license' );
 
 			// remove vocabulary and terms
-			$vocabulary = Vocabulary::get( "Addon versions" ); // @TODO: $this->vocabulary and magic to go with it.
+			$vocabulary = $this->vocabulary;
 			if ( $vocabulary ) {
 				$vocabulary->delete();
 			}
@@ -445,6 +458,13 @@
 			$guid->value = $post->info->guid;	// populate it, if it exists
 			$guid->template = ( $post->slug ) ? 'admincontrol_text' : 'guidcontrol';
 			$form->move_after( $form->addon_details_guid, $form->title );	// position it after the title
+
+			// add the description after the guid
+			$description = $form->append( 'textarea', 'addon_details_description', 'null:null', _t('Description', 'plugin_directory') );
+			$description->value = $post->info->description;	// populate it, if it exists
+			$description->rows = 2; // Since it's resizable, this doesn't need to start out so big, does it?
+			$description->template = 'admincontrol_textarea';
+			$form->move_after( $form->addon_details_description, $form->addon_details_guid );
 
 			// add the instructions after the content
 			$instructions = $form->append( 'textarea', 'addon_details_instructions', 'null:null', _t('Instructions', 'plugin_directory') );
@@ -661,7 +681,7 @@
 
 		}
 
-		private function prepare_versions ( $post, $form ) { // @TODO: refactor this to accept a post and an array. No sense in mocking up lots of forms.
+		private function prepare_versions ( $post, $form ) {
 
 			// first see if a version is trying to be added
 			if ( $form->addon_version_version != '' ) {
@@ -678,9 +698,9 @@
 			}
 		}
 
-		private function save_versions ( $post, $versions = array() ) {
+		protected function save_versions ( $post, $versions = array() ) {
 
-			$vocabulary = Vocabulary::get( "Addon versions" ); // @TODO: $this->vocabulary and magic to go with it.
+			$vocabulary = $this->vocabulary;
 
 			foreach( $versions as $key => $version ) {
 				$term = new Term( array(
@@ -751,7 +771,7 @@
 				return false;
 			}
 
-			$vocabulary = Vocabulary::get( "Addon versions" ); // @TODO: $this->vocabulary and magic to go with it.
+			$vocabulary = $this->vocabulary;
 			if ( $vocabulary === false || $post->content_type != Post::type( 'addon' ) ) {
 				return false;
 			}
