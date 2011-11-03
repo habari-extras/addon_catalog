@@ -10,34 +10,40 @@
 		$tags = null;
 	}
 
+
 	?>
-		<div id="post-<?php echo $post->id; ?>" class="<?php echo $theme->post_class( $post ); ?>">
+		<div id="post-<?php echo $post->id; ?>" class="addon <?php echo $post->info->type; ?>">
 			<h2 class="entry-title">
 				<a href="<?php echo $post->permalink; ?>" title="<?php echo Utils::htmlspecialchars( _t( 'Permalink to %s', array( $post->title ), 'plugin_directory' ) ); ?>"><?php echo $post->title_out; ?></a>
 			</h2>
-
-			<div class="entry-meta">
-				<?php echo _t( 'Posted on %1$s at %2$s by %3$s', array( $post->pubdate->date, $post->pubdate->time, $post->author->displayname ), 'plugin_directory' ); ?>
-			</div>
-
-			<div class="entry-summary">
-				<p>
-					<?php echo $post->content; ?>
-				</p>
-				<a href="<?php echo $post->info->url; ?>">Download <?php echo $post->title; ?></a>
+			<div class="content">
+				<?php echo $post->content_out; ?>
 			</div>
 			<hr><?php if ( $post->versions !== false ) { ?>
 
-			<div class="downloads"><table>
-				<thead><tr><th>Version<th>Habari Version<th>Release Date<th>Information<th>Download Link</tr>
+			<div class="info"><h3>Information</h3>
+				<ul>
+					<li>Author: <a href="<?php echo $post->info->author_url; ?>"><?php echo $post->info->author; ?></a>
+					<li>URL: <a href="<?php echo $post->info->url; ?>"><?php echo $post->title; ?></a>
+					<li>License: <?php echo $post->license_link; ?>
+				</ul>
+			</div>
+
+			<div class="downloads"><h3>Available Versions</h3><table>
+				<thead><tr><th>Version<th>Release Date<th>Information<th>Download Link</tr>
 				</thead>
 				<tbody>
 
 				<?php foreach ( $post->versions as $v ) {
-					echo "<tr><td>{$v->info->version}<td>{$v->info->habari_version}<td>{$v->info->release}<td><a href='{$v->info->info_url}'>{$v->info->info_url}</a><td><a href='{$v->info->url}'>{$v->info->url}</a></tr>";
+					echo "<tr><td>{$v->info->habari_version}-{$v->info->version}<td>" .
+						HabariDateTime::date_create( $v->info->release )->format( Options::get( "plugin_directory__date_format", "F j, Y" ) ) .
+						"<td><a href='{$v->info->info_url}'>{$v->info->info_url}</a><td><a href='{$v->info->url}'>{$v->info->url}</a></tr>";
 				} ?></tbody>
 			</table></div>
-			<?php } ?>
+			<?php }
+				else {
+					// no versions available
+				} ?>
 			<div class="entry-utility">
 				<?php
 					if ( $tags != null ) {

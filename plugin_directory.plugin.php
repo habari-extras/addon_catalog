@@ -291,6 +291,7 @@
 
 			//$ui->append( 'text', 'licenses', 'option:', _t( 'Licenses to use:', 'Lipsum' ) );
 			$ui->append( 'text', 'basepath', 'plugin_directory__basepath', _t( 'Base path (without trailing slash), e.g. <em>explore</em> :', 'plugin_directory' ) );
+			$ui->append( 'text', 'date_format', 'plugin_directory__date_format', _t( 'Release Date format :', 'plugin_directory' ) );
 
 			$ui->append( 'submit', 'save', _t( 'Save', 'plugin_directory' ) );
 
@@ -776,6 +777,14 @@
 			else {
 				return false;
 			}
+		}
+		/**
+		 * Return an HTML link to the license of an addon
+		 **/
+		public function filter_post_license_link( $license_link, $post ) {
+			$license_post = Post::get( array( 'slug' => $post->info->license ) );
+
+			return "<a href='{$license_post->permalink}' title='More details about this license'>{$license_post->title}</a>";
 		}
 	}
 
