@@ -145,14 +145,7 @@
 						'release' => HabariDateTime::date_create('2011-05-12')->sql,
 					),
 				);
-				foreach ( $versions as $version => $field_array ) {
-					$form = new FormUI( 'fields_kludge' );
-					foreach( $field_array as $key => $value ) {
-						$field = $form->append( 'text', "addon_version_$key", 'null:null', '' );
-						$field->value = $value;
-					}
-					self::save_versions( $habari, $form );
-				}
+				$this->save_versions( $habari, $versions );
 			}
 
 			$apache_license = Posts::get( array( 'content_type' => 'license', 'slug' => 'asl2' ) );
@@ -646,7 +639,7 @@
 				}
 
 				// save version information
-				$this->save_versions( $post, $form );
+				$this->prepare_versions( $post, $form );
 
 			}
 			else if ( $post->content_type == Post::type( 'license' ) ) {
@@ -668,7 +661,7 @@
 
 		}
 
-		private function save_versions ( $post, $form ) { // @TODO: refactor this to accept a post and an array. No sense in mocking up lots of forms.
+		private function prepare_versions ( $post, $form ) { // @TODO: refactor this to accept a post and an array. No sense in mocking up lots of forms.
 
 			// first see if a version is trying to be added
 			if ( $form->addon_version_version != '' ) {
@@ -681,30 +674,24 @@
 						$version[ $field ] = $form->{"addon_version_$field"}->value;
 					}
 				}
-				$vocabulary = Vocabulary::get( "Addon versions" ); // @TODO: $this->vocabulary and magic to go with it.
+				$this->save_versions( $post, array( $form->addon_version_version->value => $version ) );
+			}
+		}
 
-				// should format this like "addon title - 1.2 - release
-				$term_display = "{$post->title} - {$version[ 'version' ]}"
-					. ( isset( $version[ 'release' ] ) ? " - {$version[ 'release' ]} " : "" );
+		private function save_versions ( $post, $versions = array() ) {
+
+			$vocabulary = Vocabulary::get( "Addon versions" ); // @TODO: $this->vocabulary and magic to go with it.
+
+			foreach( $versions as $key => $version ) {
 				$term = new Term( array(
-					'term_display' => $term_display,
+					'term_display' => $post->id . " $key",
 				) );
 				foreach ( $version as $field => $value ) {
 					$term->info->$field = $value;
 				}
 				$vocabulary->add_term( $term );
 				$term->associate( 'addon', $post->id );
-/*
-				// if there are no current versions, initialize it
-				if ( !isset( $post->info->versions ) ) {
-					$post->info->versions = array();
-				}
-
-				// and add it to the list -- array_merge because [] = doesn't work with postinfo fields
-				$post->info->versions = array_merge( $post->info->versions, array( $version['version'] => $version ) );
-*/
 			}
-
 		}
 
 		public function action_init ( ) {
