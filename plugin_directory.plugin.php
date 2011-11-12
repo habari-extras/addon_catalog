@@ -4,6 +4,10 @@
 
 	class PluginDirectory extends Plugin {
 
+		// singly => plural
+		// @todo we can do better than this
+		private	$types = array('theme' => 'themes', 'plugin' => 'plugins');
+
 		// @todo these should be handled in plugin config ui
 		private $api_keys = array(
 			'braGecezu4rUsephap6Tu5ebabu4ecay6wustUj2che3e4ruprahuruStuspe8ut',		// -extras hook
@@ -227,7 +231,7 @@
 
 		/**
 		 * Nomenclature for the main menu -> New, and Manage
-		 **/
+		 */
 		public function filter_post_type_display ( $type, $plurality ) {
 
 			if ( $type == 'addon' ) {
@@ -335,47 +339,35 @@
 			// add it to the stack
 			$rules[] = $rule;
 
-			// create the addon post display rule for one plugin
-			$rule = array(
-				'name' => 'display_addon_plugin',
-				'parse_regex' => '#^' . $basepath . '/plugins/(?P<slug>[^/]+)(?:/page/(?P<page>\d+))?/?$#i',
-				'build_str' => $basepath . '/plugins/{$slug}(/page/{$page})',
-				'handler' => 'UserThemeHandler',
-				'action' => 'display_plugin',
-				'parameters' => serialize( array( 'require_match' => array( 'Posts', 'rewrite_match_type' ), 'content_type' => 'addon', 'info' => array( 'type' => 'plugin' ) ) ),
-				'description' => 'Display addon directory posts of the type plugin',
-			);
+			foreach ($this->types as $singluar => $plural) {
+				// create the post display rule for one addon
+				$rule = array(
+					'name' => "display_addon_{$singluar}",
+					'parse_regex' => "#^{$basepath}/{$plural}/(?P<slug>[^/]+)(?:/page/(?P<page>\d+))?/?$#i",
+					'build_str' => "{$basepath}/{$plural}/{$slug}",
+					'handler' => 'UserThemeHandler',
+					'action' => "display_{$singluar}",
+					'parameters' => serialize( array( 'require_match' => array( 'Posts', 'rewrite_match_type' ), 'content_type' => 'addon', 'info' => array( 'type' => $singluar ) ) ),
+					'description' => "Display an addon directory post of the type {$singluar}",
+				);
 
-			// add it to the stack
-			$rules[] = $rule;
+				// add it to the stack
+				$rules[] = $rule;
 
-			// create the addon post display rule for plugins
-			$rule = array(
-				'name' => 'display_addon_plugins',
-				'parse_regex' => '%^' . $basepath . '/plugins(?:/page/(?P<page>\d+))?/?$%',
-				'build_str' => $basepath . '/plugins(/page/{$page})',
-				'handler' => 'UserThemeHandler',
-				'action' => 'display_plugins',
-				'priority' => 2,
-				'description' => 'Plugin Repo Server Browser',
-			);
+				// create the addon post display rule for plugins
+				$rule = array(
+					'name' => "display_addon_{$plural}",
+					'parse_regex' => "%^{$basepath}/{$plural}(?:/page/(?P<page>\d+))?/?$%",
+					'build_str' => "{$basepath}/{$plural}(/page/{\$page})",
+					'handler' => 'UserThemeHandler',
+					'action' => "display_{$plural}",
+					'priority' => 2,
+					'description' => "Display addon directory posts of the type {$singluar}",
+				);
 
-			// add it to the stack
-			$rules[] = $rule;
-
-			// create the addon post display rule for themes
-			$rule = array(
-				'name' => 'display_addon_themes',
-				'parse_regex' => '#^' . $basepath . '/themes/(?P<slug>[^/]+)(?:/page/(?P<page>\d+))?/?$#i',
-				'build_str' => $basepath . '/themes/{$slug}(/page/{$page})',
-				'handler' => 'UserThemeHandler',
-				'action' => 'display_theme',
-				'parameters' => serialize( array( 'require_match' => array( 'Posts', 'rewrite_match_type' ), 'content_type' => 'addon', 'info' => array( 'type' => 'theme' ) ) ),
-				'description' => 'Display addon directory posts of the type theme',
-			);
-
-			// add it to the stack
-			$rules[] = $rule;
+				// add it to the stack
+				$rules[] = $rule;
+			}
 
 			// create the license display rule
 			$rule = array(
@@ -417,8 +409,8 @@
 
 		/**
 		 * Handle requests for multiple plugins
-		 * 
-		 * @param ?? $handled
+		 *
+		 * @param Boolean $handled
 		 * @param Theme $post
 		 */
 		public function filter_theme_act_display_plugins( $handled, $theme )
@@ -438,6 +430,29 @@
 			return true;
 		}
 
+		/**
+		 * Handle requests for multiple themes
+		 *
+		 * @param Boolean $handled
+		 * @param Theme $post
+		 */
+		public function filter_theme_act_display_themes( $handled, $theme )
+		{
+			$paramarray[ 'fallback' ] = array(
+				'addon.multiple',
+				'multiple',
+			);
+
+			$default_filters = array(
+				'content_type' => Post::type( 'addon' ),
+				'info' => array( 'type' => 'theme' ),
+			);
+
+			$paramarray['user_filters'] = $default_filters;
+			$theme->act_display( $paramarray );
+			return true;
+		}
+
 		public function filter_template_where_filters( $filters )
 		{
 			$basepath = Options::get( 'plugin_directory__basepath', 'explore' );
@@ -450,7 +465,7 @@
 
 		/**
 		 * Manipulate the controls on the publish page
-		 * 
+		 *
 		 * @param FormUI $form The form that is used on the publish page
 		 * @param Post $post The post that's being edited
 		 */
@@ -792,9 +807,22 @@
 
 		}
 
+		public function filter_theme_act_display_theme ( $handled, $theme ) {
+
+			$default_filters = array(
+				'content_type' => Post::type('addon'),
+				'info' => array( 'type' => 'theme' ),
+			);
+
+			$theme->act_display_post( $default_filters );
+
+			return true;
+
+		}
+
 		/**
 		 * Return an array of all versions associated with a post
-		 **/
+		 */
 		public function filter_post_versions( $versions, $post ) {
 
 			if ( $post->content_type != Post::type( 'addon' ) ) {
@@ -815,9 +843,10 @@
 				return false;
 			}
 		}
+
 		/**
 		 * Return an HTML link to the license of an addon
-		 **/
+		 */
 		public function filter_post_license_link( $license_link, $post ) {
 			$license_post = Post::get( array( 'slug' => $post->info->license ) );
 
