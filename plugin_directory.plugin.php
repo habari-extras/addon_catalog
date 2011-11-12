@@ -343,7 +343,7 @@
 				// create the post display rule for one addon
 				$rule = array(
 					'name' => "display_addon_{$singluar}",
-					'parse_regex' => "#^{$basepath}/{$plural}/(?P<slug>[^/]+)(?:/page/(?P<page>\d+))?/?$#i",
+					'parse_regex' => "#^{$basepath}/{$plural}/(?P<slug>[^/]+)/?$#i",
 					'build_str' => "{$basepath}/{$plural}/{$slug}",
 					'handler' => 'UserThemeHandler',
 					'action' => "display_{$singluar}",
