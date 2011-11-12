@@ -322,6 +322,19 @@
 			// add it to the stack
 			$rules[] = $rule;
 
+			// create the display rule for the addon base page
+			$rule = array(
+				'name' => 'display_addon_basepath',
+				'parse_regex' => '#^' . $basepath . '$#i',
+				'build_str' => $basepath,
+				'handler' => 'UserThemeHandler',
+				'action' => 'display_basepath',
+				'description' => 'Display addon directory base page',
+			);
+
+			// add it to the stack
+			$rules[] = $rule;
+
 			// create the addon post display rule for one plugin
 			$rule = array(
 				'name' => 'display_addon_plugin',
@@ -381,6 +394,25 @@
 			// always return the rules
 			return $rules;
 
+		}
+
+		/**
+		 * Handle requests for addon directory base page
+		 *
+		 * @param Boolean $handled
+		 * @param Theme $post
+		 *
+		 * @return Boolean Whether the request has been handled
+		 */
+		public function filter_theme_act_display_basepath( $handled, $theme )
+		{
+			$paramarray[ 'fallback' ] = array(
+				'addon.basepath',
+			);
+
+			$theme->types = array('plugins' => 'Plugins', 'themes' => 'Themes');
+			$theme->act_display( $paramarray );
+			return true;
 		}
 
 		/**
@@ -715,6 +747,7 @@
 
 			// register our custom guid FormUI control for the post publish page
 			$this->add_template( 'guidcontrol', dirname(__FILE__) . '/templates/guidcontrol.php' );
+			$this->add_template( 'addon.basepath', dirname(__FILE__) . '/templates/addon.basepath.php' );
 			$this->add_template( 'addon.multiple', dirname(__FILE__) . '/templates/addon.multiple.php' );
 			$this->add_template( 'addon.single', dirname(__FILE__) . '/templates/addon.single.php' );
 			$this->add_template( 'license.single', dirname(__FILE__) . '/templates/license.single.php' );
