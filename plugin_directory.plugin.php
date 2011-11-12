@@ -102,6 +102,7 @@
 
 				$habari->info->guid = '7a0313be-d8e3-11db-8314-0800200c9a66';
 				$habari->info->url = 'http://habariproject.org';
+				$habari->info->description = 'Habari is next-generation blogging.';
 				$habari->info->author = 'The Habari Community';
 				$habari->info->author_url = 'http://habariproject.org';
 				$habari->info->license = 'asl2';
@@ -224,32 +225,29 @@
 
 		}
 
+		/**
+		 * Nomenclature for the main menu -> New, and Manage
+		 **/
 		public function filter_post_type_display ( $type, $plurality ) {
 
 			if ( $type == 'addon' ) {
-
 				if ( $plurality == 'singular' ) {
 					$type = _t('Addon', 'plugin_directory');
 				}
 				else {
 					$type = _t('Addons', 'plugin_directory');
 				}
-
 			}
 
 			if ( $type == 'license' ) {
-
 				if ( $plurality == 'singular' ) {
 					$type = _t('License', 'plugin_directory');
 				}
 				else {
 					$type = _t('Licenses', 'plugin_directory');
 				}
-
 			}
-
 			return $type;
-
 		}
 
 		public function filter_plugin_config ( $actions, $plugin_id ) {
@@ -400,11 +398,10 @@
 
 			$default_filters = array(
 				'content_type' => Post::type( 'addon' ),
-				'info' => array( 'type' => 'plugin' ),
+//				'info' => array( 'type' => 'plugin' ),
 			);
 
 			$paramarray['user_filters'] = $default_filters;
-
 			$theme->act_display( $paramarray );
 			return true;
 		}
