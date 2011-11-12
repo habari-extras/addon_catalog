@@ -4,9 +4,8 @@
 
 	class PluginDirectory extends Plugin {
 
-		// singly => plural
 		// @todo we can do better than this
-		private	$types = array('theme' => 'themes', 'plugin' => 'plugins');
+		private	$types = array('themes' => 'theme', 'plugins' => 'plugin');
 
 		// @todo these should be handled in plugin config ui
 		private $api_keys = array(
@@ -339,7 +338,7 @@
 			// add it to the stack
 			$rules[] = $rule;
 
-			foreach ($this->types as $singluar => $plural) {
+			foreach ($this->types as $plural => $singular) {
 				// create the post display rule for one addon
 				$rule = array(
 					'name' => "display_addon_{$singluar}",
@@ -353,21 +352,22 @@
 
 				// add it to the stack
 				$rules[] = $rule;
-
-				// create the addon post display rule for plugins
-				$rule = array(
-					'name' => "display_addon_{$plural}",
-					'parse_regex' => "%^{$basepath}/{$plural}(?:/page/(?P<page>\d+))?/?$%",
-					'build_str' => "{$basepath}/{$plural}(/page/{\$page})",
-					'handler' => 'UserThemeHandler',
-					'action' => "display_{$plural}",
-					'priority' => 2,
-					'description' => "Display addon directory posts of the type {$singluar}",
-				);
-
-				// add it to the stack
-				$rules[] = $rule;
 			}
+
+			// create the addon post display rule for multiple addons
+			$addon_regex = implode('|', array_keys($this->types));
+			$rule = array(
+				'name' => "display_addons",
+				'parse_regex' => "%^{$basepath}/(?P<addon>{$addon_regex})(?:/page/(?P<page>\d+))?/?$%",
+				'build_str' => $basepath . '/{$addon}(/page/{$page})',
+				'handler' => 'UserThemeHandler',
+				'action' => "display_addons",
+				'priority' => 2,
+				'description' => "Display addon directory posts of a particular type",
+			);
+
+			// add it to the stack
+			$rules[] = $rule;
 
 			// create the license display rule
 			$rule = array(
@@ -408,44 +408,24 @@
 		}
 
 		/**
-		 * Handle requests for multiple plugins
+		 * Handle requests for multiple addons
 		 *
 		 * @param Boolean $handled
 		 * @param Theme $post
 		 */
-		public function filter_theme_act_display_plugins( $handled, $theme )
+		public function filter_theme_act_display_addons( $handled, $theme )
 		{
 			$paramarray[ 'fallback' ] = array(
 				'addon.multiple',
 				'multiple',
 			);
 
-			$default_filters = array(
-				'content_type' => Post::type( 'addon' ),
-//				'info' => array( 'type' => 'plugin' ),
-			);
-
-			$paramarray['user_filters'] = $default_filters;
-			$theme->act_display( $paramarray );
-			return true;
-		}
-
-		/**
-		 * Handle requests for multiple themes
-		 *
-		 * @param Boolean $handled
-		 * @param Theme $post
-		 */
-		public function filter_theme_act_display_themes( $handled, $theme )
-		{
-			$paramarray[ 'fallback' ] = array(
-				'addon.multiple',
-				'multiple',
-			);
+			$type = $theme->matched_rule->named_arg_values[addon];
+			$type = $this->types[$type];
 
 			$default_filters = array(
 				'content_type' => Post::type( 'addon' ),
-				'info' => array( 'type' => 'theme' ),
+				'info' => array( 'type' => $type ),
 			);
 
 			$paramarray['user_filters'] = $default_filters;
