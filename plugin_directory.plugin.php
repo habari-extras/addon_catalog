@@ -401,6 +401,7 @@
 			);
 
 			$theme->types = array('plugins' => 'Plugins', 'themes' => 'Themes');
+			$paramarray['user_filters'] = array(); // sufficient for the time being since this shows no content.
 			$theme->act_display( $paramarray );
 			return true;
 		}
