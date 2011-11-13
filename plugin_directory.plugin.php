@@ -373,7 +373,7 @@
 			$rule = array(
 				'name' => 'display_license',
 				'parse_regex' => '#^' . $basepath . '/license/(?P<slug>[^/]+)(?:/page/(?P<page>\d+))?/?$#i',
-				'build_str' => $basepath . "/license/<slug>",
+				'build_str' => $basepath . '/license/{$slug}',
 				'handler' => 'UserThemeHandler',
 				'action' => 'display_post',
 				'parameters' => serialize( array( 'require_match' => array( 'Posts', 'rewrite_match_type' ), 'content_type' => 'license' ) ),
