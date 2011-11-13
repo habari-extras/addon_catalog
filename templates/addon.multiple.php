@@ -1,7 +1,7 @@
 <?php if ( !defined( 'HABARI_PATH' ) ) { die('No direct access'); }
 	$theme->display( 'header'); ?>
 <?php foreach ( $posts as $post ) { ?>
-		<div id="post-<?php echo $post->id; ?>" class="addon <?php echo $post->info->type; ?>">
+	<div id="post-<?php echo $post->id; ?>" class="addon <?php echo $post->info->type; ?>">
 		<div class="entry-head">
 			<!-- @todo We should just be overriding the permalink
 			<h2 class="entry-title"><a href="<?php echo $post->permalink; ?>" title="<?php echo $post->title; ?>"><?php echo $post->title_out; ?></a></h2>
@@ -23,8 +23,8 @@
 						"<td><a href='{$v->info->info_url}'>{$v->info->info_url}</a><td><a href='{$v->info->url}'>{$v->info->url}</a></tr>";
 				} ?></tbody>
 			</table></div>
-
 		</div>
+	</div>
 	<hr>
 <?php } ?>
 		<div id="page-selector">
