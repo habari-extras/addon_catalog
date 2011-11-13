@@ -343,7 +343,7 @@
 				$rule = array(
 					'name' => "display_addon_{$singular}",
 					'parse_regex' => "#^{$basepath}/{$plural}/(?P<slug>[^/]+)/?$#i",
-					'build_str' => "{$basepath}/{$plural}/<slug>",
+					'build_str' => "{$basepath}/{$plural}/" . '{$slug}',
 					'handler' => 'UserThemeHandler',
 					'action' => "display_{$singular}",
 					'parameters' => serialize( array( 'require_match' => array( 'Posts', 'rewrite_match_type' ), 'content_type' => 'addon', 'info' => array( 'type' => $singular ) ) ),
@@ -359,7 +359,7 @@
 			$rule = array(
 				'name' => "display_addons",
 				'parse_regex' => "%^{$basepath}/(?P<addon>{$addon_regex})(?:/page/(?P<page>\d+))?/?$%",
-				'build_str' => $basepath . '/<addon>(/page/<page>)',
+				'build_str' => $basepath . '/{$addon}(/page/{$page})',
 				'handler' => 'UserThemeHandler',
 				'action' => "display_addons",
 				'priority' => 2,
