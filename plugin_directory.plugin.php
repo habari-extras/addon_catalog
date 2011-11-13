@@ -789,6 +789,17 @@
 		}
 
 		/**
+		 * Filter the permalink of addons
+		 */
+		public function filter_post_permalink( $permalink, $post ) {
+			if ($post->content_type == Post::type('addon')) {
+				$types = array_flip($this->types);
+				$permalink = URL::get("display_addon", array('addon' => $types[$post->info->type], 'slug' => $post->slug));
+			}
+			return $permalink;
+		}
+
+		/**
 		 * Return an array of all versions associated with a post
 		 */
 		public function filter_post_versions( $versions, $post ) {

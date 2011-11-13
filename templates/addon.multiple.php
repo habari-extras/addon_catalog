@@ -3,10 +3,7 @@
 <?php foreach ( $posts as $post ) { ?>
 		<div id="post-<?php echo $post->id; ?>" class="addon <?php echo $post->info->type; ?>">
 		<div class="entry-head">
-			<!-- @todo We should just be overriding the permalink
 			<h2 class="entry-title"><a href="<?php echo $post->permalink; ?>" title="<?php echo $post->title; ?>"><?php echo $post->title_out; ?></a></h2>
-			-->
-			<h2 class="entry-title"><a href="<?php echo URL::get("display_addon", array('addon' => $post->info->type.'s', 'slug' => $post->slug)); ?>" title="<?php echo $post->title; ?>"><?php echo $post->title; ?></a></h2>
 		</div>
 
 		<div class="entry-content">
