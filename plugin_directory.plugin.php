@@ -343,7 +343,7 @@
 				$rule = array(
 					'name' => "display_addon_{$singular}",
 					'parse_regex' => "#^{$basepath}/{$plural}/(?P<slug>[^/]+)/?$#i",
-					'build_str' => "{$basepath}/{$plural}/{$slug}",
+					'build_str' => "{$basepath}/{$plural}/<slug>",
 					'handler' => 'UserThemeHandler',
 					'action' => "display_{$singular}",
 					'parameters' => serialize( array( 'require_match' => array( 'Posts', 'rewrite_match_type' ), 'content_type' => 'addon', 'info' => array( 'type' => $singular ) ) ),
@@ -373,7 +373,7 @@
 			$rule = array(
 				'name' => 'display_license',
 				'parse_regex' => '#^' . $basepath . '/license/(?P<slug>[^/]+)(?:/page/(?P<page>\d+))?/?$#i',
-				'build_str' => $basepath . '/license/{$slug}(/page/{$page})',
+				'build_str' => $basepath . "/license/<slug>",
 				'handler' => 'UserThemeHandler',
 				'action' => 'display_post',
 				'parameters' => serialize( array( 'require_match' => array( 'Posts', 'rewrite_match_type' ), 'content_type' => 'license' ) ),
