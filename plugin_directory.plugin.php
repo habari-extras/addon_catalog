@@ -359,7 +359,7 @@
 			$rule = array(
 				'name' => "display_addons",
 				'parse_regex' => "%^{$basepath}/(?P<addon>{$addon_regex})(?:/page/(?P<page>\d+))?/?$%",
-				'build_str' => $basepath . '/{$addon}(/page/{$page})',
+				'build_str' => $basepath . '/<addon>(/page/<page>)',
 				'handler' => 'UserThemeHandler',
 				'action' => "display_addons",
 				'priority' => 2,
