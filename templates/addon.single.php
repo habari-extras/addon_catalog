@@ -16,7 +16,7 @@
 			<h2 class="entry-title">
 				<a href="<?php echo $post->permalink; ?>" title="<?php echo Utils::htmlspecialchars( _t( 'Permalink to %s', array( $post->title ), 'plugin_directory' ) ); ?>"><?php echo $post->title_out; ?></a>
 			</h2>
-			<div class="content">
+			<div class="entry-content">
 				<?php echo $post->content_out; ?>
 			</div>
 			<hr><?php if ( $post->versions !== false ) { ?>
@@ -29,7 +29,7 @@
 				</ul>
 			</div>
 
-			<div class="downloads"><h3>Available Versions</h3><table>
+			<div class="downloads"><h5>Available Versions</h5><table>
 				<thead><tr><th>Version<th>Release Date<th>Information<th>Download Link</tr>
 				</thead>
 				<tbody>
@@ -49,7 +49,6 @@
 					if ( $tags != null ) {
 						?>
 							<span class="tags"><?php echo $tags; ?></span>
-							<span class=meta-sep"> | </span>
 						<?php
 					}
 
