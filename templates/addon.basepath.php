@@ -1,5 +1,7 @@
 <?php if ( !defined( 'HABARI_PATH' ) ) { die('No direct access'); } 
-	$theme->display( 'header'); ?>
+	$theme->display( 'header');
+	include( "directory_header.php" ); // possibly a temporary measure.
+?>
 	<div class="content">
 		<div id="primary">
 			<div id="primarycontent" class="hfeed">

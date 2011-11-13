@@ -10,7 +10,7 @@
 		$tags = null;
 	}
 
-
+	include( "directory_header.php" ); // possibly a temporary measure.
 	?>
 		<div id="post-<?php echo $post->id; ?>" class="addon <?php echo $post->info->type; ?>">
 			<h2 class="entry-title">
