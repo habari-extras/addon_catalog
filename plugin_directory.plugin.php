@@ -341,13 +341,13 @@
 			foreach ($this->types as $plural => $singular) {
 				// create the post display rule for one addon
 				$rule = array(
-					'name' => "display_addon_{$singluar}",
+					'name' => "display_addon_{$singular}",
 					'parse_regex' => "#^{$basepath}/{$plural}/(?P<slug>[^/]+)/?$#i",
-					'build_str' => "{$basepath}/{$plural}/{$slug}",
+					'build_str' => $basepath . '/' . $plural . '/{$slug}',
 					'handler' => 'UserThemeHandler',
-					'action' => "display_{$singluar}",
-					'parameters' => serialize( array( 'require_match' => array( 'Posts', 'rewrite_match_type' ), 'content_type' => 'addon', 'info' => array( 'type' => $singluar ) ) ),
-					'description' => "Display an addon directory post of the type {$singluar}",
+					'action' => "display_{$singular}",
+					'parameters' => serialize( array( 'require_match' => array( 'Posts', 'rewrite_match_type' ), 'content_type' => 'addon', 'info' => array( 'type' => $singular ) ) ),
+					'description' => "Display an addon directory post of the type {$singular}",
 				);
 
 				// add it to the stack
