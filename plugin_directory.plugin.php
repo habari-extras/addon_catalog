@@ -420,7 +420,7 @@
 				'multiple',
 			);
 
-			$type = $theme->matched_rule->named_arg_values[addon];
+			$type = $theme->matched_rule->named_arg_values['addon'];
 			$type = $this->types[$type];
 
 			$default_filters = array(
