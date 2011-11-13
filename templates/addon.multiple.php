@@ -1,17 +1,18 @@
 <?php if ( !defined( 'HABARI_PATH' ) ) { die('No direct access'); }
 	$theme->display( 'header'); ?>
-	<div class="content">
-	<div id="primary">
-		<div id="primarycontent" class="hfeed">
 <?php foreach ( $posts as $post ) { ?>
 		<div id="post-<?php echo $post->id; ?>" class="addon <?php echo $post->info->type; ?>">
-			<!-- @todo We should just be overriding the permalink 
+		<div class="entry-head">
+			<!-- @todo We should just be overriding the permalink
 			<h2 class="entry-title"><a href="<?php echo $post->permalink; ?>" title="<?php echo $post->title; ?>"><?php echo $post->title_out; ?></a></h2>
 			-->
 			<h2 class="entry-title"><a href="<?php echo URL::get("display_addon", array('addon' => $post->info->type.'s', 'slug' => $post->slug)); ?>" title="<?php echo $post->title; ?>"><?php echo $post->title; ?></a></h2>
+		</div>
+
+		<div class="entry-content">
 			<?php echo $post->info->description; ?>
 
-			<div class="downloads"><h3>Available Versions</h3><table>
+			<div class="downloads"><h5>Available Versions</h5><table>
 				<thead><tr><th>Version<th>Release Date<th>Information<th>Download Link</tr>
 				</thead>
 				<tbody>
@@ -26,12 +27,8 @@
 		</div>
 	<hr>
 <?php } ?>
-		</div>
-
 		<div id="page-selector">
 			<?php $theme->prev_page_link(); ?> <?php $theme->page_selector( null, array( 'leftSide' => 2, 'rightSide' => 2 ) ); ?> <?php $theme->next_page_link(); ?>
 		</div>
 
-	</div>
-	</div>
 <?php $theme->display ('footer'); ?>
