@@ -338,24 +338,22 @@
 			// add it to the stack
 			$rules[] = $rule;
 
-			foreach ($this->types as $plural => $singular) {
-				// create the post display rule for one addon
-				$rule = array(
-					'name' => "display_addon_{$singular}",
-					'parse_regex' => "#^{$basepath}/{$plural}/(?P<slug>[^/]+)/?$#i",
-					'build_str' => "{$basepath}/{$plural}/" . '{$slug}',
-					'handler' => 'UserThemeHandler',
-					'action' => "display_{$singular}",
-					'parameters' => serialize( array( 'require_match' => array( 'Posts', 'rewrite_match_type' ), 'content_type' => 'addon', 'info' => array( 'type' => $singular ) ) ),
-					'description' => "Display an addon directory post of the type {$singular}",
-				);
+			$addon_regex = implode('|', array_keys($this->types));
+			// create the post display rule for one addon
+			$rule = array(
+				'name' => "display_addon",
+				'parse_regex' => "#^{$basepath}/(?P<addon>{$addon_regex})/(?P<slug>[^/]+)/?$#i",
+				'build_str' => $basepath . '/{$addon}/{$slug}',
+				'handler' => 'UserThemeHandler',
+				'action' => 'display_addon',
+				'parameters' => serialize( array( 'require_match' => array( 'Posts', 'rewrite_match_type' ), 'content_type' => 'addon' ) ),
+				'description' => "Display an addon directory post of a particular type",
+			);
 
-				// add it to the stack
-				$rules[] = $rule;
-			}
+			// add it to the stack
+			$rules[] = $rule;
 
 			// create the addon post display rule for multiple addons
-			$addon_regex = implode('|', array_keys($this->types));
 			$rule = array(
 				'name' => "display_addons",
 				'parse_regex' => "%^{$basepath}/(?P<addon>{$addon_regex})(?:/page/(?P<page>\d+))?/?$%",
@@ -774,24 +772,14 @@
 
 		}
 
-		public function filter_theme_act_display_plugin ( $handled, $theme ) {
+		public function filter_theme_act_display_addon ( $handled, $theme ) {
+
+			$type = $theme->matched_rule->named_arg_values['addon'];
+			$type = $this->types[$type];
 
 			$default_filters = array(
 				'content_type' => Post::type('addon'),
-				'info' => array( 'type' => 'plugin' ),
-			);
-
-			$theme->act_display_post( $default_filters );
-
-			return true;
-
-		}
-
-		public function filter_theme_act_display_theme ( $handled, $theme ) {
-
-			$default_filters = array(
-				'content_type' => Post::type('addon'),
-				'info' => array( 'type' => 'theme' ),
+				'info' => array( 'type' => $type ),
 			);
 
 			$theme->act_display_post( $default_filters );
