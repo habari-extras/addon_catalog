@@ -5,7 +5,7 @@
 	class PluginDirectory extends Plugin {
 
 		// @todo we can do better than this
-		private	$types = array('themes' => 'theme', 'plugins' => 'plugin');
+		private	$types = array( 'themes' => 'theme', 'plugins' => 'plugin', 'core' => 'core' );
 
 		// @todo these should be handled in plugin config ui
 		private $api_keys = array(
