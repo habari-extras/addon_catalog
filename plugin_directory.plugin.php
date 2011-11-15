@@ -563,13 +563,13 @@
 			// the version number
 			$version = $addon_versions->append( 'text', 'addon_version_version', 'null:null', _t('Version Number', 'plugin_directory') );
 			$version->template = 'tabcontrol_text';
-			$version->add_validator( 'validate_required' );
+//			$version->add_validator( 'validate_required' );
 
 			// the version release date
 			$version_release = $addon_versions->append( 'text', 'addon_version_release', 'null:null', _t('Release Date', 'plugin_directory') );
 			$version_release->template = 'tabcontrol_text';
 			$version_release->value = HabariDateTime::date_create()->format();
-			$version_release->add_validator( 'validate_required' );
+//			$version_release->add_validator( 'validate_required' );
 
 			// the version description
 			$version_description = $addon_versions->append( 'text', 'addon_version_description', 'null:null', _t('Version Description', 'plugin_directory') );
@@ -582,13 +582,13 @@
 			// the version download url
 			$version_url = $addon_versions->append( 'text', 'addon_version_url', 'null:null', _t('Download URL', 'plugin_directory') );
 			$version_url->template = 'tabcontrol_text';
-			$version_url->add_validator( 'validate_required' );
+//			$version_url->add_validator( 'validate_required' );
 
 			// the habari version it's compatible with
 			$habari_version = $addon_versions->append( 'text', 'addon_version_habari_version', 'null:null', _t('Compatible Habari Version', 'plugin_directory') );
 			$habari_version->template = 'tabcontrol_text';
 			$habari_version->helptext = _t('"x" is a wildcard, eg. 0.6.x', 'plugin_directory');
-			$habari_version->add_validator( 'validate_required' );
+//			$habari_version->add_validator( 'validate_required' );
 
 			// the release severity
 			$severity = $addon_versions->append( 'select', 'addon_version_severity', 'null:null', _t('Severity', 'plugin_directory') );
