@@ -475,7 +475,9 @@
 
 
 			// create the addon details wrapper pane
-			$addon_fields = $form->publish_controls->append( 'fieldset', 'addon_details', _t('Details', 'plugin_directory') );
+			$addon_fields = $form->append( 'fieldset', 'addon_details', _t('Details', 'plugin_directory') );
+			$form->move_after( $form->addon_details, $form->tags );
+
 
 			// add the type: plugin or theme
 			$details_type = $addon_fields->append( 'select', 'addon_details_type', 'null:null', _t('Addon Type', 'plugin_directory') );
