@@ -23,9 +23,9 @@
 			'type',
 			'url',
 			'screenshot',
-			'author',
-			'author_url',
-			'license',
+			'authors',
+/*			'author_url', */
+			'licenses',
 		);
 
 		// fields defined on the license publish form
@@ -72,6 +72,9 @@
 			UserGroup::get_by_name( 'anonymous' )->grant( 'post_addon', 'read' );
 			UserGroup::get_by_name( 'anonymous' )->grant( 'post_license', 'read' );
 
+			// create a permissions token
+			ACL::create_token( 'manage_versions', _t( 'Manage Addon Versions', 'plugin_directory'), 'Addons Directory', false );
+
 			// create the addon vocabulary (type)
 			Vocabulary::add_object_type( 'addon' );
 
@@ -106,9 +109,8 @@
 				$habari->info->guid = '7a0313be-d8e3-11db-8314-0800200c9a66';
 				$habari->info->url = 'http://habariproject.org';
 				$habari->info->description = 'Habari is next-generation blogging.';
-				$habari->info->author = 'The Habari Community';
-				$habari->info->author_url = 'http://habariproject.org';
-				$habari->info->license = 'asl2';
+				$habari->info->authors = array( array( 'name' => 'The Habari Community', 'url' => 'http://habariproject.org' ) );
+				$habari->info->licenses = array( 'asl2' );
 				$habari->info->type = 'core';
 				$habari->info->commit();
 
@@ -201,7 +203,7 @@
 			// when deactivating, don't destroy data, just turn it 'off'
 			Post::deactivate_post_type( 'addon' );
 			Post::deactivate_post_type( 'license' );
-
+			ACL::destroy_token( 'manage_versions' );
 		}
 
 		/**
@@ -509,16 +511,18 @@
 			$details_author->value = $post->info->author;
 			$details_author->template = 'tabcontrol_text';
 
-			// add the author url
+/*			// add the author url
 			$details_author_url = $addon_fields->append( 'text', 'addon_details_author_url', 'null:null', _t('Author URL', 'plugin_directory') );
 			$details_author_url->value = $post->info->author_url;
 			$details_author_url->template = 'tabcontrol_text';
-
-			// add the license @todo should be populated with a list of license content types
-			$details_license = $addon_fields->append( 'select', 'addon_details_license', 'null:null', _t('License', 'plugin_directory') );
-			$details_license->value = $post->info->license;
-			$details_license->template = 'tabcontrol_select';
-			$details_license->options = $this->get_license_options();
+*/
+			// add the licenses - should be a select again, need to make a "selectmulti"
+			// @todo should be populated with a list of license content types
+//			$details_license = $addon_fields->append( 'select', 'addon_details_license', 'null:null', _t('License', 'plugin_directory') );
+			$details_licenses = $addon_fields->append( 'textmulti', 'addon_details_licenses', 'null:null', _t('License', 'plugin_directory') );
+			$details_licenses->value = $post->info->licenses;
+//			$details_license->template = 'tabcontrol_textmulti';
+//			$details_license->options = $this->get_license_options();
 
 			// create the addon versions wrapper pane
 			$addon_versions = $form->publish_controls->append( 'fieldset', 'addon_versions', _t('Versions', 'plugin_directory') );
@@ -724,6 +728,10 @@
 			$this->add_template( 'addon.single', dirname(__FILE__) . '/templates/addon.single.php' );
 			$this->add_template( 'license.single', dirname(__FILE__) . '/templates/license.single.php' );
 
+			// register admin pages
+			$this->add_template( 'versions_admin', dirname( __FILE__ ) . '/addons_admin.php' );
+			$this->add_template( 'version_iframe', dirname( __FILE__ ) . '/version_iframe.php' );
+
 		}
 
 		/**
@@ -803,12 +811,68 @@
 		}
 
 		/**
-		 * Return an HTML link to the license of an addon
-		 */
-		public function filter_post_license_link( $license_link, $post ) {
-			$license_post = Post::get( array( 'slug' => $post->info->license ) );
+		 * Add link to the main menu
+		 *
+		 **/
+		public function filter_adminhandler_post_loadplugins_main_menu( $menu ) {
 
-			return "<a href='{$license_post->permalink}' title='More details about this license'>{$license_post->title}</a>";
+			// add to main menu
+			$item_menu = array( 'addons' =>
+				array(
+					'url' => URL::get( 'admin', 'page=addons' ),
+					'title' => _t( 'Addon Versions', 'plugin_directory' ),
+					'text' => _t( 'Addon Versions', 'plugin_directory' ),
+					'hotkey' => 'V',
+					'selected' => false,
+					'access' => array( 'manage_versions', true ),
+				)
+			);
+
+			$slice_point = array_search( 'themes', array_keys( $menu ) ); // Element will be inserted before "themes"
+			$pre_slice = array_slice( $menu, 0, $slice_point);
+			$post_slice = array_slice( $menu, $slice_point);
+
+			$menu = array_merge( $pre_slice, $item_menu, $post_slice );
+
+			return $menu;
+		}
+
+		/**
+		 * Handle GET and POST requests
+		 *
+		 **/
+		public function alias()
+		{
+			return array(
+				'action_admin_theme_get_addons' => 'action_admin_theme_post_addons',
+				'action_admin_theme_get_version_iframe' => 'action_admin_theme_post_version_iframe',
+			);
+		}
+
+		/**
+		 * Restrict access to the admin page
+		 *
+		 **/
+		public function filter_admin_access_tokens( array $require_any, $page )
+		{
+			switch ( $page ) {
+				case 'version_iframe':
+				case 'addons':
+					$require_any = array( 'manage_versions' => true );
+					break;
+			}
+			return $require_any;
+		}
+
+		/**
+		 * Prepare and display admin page
+		 *
+		 **/
+		public function action_admin_theme_get_addons( AdminHandler $handler, Theme $theme )
+		{
+			$theme->page_content = "";
+
+			$theme->display( 'versions_admin' );
 		}
 	}
 

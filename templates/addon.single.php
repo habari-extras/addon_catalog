@@ -22,10 +22,15 @@
 			<hr><?php if ( $post->versions !== false ) { ?>
 
 			<div class="info"><h3>Information</h3>
-				<ul>
-					<li>Author: <a href="<?php echo $post->info->author_url; ?>"><?php echo $post->info->author; ?></a>
-					<li>URL: <a href="<?php echo $post->info->url; ?>"><?php echo $post->title; ?></a>
-					<li>License: <?php echo $post->license_link; ?>
+				<ul><?php
+		 		foreach( $post->info->authors as $author ) { ?>
+					<li>Author: <a href="<?php echo $author[ 'url' ]; ?>"><?php echo $author[ 'name' ]; ?></a>
+<?php 			} ?>
+					<li>URL: <a href="<?php echo $post->url; ?>"><?php echo $post->title; ?></a>
+<?php			foreach( $post->info->licenses as $license ) {
+					$license_post = Post::get( array( 'slug' => $license ) );
+					echo "<li>License: <a href='{$license_post->permalink}' title='More details about this license'>{$license_post->title}</a>";
+				} ?>
 				</ul>
 			</div>
 
