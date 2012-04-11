@@ -275,6 +275,7 @@
 			$ui = new FormUI('plugin_directory');
 
 			//$ui->append( 'text', 'licenses', 'option:', _t( 'Licenses to use:', 'Lipsum' ) );
+			$ui->append( 'checkbox', 'use_baepath', 'plugin_directory__keep_pages', _t( 'Use a base path: ', 'plugin_directory' ) );
 			$ui->append( 'text', 'basepath', 'plugin_directory__basepath', _t( 'Base path (without trailing slash), e.g. <em>explore</em> :', 'plugin_directory' ) );
 			$ui->append( 'text', 'date_format', 'plugin_directory__date_format', _t( 'Release Date format :', 'plugin_directory' ) );
 
@@ -288,7 +289,12 @@
 
 		public function filter_default_rewrite_rules ( $rules ) {
 
-			$basepath = Options::get( 'plugin_directory__basepath', 'explore' );
+			if ( Options::get( 'plugin_directory__use_basepath', false ) ) {
+				$basepath = Options::get( 'plugin_directory__basepath', 'explore' ) . "/";
+			}
+			else {
+				$basepath = "";
+			}
 
 			// create the beacon endpoint rule
 			$rule = array(
@@ -320,8 +326,8 @@
 			// create the post display rule for one addon
 			$rule = array(
 				'name' => "display_addon",
-				'parse_regex' => "#^{$basepath}/(?P<addon>{$addon_regex})/(?P<slug>[^/]+)/?$#i",
-				'build_str' => $basepath . '/{$addon}/{$slug}',
+				'parse_regex' => "#^{$basepath}(?P<addon>{$addon_regex})/(?P<slug>[^/]+)/?$#i",
+				'build_str' => $basepath . '{$addon}/{$slug}',
 				'handler' => 'UserThemeHandler',
 				'action' => 'display_addon',
 				'parameters' => serialize( array( 'require_match' => array( 'Posts', 'rewrite_match_type' ), 'content_type' => 'addon' ) ),
@@ -334,8 +340,8 @@
 			// create the addon post display rule for multiple addons
 			$rule = array(
 				'name' => "display_addons",
-				'parse_regex' => "%^{$basepath}/(?P<addon>{$addon_regex})(?:/page/(?P<page>\d+))?/?$%",
-				'build_str' => $basepath . '/{$addon}(/page/{$page})',
+				'parse_regex' => "%^{$basepath}(?P<addon>{$addon_regex})(?:/page/(?P<page>\d+))?/?$%",
+				'build_str' => $basepath . '{$addon}(/page/{$page})',
 				'handler' => 'UserThemeHandler',
 				'action' => "display_addons",
 				'priority' => 2,
@@ -348,8 +354,8 @@
 			// create the license display rule
 			$rule = array(
 				'name' => 'display_license',
-				'parse_regex' => '#^' . $basepath . '/license/(?P<slug>[^/]+)(?:/page/(?P<page>\d+))?/?$#i',
-				'build_str' => $basepath . '/license/{$slug}',
+				'parse_regex' => '#^' . $basepath . 'license/(?P<slug>[^/]+)(?:/page/(?P<page>\d+))?/?$#i',
+				'build_str' => $basepath . 'license/{$slug}',
 				'handler' => 'UserThemeHandler',
 				'action' => 'display_post',
 				'parameters' => serialize( array( 'require_match' => array( 'Posts', 'rewrite_match_type' ), 'content_type' => 'license' ) ),
