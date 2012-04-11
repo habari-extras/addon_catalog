@@ -275,7 +275,7 @@
 			$ui = new FormUI('plugin_directory');
 
 			//$ui->append( 'text', 'licenses', 'option:', _t( 'Licenses to use:', 'Lipsum' ) );
-			$ui->append( 'checkbox', 'use_baepath', 'plugin_directory__keep_pages', _t( 'Use a base path: ', 'plugin_directory' ) );
+			$ui->append( 'checkbox', 'use_basepath', 'plugin_directory__keep_pages', _t( 'Use a base path: ', 'plugin_directory' ) );
 			$ui->append( 'text', 'basepath', 'plugin_directory__basepath', _t( 'Base path (without trailing slash), e.g. <em>explore</em> :', 'plugin_directory' ) );
 			$ui->append( 'text', 'date_format', 'plugin_directory__date_format', _t( 'Release Date format :', 'plugin_directory' ) );
 
