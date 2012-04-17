@@ -1,5 +1,0 @@
-The MIT License originated at the Massachusetts Institute of Technology (MIT) and has, through a few slightly-modified versions, been used to license a number of popular software packages including: Expat, PuTTY, the Mono development platform, Ruby on Rails, and the X Window System.
-
-The MIT License is similar to the New BSD License, except it does not include a clause restricting the use of the names of contributors for endorsement purposes.
-
-The Open Source Initiative has approved the MIT License as an open source license and it is considered compatible with the Apache Software License, version 2.0, by the Apache Software Foundation. It is considered by the Free Software Foundation to be compatible with the GPL.

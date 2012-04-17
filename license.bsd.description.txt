@@ -1,5 +1,0 @@
-The New / Modified BSD License is an adaptation of the original BSD license used by the Regents of the University of California to release the BSD (Berkeley Software Distribution) operating system. It is a permissive license which places fewer restrictions on distribution of licensed works compared with other free software licenses, such as the GPL, and even the default restrictions provided by copyright.
-
-Works licensed under the New BSD License may be redistributed for any purpose as long as the copyright notices and license disclaimers of warranty are included. The license also restricts the use of the names of contributors for endorsement of a derived work without specific permission.
-
-The modified version has been approved as an open source license by the Open Source Initiative and is considered compatible with the Apache Software License, version 2.0, by the Apache Software Foundation. It is considered by the Free Software Foundation to be compatible with the GPL.

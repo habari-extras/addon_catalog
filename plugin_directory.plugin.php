@@ -28,13 +28,6 @@
 			'licenses',
 		);
 
-		// fields defined on the license publish form
-		private $license_fields = array(
-			'shortname',
-			'simpletext',
-			'url',
-		);
-
 		// fields each version should have
 		private $version_fields = array(
 			'version',
@@ -66,11 +59,9 @@
 
 			// add the new content types
 			Post::add_new_type( 'addon' );
-			Post::add_new_type( 'license' );
 
 			// allow reading the new content types
 			UserGroup::get_by_name( 'anonymous' )->grant( 'post_addon', 'read' );
-			UserGroup::get_by_name( 'anonymous' )->grant( 'post_license', 'read' );
 
 			// create a permissions token
 			ACL::create_token( 'manage_versions', _t( 'Manage Addon Versions', 'plugin_directory'), 'Addons Directory', false );
@@ -110,23 +101,11 @@
 				$habari->info->url = 'http://habariproject.org';
 				$habari->info->description = 'Habari is next-generation blogging.';
 				$habari->info->authors = array( array( 'name' => 'The Habari Community', 'url' => 'http://habariproject.org' ) );
-				$habari->info->licenses = array( 'asl2' );
+				$habari->info->licenses = array( array( 'name' => 'Apache License, Version 2.0', 'url' => 'http://www.apache.org/licenses/LICENSE-2.0' ) );
 				$habari->info->type = 'core';
 				$habari->info->commit();
 
 				$versions = array(
-					'0.7.1' => array(
-						'version' => '0.7.1',
-						'description' => 'Habari release 0.7.1',
-						'info_url' => 'http://wiki.habariproject.org/en/Releases/0.7.1',
-						'url' => 'http://habariproject.org/dist/habari-0.7.1.zip',
-						'habari_version' => '0.7',
-						'severity' => 'feature',
-						'requires' => '',
-						'provides' => '',
-						'recommends' => '',
-						'release' => HabariDateTime::date_create('2011-05-12')->sql,
-					),
 					'0.8' => array(
 						'version' => '0.8',
 						'description' => 'Habari release 0.8',
@@ -142,67 +121,12 @@
 				);
 				$this->save_versions( $habari, $versions );
 			}
-
-			$apache_license = Posts::get( array( 'content_type' => 'license', 'slug' => 'asl2' ) );
-
-			if ( count( $apache_license ) == 0 ) {
-				$asl2 = Post::create( array(
-					'content_type' => Post::type( 'license' ),
-					'title' => 'Apache Software License, version 2.0',
-					'content' => file_get_contents( dirname( __FILE__ ) . '/license.asl2.description.txt' ),
-					'status' => Post::status('published'),
-					'pubdate' => HabariDateTime::date_create(),
-					'user_id' => User::identify()->id,
-					'slug' => 'asl2',
-				) );
-
-				$asl2->info->simpletext = file_get_contents( dirname( __FILE__ ) . '/license.asl2.txt' );
-				$asl2->info->shortname = 'asl2';
-				$asl2->info->url = 'http://www.apache.org/licenses/LICENSE-2.0';
-
-				$asl2->info->commit();
-
-				// assume that if there is no apache post there are no other licenses either
-				$bsd = Post::create( array(
-					'content_type' => Post::type( 'license' ),
-					'title' => 'New BSD',
-					'content' => file_get_contents( dirname( __FILE__ ) . '/license.bsd.description.txt' ),
-					'status' => Post::status('published'),
-					'pubdate' => HabariDateTime::date_create(),
-					'user_id' => User::identify()->id,
-					'slug' => 'bsd',
-				) );
-
-				$bsd->info->simpletext = file_get_contents( dirname( __FILE__ ) . '/license.bsd.txt' );
-				$bsd->info->shortname = 'bsd';
-				$bsd->info->url = 'http://opensource.org/licenses/bsd-license.php';
-
-				$bsd->info->commit();
-
-				$mit = Post::create( array(
-					'content_type' => Post::type( 'license' ),
-					'title' => 'MIT',
-					'content' => file_get_contents( dirname( __FILE__ ) . '/license.mit.description.txt' ),
-					'status' => Post::status('published'),
-					'pubdate' => HabariDateTime::date_create(),
-					'user_id' => User::identify()->id,
-					'slug' => 'mit',
-				) );
-
-				$mit->info->simpletext = file_get_contents( dirname( __FILE__ ) . '/license.mit.txt' );
-				$mit->info->shortname = 'mit';
-				$mit->info->url = 'http://opensource.org/licenses/mit-license.php';
-
-				$mit->info->commit();
-
-			}
 		}
 
 		public function action_plugin_deactivation ( $file ) {
 
 			// when deactivating, don't destroy data, just turn it 'off'
 			Post::deactivate_post_type( 'addon' );
-			Post::deactivate_post_type( 'license' );
 			ACL::destroy_token( 'manage_versions' );
 		}
 
@@ -220,14 +144,6 @@
 				}
 			}
 
-			if ( $type == 'license' ) {
-				if ( $plurality == 'singular' ) {
-					$type = _t('License', 'plugin_directory');
-				}
-				else {
-					$type = _t('Licenses', 'plugin_directory');
-				}
-			}
 			return $type;
 		}
 
@@ -244,7 +160,7 @@
 		public function action_plugin_ui_uninstall ( ) {
 
 			// get all the posts of the types we're deleting
-			$addons = Posts::get( array( 'content_type' => array( 'addon', 'license' ), 'nolimit' => true ) );
+			$addons = Posts::get( array( 'content_type' => array( 'addon' ), 'nolimit' => true ) );
 
 			foreach ( $addons as $addon ) {
 				$addon->delete();
@@ -252,7 +168,6 @@
 
 			// now that the posts are gone, delete the type - this would fail if we hadn't deleted the content first
 			Post::delete_post_type( 'addon' );
-			Post::delete_post_type( 'license' );
 
 			// remove vocabulary and terms
 			$vocabulary = $this->vocabulary;
@@ -351,20 +266,6 @@
 			// add it to the stack
 			$rules[] = $rule;
 
-			// create the license display rule
-			$rule = array(
-				'name' => 'display_license',
-				'parse_regex' => '#^' . $basepath . 'license/(?P<slug>[^/]+)(?:/page/(?P<page>\d+))?/?$#i',
-				'build_str' => $basepath . 'license/{$slug}',
-				'handler' => 'UserThemeHandler',
-				'action' => 'display_post',
-				'parameters' => serialize( array( 'require_match' => array( 'Posts', 'rewrite_match_type' ), 'content_type' => 'license' ) ),
-				'description' => 'Display addon directory license posts',
-			);
-
-			// add it to the stack
-			$rules[] = $rule;
-
 			// always return the rules
 			return $rules;
 
@@ -438,10 +339,6 @@
 			if ( $form->content_type->value == Post::type( 'addon' ) ) {
 				$this->form_publish_addon( $form, $post );
 			}
-			else if ( $form->content_type->value == Post::type( 'license' ) ) {
-				$this->form_publish_license( $form, $post );
-			}
-
 		}
 
 		/**
@@ -603,60 +500,6 @@
 
 		}
 
-		private function get_license_options ( ) {
-
-			$licenses = Posts::get( array( 'content_type' => 'license', 'nolimit' => true ) );
-
-			$l = array( '' => '' );		// start with a blank option
-			foreach ( $licenses as $license ) {
-
-				$l[ $license->slug ] = $license->title;
-
-			}
-
-			return $l;
-
-		}
-
-		/**
-		 * Manipulate the controls on the publish page for Licenses
-		 * 
-		 * @param FormUI $form The form that is used on the publish page
-		 * @param Post $post The post that's being edited
-		 */
-		private function form_publish_license ( $form, $post ) {
-
-			// remove silos, we don't need them
-			$form->remove( $form->silos );
-
-			// remove the tags, we don't use those
-			$form->remove( $form->tags );
-
-			// remove the settings pane from the publish controls for non-admin users, we don't want anyone editing that
-			if ( User::identify()->can( 'superuser' ) == false ) {
-				$form->publish_controls->remove( $form->publish_controls->settings );
-			}
-
-			// add shortname after title
-			$shortname = $form->append( 'text', 'license_shortname', 'null:null', _t('Short Name', 'plugin_directory') );
-			$shortname->value = $post->info->shortname;		// populate it, if it exists
-			$shortname->template = 'admincontrol_text';
-			$form->move_after( $form->license_shortname, $form->title );	// move it after the title field
-
-			// add the simple text
-			$simpletext = $form->append( 'textarea', 'license_simpletext', 'null:null', _t('Simple Text', 'plugin_directory') );
-			$simpletext->value = $post->info->simpletext;	// populate it, if it exists
-			$simpletext->template = 'admincontrol_textarea';
-			$form->move_after( $form->license_simpletext, $form->license_shortname );
-
-			// add url
-			$url = $form->append( 'text', 'license_url', 'null:null', _t('License URL', 'plugin_directory') );
-			$url->value = $post->info->url;		// populate it, if it exists
-			$url->template = 'admincontrol_text';
-			$form->move_after( $form->license_url, $form->license_simpletext );
-
-		}
-
 		public function action_publish_post ( $post, $form ) {
 
 			if ( $post->content_type == Post::type( 'addon' ) ) {
@@ -673,23 +516,6 @@
 				$this->prepare_versions( $post, $form );
 
 			}
-			else if ( $post->content_type == Post::type( 'license' ) ) {
-
-				foreach ( $this->license_fields as $field ) {
-
-					if ( $form->{'license_' . $field}->value ) {
-						$post->info->$field = $form->{'license_' . $field}->value;
-					}
-
-				}
-
-				// if the shortname is set, use it as the slug
-				if ( isset( $post->info->shortname ) ) {
-					$post->slug = Utils::slugify( $post->info->shortname );
-				}
-
-			}
-
 		}
 
 		private function prepare_versions ( $post, $form ) {
@@ -732,7 +558,6 @@
 			$this->add_template( 'addon.basepath', dirname(__FILE__) . '/templates/addon.basepath.php' );
 			$this->add_template( 'addon.multiple', dirname(__FILE__) . '/templates/addon.multiple.php' );
 			$this->add_template( 'addon.single', dirname(__FILE__) . '/templates/addon.single.php' );
-			$this->add_template( 'license.single', dirname(__FILE__) . '/templates/license.single.php' );
 
 			// register admin pages
 			$this->add_template( 'versions_admin', dirname( __FILE__ ) . '/addons_admin.php' );
