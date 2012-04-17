@@ -21,21 +21,32 @@
 			</div>
 			<hr><?php if ( $post->versions !== false ) { ?>
 
-			<div class="info"><h3>Information</h3>
+			<div class="info"><h3><em>Stuff that won't show up on the finished product</em></h3>
+				<ul>
+					<li>tree : <?php echo $post->info->tree_url; ?>
+					<li>blob : <?php echo $post->info->blob_url; ?>
+					<li>xml : <small><pre style="width:100%;overflow-x:scroll"><?php echo htmlspecialchars($post->info->xml); ?></pre></small>
+					<li>guid : <?php echo $post->info->guid; ?>
+					<li>type : <?php echo $post->info->type; ?>
+					<li>username : <?php echo User::get( $post->user_id )->username; ?>
+				</ul>
+			</div>
+
+			<div class="info"><h3>Information <em>(that will)</em></h3>
 				<ul><?php
 		 		foreach( $post->info->authors as $author ) { ?>
-					<li>Author: <a href="<?php echo $author[ 'url' ]; ?>"><?php echo $author[ 'name' ]; ?></a>
+					<li>Author<?php echo _n( " ", "s", count( $post->info->authors ) ); ?>: <a href="<?php echo $author[ 'url' ]; ?>"><?php echo $author[ 'name' ]; ?></a>
 <?php 			} ?>
-					<li>URL: <a href="<?php echo $post->url; ?>"><?php echo $post->title; ?></a>
+					<li>URL : <a href="<?php echo $post->info->url; ?>"><?php echo $post->info->url; ?></a>
 <?php			foreach( $post->info->licenses as $license ) {
 					$license_post = Post::get( array( 'slug' => $license ) );
-					echo "<li>License: <a href='{$license_post->permalink}' title='More details about this license'>{$license_post->title}</a>";
+					echo "<li>License <em>(not working)</em> : <a href='{$license_post->permalink}' title='More details about this license'>{$license_post->title}</a>";
 				} ?>
 				</ul>
 			</div>
 
 			<div class="downloads"><h5>Available Versions</h5><table>
-				<thead><tr><th>Version<th>Release Date<th>Information<th>Download Link</tr>
+				<thead><tr><th>Version<th>Release Date<th>Information <em>(What would this be?)</em><th>Download Link</tr>
 				</thead>
 				<tbody>
 
@@ -71,7 +82,6 @@
 		</div>
 
 	<?php
-
 	$theme->display('footer');
 
 ?>
