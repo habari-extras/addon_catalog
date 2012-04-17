@@ -7,6 +7,6 @@
   <author url="http://chrismeller.com">Chris Meller</author>
   <version>0.3</version>
   <guid>d6b0c00e-7884-4815-a140-072b2166c6c5</guid>
-  <description><![CDATA[Provides a browseable directory and update beacon services for addons: plugins, themes, etc.]]></description>
+  <description><![CDATA[Provides a browseable directory, update beacon services, and content types for addons: plugins, themes, etc.]]></description>
   <copyright>2010</copyright>
 </pluggable>
