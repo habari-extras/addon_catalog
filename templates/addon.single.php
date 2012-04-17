@@ -23,6 +23,7 @@
 
 			<div class="info"><h3><em>Stuff that won't show up on the finished product</em></h3>
 				<ul>
+					<li>repo : <?php echo $post->info->repo_url; ?>
 					<li>tree : <?php echo $post->info->tree_url; ?>
 					<li>blob : <?php echo $post->info->blob_url; ?>
 					<li>xml : <small><pre style="width:100%;overflow-x:scroll"><?php echo htmlspecialchars($post->info->xml); ?></pre></small>
