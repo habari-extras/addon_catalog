@@ -38,10 +38,9 @@
 					<li>Author<?php echo _n( " ", "s", count( $post->info->authors ) ); ?>: <a href="<?php echo $author[ 'url' ]; ?>"><?php echo $author[ 'name' ]; ?></a>
 <?php 			} ?>
 					<li>URL : <a href="<?php echo $post->info->url; ?>"><?php echo $post->info->url; ?></a>
-<?php			foreach( $post->info->licenses as $license ) {
-					$license_post = Post::get( array( 'slug' => $license ) );
-					echo "<li>License <em>(not working)</em> : <a href='{$license_post->permalink}' title='More details about this license'>{$license_post->title}</a>";
-				} ?>
+<?php			foreach( $post->info->licenses as $license ) { ?>
+					<li>License : <a href="<?php echo $license['url']; ?>"><?php echo $license['name']; ?></a>
+<?php				} ?>
 				</ul>
 			</div>
 
