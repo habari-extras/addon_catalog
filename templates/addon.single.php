@@ -19,6 +19,11 @@
 			<div class="entry-content">
 				<?php echo $post->content_out; ?>
 			</div>
+<?php		if( $post->info->help !== '' ) { ?>
+			<h4>More Information</h4>
+				<?php echo $post->info->help;
+			} ?>
+
 			<hr><?php if ( $post->versions !== false ) { ?>
 
 			<div class="info"><h3><em>Stuff that won't show up on the finished product</em></h3>
