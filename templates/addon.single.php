@@ -39,14 +39,10 @@
 			</div>
 
 			<div class="info"><h3>Information <em>(that will)</em></h3>
-				<ul><?php
-		 		foreach( $post->info->authors as $author ) { ?>
-					<li>Author<?php echo _n( " ", "s", count( $post->info->authors ) ); ?>: <a href="<?php echo $author[ 'url' ]; ?>"><?php echo $author[ 'name' ]; ?></a>
-<?php 			} ?>
+				<ul>
+					<li>Author<?php echo _n( " ", "s ", count( $post->info->authors ) ); ?>: <?php echo PluginDirectory::name_url_list( $post->info->authors ); ?>
 					<li>URL : <a href="<?php echo $post->info->url; ?>"><?php echo $post->info->url; ?></a>
-<?php			foreach( $post->info->licenses as $license ) { ?>
-					<li>License : <a href="<?php echo $license['url']; ?>"><?php echo $license['name']; ?></a>
-<?php				} ?>
+					<li>License<?php echo _n( " ", "s ", count( $post->info->licenses ) ); ?>: <?php echo PluginDirectory::name_url_list( $post->info->licenses ); ?>
 				</ul>
 			</div>
 

@@ -24,7 +24,6 @@
 			'url',
 			'screenshot',
 			'authors',
-/*			'author_url', */
 			'licenses',
 		);
 
@@ -705,6 +704,38 @@
 
 			$theme->display( 'versions_admin' );
 		}
+
+
+		/**
+		 * function name_url_list
+		 * Formatting function
+		 * Turns an array of array( name, url ) into an HTML-linked list with commas and an "and".
+		 * @param array $array An array of items
+		 * @param string $between Text to put between each element
+		 * @param string $between_last Text to put between the next to last element and the last element
+		 * @return string HTML links with specified separators.
+		 */
+		public static function name_url_list( $items = array(), $between = ', ', $between_last = null )
+		{
+			$array = array();
+
+			foreach ( $items as $item ) {
+				$array[ $item[ 'name' ] ] = $item[ 'url' ];
+			}
+
+			if ( $between_last === null ) {
+				$between_last = _t( ' and ' );
+			}
+
+			$fn = create_function( '$a,$b', 'return "<a href=\\"" . $a . "\\">" . $b . "</a>";' );
+			$array = array_map( $fn, $array, array_keys( $array ) );
+			$last = array_pop( $array );
+			$out = implode( $between, $array );
+			$out .= ( $out == '' ) ? $last : $between_last . $last;
+			return $out;
+
+		}
+
 	}
 
 ?>
