@@ -8,7 +8,7 @@ foreach ( $posts as $post ) { ?>
 		</div>
 
 		<div class="entry-content">
-			<?php echo $post->info->description; ?>
+			<?php echo $post->content; ?>
 		</div>
 	</div>
 	<hr>

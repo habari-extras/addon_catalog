@@ -309,7 +309,14 @@
 			$default_filters = array(
 				'content_type' => Post::type( 'addon' ),
 				'info' => array( 'type' => $type ),
+				'orderby' => 'title ASC',
+				'limit' => 20,
 			);
+			$handler = Controller::get_handler();
+			if(isset($handler->handler_vars['page'])) {
+				$default_filters['page'] = $handler->handler_vars['page'];
+			}
+			$paramarray['posts'] = Posts::get($default_filters);
 
 			$paramarray['user_filters'] = $default_filters;
 			$theme->act_display( $paramarray );
