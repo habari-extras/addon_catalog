@@ -31,6 +31,7 @@
 					<li>repo : <?php echo $post->info->repo_url; ?>
 					<li>tree : <?php echo $post->info->tree_url; ?>
 					<li>blob : <?php echo $post->info->blob_url; ?>
+					<li>json : <small><pre style="width:100%;overflow-x:scroll"><?php echo htmlspecialchars($post->info->json); ?></pre></small>
 					<li>xml : <small><pre style="width:100%;overflow-x:scroll"><?php echo htmlspecialchars($post->info->xml); ?></pre></small>
 					<li>guid : <?php echo $post->info->guid; ?>
 					<li>type : <?php echo $post->info->type; ?>
