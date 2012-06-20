@@ -35,6 +35,9 @@
 					<li>xml : <small><pre style="width:100%;overflow-x:scroll"><?php echo htmlspecialchars($post->info->xml); ?></pre></small>
 					<li>guid : <?php echo $post->info->guid; ?>
 					<li>type : <?php echo $post->info->type; ?>
+<?php			if( $post->info->parent_theme !== '' ) { ?>
+					<li>parent_theme : <?php echo $post->info->parent_theme;
+				} ?>
 					<li>username : <?php echo User::get( $post->user_id )->username; ?>
 				</ul>
 			</div>
