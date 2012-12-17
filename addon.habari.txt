@@ -1,0 +1,3 @@
+Habari is a free and open source blog engine written in PHP and currently supports MySQL, SQLite and PostgreSQL for the database backend.
+
+It gets its name from the Swahili greeting <em>habari</em>, which means "(what's the) news".

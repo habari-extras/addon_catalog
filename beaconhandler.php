@@ -1,6 +1,6 @@
 <?php
 
-class BeaconHandler extends ActionHandler {
+	class BeaconHandler extends ActionHandler {
 		
 		public function __construct ( ) {
 			
@@ -9,71 +9,46 @@ class BeaconHandler extends ActionHandler {
 		
 		public function act_request ( ) {
 			
-			/*
-			 * @todo refactor this so we Posts::get() only those GUIDs requested:
-			 * 			array( ... 'info:any' => array( 'guid1', 'guid2', ... ) );
-			 * @todo potentially cache individual plugins seperately, or eliminate caching all together
-			 * 
-			 * @todo check against the versioin passed with guid, to only output updated version info.
-			 */
+			// @todo limit this to GUIDs POST'd
+			$plugins = Posts::get( array( 'content_type' => 'addon', 'nolimit' => true, 'status' => Post::status('published') ) );
 			
-			if ( Cache::has( 'plugin_directory:plugins' ) && false ) {
-				
-				$plugins = Cache::get( 'plugin_directory:plugins' );
-				
-				$from_cache = true;
-				
-			}
-			else {
-				
-				// get the entire list of plugins from our directory based on their custom content type
-				$plugins = Posts::get( array( 'content_type' => 'plugin', 'nolimit' => true ) );
-				
-				$from_cache = false;
-				
-			}
-			
-			
-			
-			// build the xml output
 			$xml = new SimpleXMLElement( '<updates></updates>' );
 			
 			foreach ( $plugins as $plugin ) {
-				if ( !$plugin->versions ) {
-					continue;
+				
+				// if we don't have any versions, skip this plugin
+				if ( empty( $plugin->info->versions ) ) {
+					//continue;
 				}
 				
 				// create the beacon's node
-				$beacon_node = $xml->addChild( 'beacon' );
-				$beacon_node->addAttribute( 'id', $plugin->info->guid );
-				$beacon_node->addAttribute( 'name', $plugin->title );
+				$beacon = $xml->addChild( 'beacon' );
+				$beacon['id'] = $plugin->info->guid;
+				$beacon['name'] = $plugin->title;
+				$beacon['url'] = $plugin->permalink;
+				$beacon['type'] = $plugin->info->type;
 				
-				foreach ( $plugin->versions as $version ) {
-					// create an update node for the beacon  with the status' message
-					$update_node = $beacon_node->addChild( 'update', $version->description );
-					$update_node->addAttribute( 'severity', $version->status );
-					$update_node->addAttribute( 'version', $version->version );
-					$update_node->addAttribute( 'habari_version', $version->habari_version );
-					$update_node->addAttribute( 'url', $version->url );
+				foreach ( $plugin->info->versions as $version ) {
+					
+					// @todo limit this to only versions older than the one POST'd
+					$update = $beacon->addChild( 'update', $version['description'] );
+					$update['severity'] = $version['severity'];
+					$update['version'] = $version['version'];
+					$update['habari_version'] = $version['habari_version'];
+					$update['url'] = $version['url'];
+					$update['date'] = HabariDateTime::date_create( $version->date )->format('c');
+					
 				}
+				
 			}
 			
-			//Utils::debug($plugins, 'Plugins');
-			
-			// only cache this set of plugins if it wasn't already from the cache
-			if ( $from_cache == false ) {
-				Cache::set( 'plugin_directory:plugins', $plugins );
-			}
-			
-			$xml = Plugins::filter( 'plugin_directory_beacon_xml', $xml, $this->handler_vars );
-			$xml = $xml->asXML();
-			
-			// @todo uncomment when we're actually outputting xml again
-			ob_clean();
-			header( 'Content-Type: application/xml' );
-			echo $xml;
+			// spit out the xml
+			ob_clean();		// clean the output buffer
+			header( 'Content-type: application/xml' );
+			echo $xml->asXML();
 			
 		}
 		
 	}
+
 ?>

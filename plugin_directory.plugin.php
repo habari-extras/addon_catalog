@@ -1,484 +1,659 @@
 <?php
 
-/**
- * Provides community plugin / theme directory as well as beacon update services.
- * 
- * cross reference between compatible themes/plugins - morydd
- * 'People who downloaded this also downloaded X' - randyw
- * if 2 plugins have 4 or more tags in common, say something like "This plugin not what you want? Try foo, bar, or baz" - randyw
- */
+	include('beaconhandler.php');
 
-require 'beaconhandler.php';
-require 'pluginrepo.php';
+	class PluginDirectory extends Plugin {
 
-class PluginServer extends Plugin
-{
-	private $info_fields = array(
-		'guid'
-	);
+		// @todo we can do better than this
+		private	$types = array( 'themes' => 'theme', 'plugins' => 'plugin', 'core' => 'core' );
 
-	private $plugin_fields = array(
-		'post_id',
-		'version',
-		'md5',
-		'habari_version',
-		'description',
-		'author',
-		'author_url',
-		'license',
-		'screenshot',
-		'instructions',
-		'url',
-		'status',
-		'requires',
-		'provides',
-		'recommends',
-		'source_link'
-	);
-
-	private $theme_fields = array(
-		'post_id',
-		'version',
-		'md5',
-		'habari_version',
-		'description',
-		'author',
-		'author_url',
-		'license',
-		'screenshot',
-		'instructions',
-		'url',
-		'status',
-		'requires',
-		'provides',
-		'recommends',
-		'source_link'
-	);
-
-	private $license_fields = array(
-		'simpletext',
-		'shortname',
-		'link'
-	);
-
-	const VERSION = '0.2alpha3';
-
-	public function filter_default_rewrite_rules( $rules ) {
-
-		// put together our rule
-		$rule['name'] = 'beacon_server';
-		$rule['parse_regex'] = '%^beacon$%i';
-		$rule['build_str'] = 'beacon';
-		$rule['handler'] = 'BeaconHandler';
-		$rule['action'] = 'request';
-		$rule['description'] = 'Incoming Beacon Update Requests';
-
-		// add our rule to the stack
-		$rules[] = $rule;
-
-		// put together our rule
-		$rule['name'] = 'repo_server';
-		$rule['parse_regex'] = '%^packages[/]?$%i';
-		$rule['build_str'] = 'packages';
-		$rule['handler'] = 'PluginRepo';
-		$rule['action'] = 'packages';
-		$rule['description'] = 'Plugin Repo Server';
-
-		// add our rule to the stack
-		$rules[] = $rule;
-
-		// put together our rule
-		$rule['name'] = 'display_plugin';
-		$rule['parse_regex'] = '%^explore/plugins/(?P<slug>.+)/?$%';
-		$rule['build_str'] = 'explore/plugins/{$slug}';
-		$rule['handler'] = 'UserThemeHandler';
-		$rule['action'] = 'display_plugin';
-		$rule['priority'] = 3;
-		$rule['description'] = 'Plugin Repo Server Browser';
-
-		// add our rule to the stack
-		$rules[] = $rule;
-		
-		// put together our rule
-		$rule['name'] = 'display_plugins';
-		$rule['parse_regex'] = '%^explore/plugins(?:/page/(?P<page>\d+))?/?$%';
-		$rule['build_str'] = 'explore/plugins(/page/{$page})';
-		$rule['handler'] = 'UserThemeHandler';
-		$rule['action'] = 'display_plugins';
-		$rule['priority'] = 2;
-		$rule['description'] = 'Plugin Repo Server Browser';
-
-		// add our rule to the stack
-		$rules[] = $rule;
-
-		$rule['name'] = 'display_theme';
-		$rule['parse_regex'] = '%^explore/themes/(?P<slug>.+)/?$%';
-		$rule['build_str'] = 'explore/themes/{$slug}';
-		$rule['handler'] = 'UserThemeHandler';
-		$rule['action'] = 'display_theme';
-		$rule['priority'] = 3;
-		$rule['description'] = 'Plugin Repo Server Browser';
-		$rules[] = $rule;
-		
-		$rule['name'] = 'display_themes';
-		$rule['parse_regex'] = '%^explore/themes(?:/page/(?P<page>\d+))?/?$%';
-		$rule['build_str'] = 'explore/themes(/page/{$page})';
-		$rule['handler'] = 'UserThemeHandler';
-		$rule['action'] = 'display_themes';
-		$rule['priority'] = 2;
-		$rule['description'] = 'Plugin Repo Server Browser';
-		$rules[] = $rule;
-
-		$rule['name'] = 'display_license';
-		$rule['parse_regex'] = '%^explore/other/license/(?P<slug>.+)/?$%';
-		$rule['build_str'] = 'explore/other/license/{$slug}';
-		$rule['handler'] = 'UserThemeHandler';
-		$rule['action'] = 'display_license';
-		$rule['priority'] = 2;
-		$rule['description'] = 'Plugin Repo Server Browser';
-		$rules[] = $rule;
-		
-		// and pass it along
-		return $rules;
-
-	}
-	
-	/**
-	 * @ todo make uoe own template for these
-	 */
-	public function filter_theme_act_display_plugins( $handled, $theme )
-	{
-		$paramarray['fallback']= array(
-		 	'plugin.multiple',
-			'multiple',
+		// @todo these should be handled in plugin config ui
+		private $api_keys = array(
+			'braGecezu4rUsephap6Tu5ebabu4ecay6wustUj2che3e4ruprahuruStuspe8ut',		// -extras hook
+			'9eFazezu4utRECHEStutUC4eQeGeVEbrUCRuGadahu7TUxEB5esWuvEheGEdavAM',		// unused
+			'sPUsEphecApRewrECheJUswaqephujuyEwRAbetUbracHaj7cREcraDRuqUjAswu',		// unused
+			'kephucuwrudruthePeswubRukuzabajafrejatrefu4u8wefu5uwrej8dar5dreb',		// unused
+			'swetaphutraphecr6betreThe8uv2bupebuxu572ethejus9zuyawruprefr9chu',		// unused
 		);
 
-		// Makes sure home displays only entries
-		$default_filters = array(
-			'content_type' => Post::type( 'plugin' ),
+		private $addon_fields = array(
+			'guid',
+			'description', /* shorter description of the plugin, such as the line from the pluggable xml */
+			'instructions',
+			'type',
+			'url',
+			'screenshot',
+			'authors',
+			'licenses',
 		);
 
-		$paramarray['user_filters']= $default_filters;
-
-		$theme->act_display( $paramarray );
-		return true;
-	}
-	
-	public function filter_theme_act_display_plugin( $handled, $theme )
-	{
-		$default_filters = array(
-			'content_type' => Post::type( 'plugin' ),
-		);
-		$theme->act_display_post( $default_filters );
-		return true;
-	}
-
-	public function filter_theme_act_display_themes( $handled, $theme )
-	{
-		$paramarray['fallback']= array(
-		 	'theme.multiple',
-			'multiple',
+		// fields each version should have
+		private $version_fields = array(
+			'version',
+			'release', /* release date */
+			'description',
+			'info_url',
+			'url', /* download url */
+			'habari_version',
+			'severity',
+			'requires',
+			'provides',
+			'recommends',
 		);
 
-		// Makes sure home displays only entries
-		$default_filters = array(
-			'content_type' => Post::type( 'theme' ),
-		);
+		private static $vocabulary = "Addon versions";
+		protected $_vocabulary;
 
-		$paramarray['user_filters']= $default_filters;
-
-		$theme->act_display( $paramarray );
-		return true;
-	}
-	
-	public function filter_theme_act_display_theme( $handled, $theme )
-	{
-		$default_filters = array(
-			'content_type' => Post::type( 'theme' ),
-		);
-		$theme->act_display_post( $default_filters );
-		return true;
-	}
-
-	public function filter_theme_act_display_licenses( $handled, $theme )
-	{
-		$paramarray['fallback']= array(
-			'license.multiple',
-			'multiple',
-		);
-
-		// Makes sure home displays only entries
-		$default_filters = array(
-			'content_type' => Post::type( 'license' ),
-		);
-
-		$paramarray['user_filters']= $default_filters;
-
-		$theme->act_display( $paramarray );
-		return true;
-	}
-
-	public function filter_theme_act_display_license( $handled, $theme )
-	{
-		$default_filters = array(
-			'content_type' => Post::type( 'license' ),
-		);
-		$theme->act_display_post( $default_filters );
-		return true;
-	}
-
-
-
-	public function action_plugin_activation ( $file ='' ) {
-
-		if ( Plugins::id_from_file( $file ) == Plugins::id_from_file( __FILE__ ) ) {
-
-			// add or activate our custom post type
-			Post::add_new_type( 'plugin' );
-			Post::add_new_type( 'license' );
-			Post::add_new_type( 'theme' );
-
-			DB::register_table( 'dir_plugin_versions' );
-			DB::register_table( 'dir_theme_versions' );
-
-			// Create the database table, or upgrade it
-			DB::dbdelta( $this->get_db_schema() );
-
-			Session::notice( _t( 'updated plugin_versions table', 'plugin_directory' ) );
+		public function __get( $name ) {
+			switch( $name ) {
+				case 'vocabulary':
+					if ( !isset( $this->_vocabulary ) ) {
+						$this->_vocabulary = Vocabulary::get( self::$vocabulary );
+					}
+					return $this->_vocabulary;
+			}
 		}
 
-	}
+		public function action_plugin_activation ( $file ) {
 
-	public function action_plugin_deactivation( $file ='' ) {
+			// add the new content types
+			Post::add_new_type( 'addon' );
 
-		if ( Plugins::id_from_file( $file ) == Plugins::id_from_file( __FILE__ ) ) {
+			// allow reading the new content types
+			UserGroup::get_by_name( 'anonymous' )->grant( 'post_addon', 'read' );
 
-			// @todo it has yet been decided whether or not this is a good idea - MellerTime
-			/*
-			// get all the posts of our update type, so we can delete them
-			$posts = Posts::get( array( 'content_type' => 'plugin', 'nolimit' => true ) );
+			// create a permissions token
+			ACL::create_token( 'manage_versions', _t( 'Manage Addon Versions', 'plugin_directory'), 'Addons Directory', false );
 
-			foreach ( $posts as $post ) {
+			// create the addon vocabulary (type)
+			Vocabulary::add_object_type( 'addon' );
 
-				$post->delete();
-
-			}
-			*/
-
-			// deactivate our custom post type
-			Post::deactivate_post_type( 'plugin' );
-
-		}
-
-	}
-	
-	public function action_auth_ajax_generate_guid( $handler )
-	{
-		echo UUID::get();
-	}
-	
-	/**
-	 *Manipulate the controls on the publish page
-	 *
-	 *@param FormUI $form The form that is used on the publish page
-	 *@param Post $post The post being edited
-	 **/
-	public function action_form_publish($form, $post)
-	{
-		if ( $form->content_type->value == Post::type('plugin') ) {
-			// remove silos we don't need them, do we?
-			$form->remove($form->silos);
-			
-			// add guid after title
-			$guid = $form->append('text', 'plugin_details_guid', 'null:null', 'GUID');
-			$guid->value = $post->info->guid;
-			$guid->template = ($post->slug) ? 'admincontrol_text' : 'guidcontrol';
-			$form->move_after($form->plugin_details_guid, $form->title);
-
-			// add instructions after content
-			$instructions = $form->append('textarea','plugin_details_instructions', 'null:null', 'Instructions');
-			$instructions->value = $post->info->instructions;
-			$instructions->class[] = 'resizable';
-			$instructions->template = 'admincontrol_textarea';
-			$form->move_after($form->plugin_details_instructions, $form->content);
-
-			// todo Fix all the tabindexes - there are two #2s right now and GUID has none.
-
-			// todo Remove the settings tab, as it's not needed
-			$plugin_details = array(
-				'url' => $post->info->url,
-				'screenshot' => $post->info->screenshot,
-				'author' => $post->info->author,
-				'author_url' => $post->info->author_url,
-				'license' => $post->info->license
-			);
-
-			$plugin_form_fields = $form->publish_controls->append('fieldset', 'plugin_details', 'Plugin Details');
-
-			foreach ( $plugin_details as $field => $value ) {
-				$plugin_field = $plugin_form_fields->append('text', 'plugin_details_' . $field, 'null:null', ucfirst(str_replace('_', ' ', $field)));
-				$plugin_field->value = $value;
-				$plugin_field->template = 'tabcontrol_text';
-			}
-			
-			$plugin_versions = $form->publish_controls->append('fieldset', 'plugin_versions', 'Plugin Versions');
-			if ( $post->slug != '' ) {
-				$form->plugin_versions->append('static', 'current_versions', 'Current Versions');
-				foreach ( (array) $post->versions as $version ) {
-					$version_info = $version->status . ": " . $post->title . " " . $version->version . " -- " . $version->description;
-					$plugin_versions->append('static', 'version_info', $version_info);
-				}
-			}
-
-			$form->plugin_versions->append('static', 'new_version', 'Add New Version');
-			$version = $plugin_versions->append('text', 'plugin_version_version', 'null:null', _t( 'Version Number' ));
-			$version->template = 'tabcontrol_text';
-			$description = $plugin_versions->append('text', 'plugin_version_description', 'null:null', _t( 'Version Description' ));
-			$description->template = 'tabcontrol_text';
-			$url = $plugin_versions->append('text', 'plugin_version_url', 'null:null', _t( 'Archive URL' ));
-			$url->template = 'tabcontrol_text';
-			$habari_version = $plugin_versions->append('text', 'plugin_version_habari_version', 'null:null', _t( 'Compatible Habari Version <br> ("x" is a wildcard, eg. 0.5.x)' ));
-			$habari_version->template = 'tabcontrol_text';
-
-			$status = $plugin_versions->append( 'select', 'plugin_version_status', 'null:null', 'Status');
-			$status->template = 'tabcontrol_select';
-			$status->options = array(
-				'release' => 'Release',
-				'critical' => 'Critical',
-				'bugfix' => 'Bugfix',
-				'feature' => 'Feature',
+			// create the addon vocabulary
+			$params = array(
+				'name' => self::$vocabulary,
+				'description' => _t( 'A vocabulary for addon versions in the addons directory', 'plugin_directory' ),
 				);
+			$vocabulary = Vocabulary::create( $params );
+			// @TODO: notification/log of some sort?
 
-			$requires = $plugin_versions->append('text', 'plugin_version_requires', 'null:null', _t( 'Requires' ));
-			$requires->template = 'tabcontrol_text';
-			$provides = $plugin_versions->append('text', 'plugin_version_provides', 'null:null', _t( 'Provides' ));
-			$provides->template = 'tabcontrol_text';
-			$recommends = $plugin_versions->append('text', 'plugin_version_recommends', 'null:null', _t( 'Recommends' ));
-			$recommends->template = 'tabcontrol_text';
-
-			$sourcelink = $plugin_versions->append('text', 'plugin_version_source_link', 'null:null', _t( 'Link to Source' ));
-			$sourcelink->template = 'tabcontrol_text';
-			/* @todo validate sourcelink */
+			// create the default content
+			$this->create_default_content();
 		}
-		else if ( $form->content_type->value == Post::type( 'license' ) ) {
-			// clean up the form a little...
-			$form->remove( $form->silos );
-			$form->remove( $form->content );
-			$form->remove( $form->tags );
-			$settings = $form->publish_controls->settings;
-			$settings->minor_edit->remove();
-			$settings->comments_enabled->remove();
-			$settings->pubdate->remove();
 
-			// add shortname after title
-			$shortname = $form->append('text', 'license_shortname', 'null:null', _t('Short Name') );
-			$shortname->value = $post->info->shortname;
-			$shortname->template = 'admincontrol_text';
-			$form->move_after($form->license_shortname, $form->title);
+		private function create_default_content ( ) {
 
-			// add simpletext after shortname
-			$simpletext = $form->append('textarea','license_simpletext', 'null:null', _t('Simplified Text') );
-			$simpletext->value = $post->info->simpletext;
-			$simpletext->class[] = 'resizable';
-			$simpletext->template = 'admincontrol_textarea';
-			$form->move_after($form->license_simpletext, $form->license_shortname);
+			$habari_addon = Posts::get( array( 'content_type' => 'addon', 'slug' => 'habari' ) );
 
-			// add link after simpletext
-			$link = $form->append('text', 'license_link', 'null:null', _t('Link') );
-			$link->value = $post->info->link;
-			$link->template = 'admincontrol_text';
-			$form->move_after($form->license_link, $form->license_simpletext);
-		}
-	}
+			if ( count( $habari_addon ) == 0 ) {
+				$habari = Post::create( array(
+					'content_type' => Post::type( 'addon' ),
+					'title' => 'Habari',
+					'content' => file_get_contents( dirname( __FILE__ ) . '/addon.habari.txt' ),
+					'status' => Post::status('published'),
+					'tags' => array( 'habari' ),
+					'pubdate' => HabariDateTime::date_create(),
+					'user_id' => User::identify()->id,
+					'slug' => 'habari',
+				) );
 
-	public function action_publish_post( $post, $form )
-	{
-		if ( $post->content_type == Post::type('plugin') ) {
-			foreach ( $this->info_fields as $info_field ) {
-				if ( $form->{"plugin_details_$info_field"}->value ) {
-					$post->info->{$info_field} = $form->{"plugin_details_$info_field"}->value;
-				}
+				$habari->info->guid = '7a0313be-d8e3-11db-8314-0800200c9a66';
+				$habari->info->url = 'http://habariproject.org';
+				$habari->info->description = 'Habari is next-generation blogging.';
+				$habari->info->authors = array( array( 'name' => 'The Habari Community', 'url' => 'http://habariproject.org' ) );
+				$habari->info->licenses = array( array( 'name' => 'Apache License, Version 2.0', 'url' => 'http://www.apache.org/licenses/LICENSE-2.0' ) );
+				$habari->info->type = 'core';
+				$habari->info->commit();
+
+				$versions = array(
+					'0.8' => array(
+						'version' => '0.8',
+						'description' => 'Habari release 0.8',
+						'info_url' => 'http://wiki.habariproject.org/en/Release_0.8',
+						'url' => 'http://habariproject.org/dist/habari-0.8.zip',
+						'habari_version' => '0.8',
+						'severity' => 'feature',
+						'requires' => '',
+						'provides' => '',
+						'recommends' => '',
+						'release' => HabariDateTime::date_create( '2011-12-13' )->sql,
+					),
+				);
+				$this->save_versions( $habari, $versions );
 			}
-			
-			$this->save_versions( $post, $form );
 		}
-			/* NEED THEME STUFF HERE */
-		
-		else if ( $post->content_type == Post::type('license') ) {
-			foreach ( $this->license_fields as $field ) {
-				if ( $form->{"license_$field"}->value ) {
-					$post->info->{$field} = $form->{"license_$field"}->value;
-				}
-			}
-			
-		}
-	}
 
-	/**
-		* @todo check for required inputs
-		*/
-	public function save_versions( $post, $form )
-	{
-		if ( $form->plugin_version_version->value ) {
-			$version_vals = array();
-			foreach ( $this->plugin_fields as $version_field ) {
-				if ( $form->{"plugin_version_$version_field"} ) {
-					$version_vals[$version_field] = $form->{"plugin_version_$version_field"}->value;
+		public function action_plugin_deactivation ( $file ) {
+
+			// when deactivating, don't destroy data, just turn it 'off'
+			Post::deactivate_post_type( 'addon' );
+			ACL::destroy_token( 'manage_versions' );
+		}
+
+		/**
+		 * Nomenclature for the main menu -> New, and Manage
+		 */
+		public function filter_post_type_display ( $type, $plurality ) {
+
+			if ( $type == 'addon' ) {
+				if ( $plurality == 'singular' ) {
+					$type = _t('Addon', 'plugin_directory');
 				}
 				else {
-					$version_vals[$version_field] = '';
+					$type = _t('Addons', 'plugin_directory');
 				}
 			}
-			$version_vals['post_id'] = $post->id;
-			$version_vals['md5'] = $this->get_version_md5( $version_vals['url'] );
-			
-			DB::update(
-				DB::table( 'dir_plugin_versions' ),
-				$version_vals,
-				array( 'version' => $version_vals['version'], 'post_id' => $post->id )
-			);
-			
-			Session::notice( 'Added version number ' . $version_vals['version'] );
+
+			return $type;
 		}
-			/* NEED THEME STUFF HERE */
+
+		public function filter_plugin_config ( $actions, $plugin_id ) {
+
+			// we don't use the magic configure() method because then it gets placed below custom actions in the dropbutton
+			$actions['configure'] = _t('Configure', 'plugin_directory');
+			$actions['uninstall'] = _t('Uninstall', 'plugin_directory');
+
+			return $actions;
+
+		}
+
+		public function action_plugin_ui_uninstall ( ) {
+
+			// get all the posts of the types we're deleting
+			$addons = Posts::get( array( 'content_type' => array( 'addon' ), 'nolimit' => true ) );
+
+			foreach ( $addons as $addon ) {
+				$addon->delete();
+			}
+
+			// now that the posts are gone, delete the type - this would fail if we hadn't deleted the content first
+			Post::delete_post_type( 'addon' );
+
+			// remove vocabulary and terms
+			$vocabulary = $this->vocabulary;
+			if ( $vocabulary ) {
+				$vocabulary->delete();
+			}
+
+			// now deactivate the plugin
+			Plugins::deactivate_plugin( __FILE__ );
+
+			Session::notice( _t("Uninstalled plugin '%s'", array( $this->info->name ), 'plugin_directory' ) );
+
+			// redirect to the plugins page again so the page updates properly - this is what AdminHandler does after plugin deactivation
+			Utils::redirect( URL::get( 'admin', 'page=plugins' ) );
+
+		}
+
+		public function action_plugin_ui_configure ( ) {
+
+			$ui = new FormUI('plugin_directory');
+
+			//$ui->append( 'text', 'licenses', 'option:', _t( 'Licenses to use:', 'Lipsum' ) );
+			$ui->append( 'checkbox', 'use_basepath', 'plugin_directory__keep_pages', _t( 'Use a base path: ', 'plugin_directory' ) );
+			$ui->append( 'text', 'basepath', 'plugin_directory__basepath', _t( 'Base path (without trailing slash), e.g. <em>explore</em> :', 'plugin_directory' ) );
+			$ui->append( 'text', 'date_format', 'plugin_directory__date_format', _t( 'Release Date format :', 'plugin_directory' ) );
+
+			$ui->append( 'submit', 'save', _t( 'Save', 'plugin_directory' ) );
+
+//			$ui->on_success( array( $this, 'updated_config' ) );
+
+			$ui->out();
+
+		}
+
+		public function filter_default_rewrite_rules ( $rules ) {
+
+			if ( Options::get( 'plugin_directory__use_basepath', false ) ) {
+				$basepath = Options::get( 'plugin_directory__basepath', 'explore' ) . "/";
+			}
+			else {
+				$basepath = "";
+			}
+
+			// create the beacon endpoint rule
+			$rule = array(
+				'name' => 'beacon_server',
+				'parse_regex' => '%^beacon$%i',
+				'build_str' => 'beacon',
+				'handler' => 'BeaconHandler',
+				'action' => 'request',
+				'description' => 'Incoming Beacon Update Requests',
+			);
+
+			// add it to the stack
+			$rules[] = $rule;
+
+			// create the display rule for the addon base page
+			$rule = array(
+				'name' => 'display_addon_basepath',
+				'parse_regex' => '#^' . $basepath . '$#i',
+				'build_str' => $basepath,
+				'handler' => 'UserThemeHandler',
+				'action' => 'display_basepath',
+				'description' => 'Display addon directory base page',
+			);
+
+			// add it to the stack
+			$rules[] = $rule;
+
+			$addon_regex = implode('|', array_keys($this->types));
+			// create the post display rule for one addon
+			$rule = array(
+				'name' => "display_addon",
+				'parse_regex' => "#^{$basepath}(?P<addon>{$addon_regex})/(?P<slug>[^/]+)/?$#i",
+				'build_str' => $basepath . '{$addon}/{$slug}',
+				'handler' => 'UserThemeHandler',
+				'action' => 'display_addon',
+				'parameters' => serialize( array( 'require_match' => array( 'Posts', 'rewrite_match_type' ), 'content_type' => 'addon' ) ),
+				'description' => "Display an addon directory post of a particular type",
+			);
+
+			// add it to the stack
+			$rules[] = $rule;
+
+			// create the addon post display rule for multiple addons
+			$rule = array(
+				'name' => "display_addons",
+				'parse_regex' => "%^{$basepath}(?P<addon>{$addon_regex})(?:/page/(?P<page>\d+))?/?$%",
+				'build_str' => $basepath . '{$addon}(/page/{$page})',
+				'handler' => 'UserThemeHandler',
+				'action' => "display_addons",
+				'priority' => 2,
+				'description' => "Display addon directory posts of a particular type",
+			);
+
+			// add it to the stack
+			$rules[] = $rule;
+
+			// always return the rules
+			return $rules;
+
+		}
+
+		/**
+		 * Handle requests for addon directory base page
+		 *
+		 * @param Boolean $handled
+		 * @param Theme $post
+		 *
+		 * @return Boolean Whether the request has been handled
+		 */
+		public function filter_theme_act_display_basepath( $handled, $theme )
+		{
+			$paramarray[ 'fallback' ] = array(
+				'addon.basepath',
+			);
+
+			$theme->types = array('plugins' => 'Plugins', 'themes' => 'Themes');
+			$paramarray['user_filters'] = array(); // sufficient for the time being since this shows no content.
+			$theme->act_display( $paramarray );
+			return true;
+		}
+
+		/**
+		 * Handle requests for multiple addons
+		 *
+		 * @param Boolean $handled
+		 * @param Theme $post
+		 */
+		public function filter_theme_act_display_addons( $handled, $theme )
+		{
+			$paramarray[ 'fallback' ] = array(
+				'addon.multiple',
+				'multiple',
+			);
+
+			$type = $theme->matched_rule->named_arg_values['addon'];
+			$type = $this->types[$type];
+
+			$default_filters = array(
+				'content_type' => Post::type( 'addon' ),
+				'info' => array( 'type' => $type ),
+				'orderby' => 'title ASC',
+				'limit' => 20,
+			);
+			$handler = Controller::get_handler();
+			if(isset($handler->handler_vars['page'])) {
+				$default_filters['page'] = $handler->handler_vars['page'];
+			}
+			$paramarray['posts'] = Posts::get($default_filters);
+
+			$paramarray['user_filters'] = $default_filters;
+			$theme->act_display( $paramarray );
+			return true;
+		}
+
+		public function filter_template_where_filters( $filters )
+		{
+			$basepath = Options::get( 'plugin_directory__basepath', 'explore' );
+			$vars = Controller::get_handler_vars();
+			if( strlen( $vars['entire_match'] ) && strpos( $vars['entire_match'], $basepath . '/' ) !== FALSE ) {
+				$filters['orderby'] = 'title';
+			}
+			return $filters;
+		}
+
+		/**
+		 * Manipulate the controls on the publish page
+		 *
+		 * @param FormUI $form The form that is used on the publish page
+		 * @param Post $post The post that's being edited
+		 */
+		public function action_form_publish ( $form, $post ) {
+
+			// split out to smaller functions based on the content type
+			if ( $form->content_type->value == Post::type( 'addon' ) ) {
+				$this->form_publish_addon( $form, $post );
+			}
+		}
+
+		/**
+		 * Manipulate the controls on the publish page for Addons
+		 * 
+		 * @todo fix tab indexes
+		 * @todo remove settings tab without breaking everything in it?
+		 * 
+		 * @param FormUI $form The form that is used on the publish page
+		 * @param Post $post The post that's being edited
+		 */
+		private function form_publish_addon ( $form, $post ) {
+
+			// remove the settings pane from the publish controls for non-admin users, we don't want anyone editing that
+			if ( User::identify()->can( 'superuser' ) == false ) {
+				$form->publish_controls->remove( $form->publish_controls->settings );
+			}
+
+			// add guid after title
+			$guid = $form->append( 'text', 'addon_details_guid', 'null:null', _t('GUID', 'plugin_directory') );
+			$guid->value = $post->info->guid;	// populate it, if it exists
+			$guid->template = ( $post->slug ) ? 'admincontrol_text' : 'guidcontrol';
+			$form->move_after( $form->addon_details_guid, $form->title );	// position it after the title
+
+			// add the description after the guid
+			$description = $form->append( 'textarea', 'addon_details_description', 'null:null', _t('Description', 'plugin_directory') );
+			$description->value = $post->info->description;	// populate it, if it exists
+			$description->rows = 2; // Since it's resizable, this doesn't need to start out so big, does it?
+			$description->template = 'admincontrol_textarea';
+			$form->move_after( $form->addon_details_description, $form->addon_details_guid );
+
+			// add the instructions after the content
+			$instructions = $form->append( 'textarea', 'addon_details_instructions', 'null:null', _t('Instructions', 'plugin_directory') );
+			$instructions->value = $post->info->instructions;	// populate it, if it exists
+			$instructions->class[] = 'resizable';
+			$instructions->rows = 4; // Since it's resizable, this doesn't need to start out so big, does it?
+			$instructions->template = 'admincontrol_textarea';
+			$form->move_after( $form->addon_details_instructions, $form->content );	// position it after the content box
+
+
+			// create the addon details wrapper pane
+			$addon_fields = $form->append( 'fieldset', 'addon_details', _t('Details', 'plugin_directory') );
+			$form->move_after( $form->addon_details, $form->tags );
+
+
+			// add the type: plugin or theme
+			$details_type = $addon_fields->append( 'select', 'addon_details_type', 'null:null', _t('Addon Type', 'plugin_directory') );
+			$details_type->value = $post->info->type;
+			$details_type->template = 'tabcontrol_select';
+			$details_type->options = array(
+				'' => '',
+				'plugin' => _t('Plugin', 'plugin_directory'),
+				'theme' => _t('Theme', 'plugin_directory'),
+			);
+			// admins can use the 'core' type for habari itself
+			if ( User::identify()->can('superuser') ) {
+				$details_type->options['core'] = _t('Core', 'plugin_directory');
+			}
+			$details_type->add_validator( 'validate_required' );
+
+			// add the url
+			$details_url = $addon_fields->append( 'text', 'addon_details_url', 'null:null', _t('URL', 'plugin_directory') );
+			$details_url->value = $post->info->url;
+			$details_url->template = 'tabcontrol_text';
+
+			// add the screenshot
+			$details_screenshot = $addon_fields->append( 'text', 'addon_details_screenshot', 'null:null', _t('Screenshot', 'plugin_directory') );
+			$details_screenshot->value = $post->info->screenshot;
+			$details_screenshot->template = 'tabcontrol_text';
+
+		}
+
+		public function action_publish_post ( $post, $form ) {
+
+			if ( $post->content_type == Post::type( 'addon' ) ) {
+
+				foreach ( $this->addon_fields as $field ) {
+
+					if ( $form->{'addon_details_' . $field}->value ) {
+						$post->info->$field = $form->{'addon_details_' . $field}->value;
+					}
+
+				}
+
+				// save version information
+				$this->prepare_versions( $post, $form );
+
+			}
+		}
+
+		private function prepare_versions ( $post, $form ) {
+
+			// first see if a version is trying to be added
+			if ( $form->addon_version_version != '' ) {
+				// create an array to store all the version info
+				$version = array();
+
+				// loop through all the fields and add them to our array if they are set
+				foreach ( $this->version_fields as $field ) {
+					if ( $form->{"addon_version_$field"}->value != '' ) {
+						$version[ $field ] = $form->{"addon_version_$field"}->value;
+					}
+				}
+				$this->save_versions( $post, array( $form->addon_version_version->value => $version ) );
+			}
+		}
+
+		protected function save_versions ( $post, $versions = array() ) {
+
+			$vocabulary = $this->vocabulary;
+
+			foreach( $versions as $key => $version ) {
+				$term = new Term( array(
+					'term_display' => $post->id . " $key",
+				) );
+				foreach ( $version as $field => $value ) {
+					$term->info->$field = $value;
+				}
+				$vocabulary->add_term( $term );
+				$term->associate( 'addon', $post->id );
+			}
+		}
+
+		public function action_init ( ) {
+
+			// register our custom guid FormUI control for the post publish page
+			$this->add_template( 'guidcontrol', dirname(__FILE__) . '/templates/guidcontrol.php' );
+			$this->add_template( 'addon.basepath', dirname(__FILE__) . '/templates/addon.basepath.php' );
+			$this->add_template( 'addon.multiple', dirname(__FILE__) . '/templates/addon.multiple.php' );
+			$this->add_template( 'addon.single', dirname(__FILE__) . '/templates/addon.single.php' );
+
+			// register admin pages
+			$this->add_template( 'versions_admin', dirname( __FILE__ ) . '/addons_admin.php' );
+			$this->add_template( 'version_iframe', dirname( __FILE__ ) . '/version_iframe.php' );
+
+		}
+
+		/**
+		 * Provide a quick AJAX method to return a GUID for the post page.
+		 * 
+		 * @param ActionHandler $handler The handler being executed.
+		 */
+		public function action_auth_ajax_generate_guid ( $handler ) {
+
+			echo UUID::get();
+
+		}
+
+		public function action_ajax_plugindirectory_update ( $handler ) {
+
+			if ( !isset( $_POST['api_key'] ) ) {
+				throw new Exception( _t('No API Key specified!', 'plugin_directory' ) );
+			}
+
+			$api_key = $_POST['api_key'];
+
+			if ( !in_array( $api_key, $this->api_keys ) ) {
+				throw new Exception( _t('Invalid API key!', 'plugin_directory' ) );
+			}
+
+		}
+
+		public function filter_theme_act_display_addon ( $handled, $theme ) {
+
+			$type = $theme->matched_rule->named_arg_values['addon'];
+			$type = $this->types[$type];
+
+			$default_filters = array(
+				'content_type' => Post::type('addon'),
+				'info' => array( 'type' => $type ),
+			);
+
+			$theme->act_display_post( $default_filters );
+
+			return true;
+
+		}
+
+		/**
+		 * Filter the permalink of addons
+		 */
+		public function filter_post_permalink( $permalink, $post ) {
+			if ($post->content_type == Post::type('addon')) {
+				$types = array_flip($this->types);
+				$permalink = URL::get("display_addon", array('addon' => $types[$post->info->type], 'slug' => $post->slug));
+			}
+			return $permalink;
+		}
+
+		/**
+		 * Return an array of all versions associated with a post
+		 */
+		public function filter_post_versions( $versions, $post ) {
+
+			if ( $post->content_type != Post::type( 'addon' ) ) {
+				return false;
+			}
+
+			$vocabulary = $this->vocabulary;
+			if ( $vocabulary === false || $post->content_type != Post::type( 'addon' ) ) {
+				return false;
+			}
+
+			$terms = $vocabulary->get_all_object_terms( 'addon', $post->id );
+			if ( count( $terms ) > 0 ) {
+				// @TODO: order them here?
+				return $terms;
+			}
+			else {
+				return false;
+			}
+		}
+
+		/**
+		 * Add link to the main menu
+		 *
+		 **/
+		public function filter_adminhandler_post_loadplugins_main_menu( $menu ) {
+
+			// add to main menu
+			$item_menu = array( 'addons' =>
+				array(
+					'url' => URL::get( 'admin', 'page=addons' ),
+					'title' => _t( 'Addon Versions', 'plugin_directory' ),
+					'text' => _t( 'Addon Versions', 'plugin_directory' ),
+					'hotkey' => 'V',
+					'selected' => false,
+					'access' => array( 'manage_versions', true ),
+				)
+			);
+
+			$slice_point = array_search( 'themes', array_keys( $menu ) ); // Element will be inserted before "themes"
+			$pre_slice = array_slice( $menu, 0, $slice_point);
+			$post_slice = array_slice( $menu, $slice_point);
+
+			$menu = array_merge( $pre_slice, $item_menu, $post_slice );
+
+			return $menu;
+		}
+
+		/**
+		 * Handle GET and POST requests
+		 *
+		 **/
+		public function alias()
+		{
+			return array(
+				'action_admin_theme_get_addons' => 'action_admin_theme_post_addons',
+				'action_admin_theme_get_version_iframe' => 'action_admin_theme_post_version_iframe',
+			);
+		}
+
+		/**
+		 * Restrict access to the admin page
+		 *
+		 **/
+		public function filter_admin_access_tokens( array $require_any, $page )
+		{
+			switch ( $page ) {
+				case 'version_iframe':
+				case 'addons':
+					$require_any = array( 'manage_versions' => true );
+					break;
+			}
+			return $require_any;
+		}
+
+		/**
+		 * Prepare and display admin page
+		 *
+		 **/
+		public function action_admin_theme_get_addons( AdminHandler $handler, Theme $theme )
+		{
+			$theme->page_content = "";
+
+			$theme->display( 'versions_admin' );
+		}
+
+
+		/**
+		 * function name_url_list
+		 * Formatting function
+		 * Turns an array of array( name, url ) into an HTML-linked list with commas and an "and".
+		 * @param array $array An array of items
+		 * @param string $between Text to put between each element
+		 * @param string $between_last Text to put between the next to last element and the last element
+		 * @return string HTML links with specified separators.
+		 */
+		public static function name_url_list( $items = array(), $between = ', ', $between_last = null )
+		{
+			$array = array();
+
+			foreach ( $items as $item ) {
+				$array[ $item[ 'name' ] ] = $item[ 'url' ];
+			}
+
+			if ( $between_last === null ) {
+				$between_last = _t( ' and ' );
+			}
+
+			$fn = create_function( '$a,$b', 'return "<a href=\\"" . $a . "\\">" . $b . "</a>";' );
+			$array = array_map( $fn, $array, array_keys( $array ) );
+			$last = array_pop( $array );
+			$out = implode( $between, $array );
+			$out .= ( $out == '' ) ? $last : $between_last . $last;
+			return $out;
+
+		}
+
 	}
-
-	public function get_version_md5( $url )
-	{
-		$file = RemoteRequest::get_contents( $url );
-		return md5( $file );
-	}
-
-	public function filter_post_versions( $versions, $post )
-	{
-		$table='{dir_' . $post->typename . '_versions}';
-		return DB::get_results( 'SELECT * FROM ' . $table . ' WHERE post_id = ?', array( $post->id ) );
-	}
-
-	public static function licenses()
-	{
-
-		// @todo make this configurable through the plugin options - MellerTime
-
-		$licenses['apache_20']= 'Apache License 2.0';
-		$licenses['gpl']= 'GPL';
-		$licenses['lgpl']= 'LGPL';
-		$licenses['public']= 'Public Domain';
-
-		return $licenses;
-
-	}
-
-	public function action_init()
-	{
-
-		DB::register_table( 'dir_plugin_versions' );
-		DB::register_table( 'dir_theme_versions' );
-		$this->add_template( 'plugin.multiple', dirname(__FILE__) . '/templates/plugin.multiple.php' );
-		$this->add_template( 'plugin.single', dirname(__FILE__) . '/templates/plugin.single.php' );
-		$this->add_template( 'guidcontrol', dirname(__FILE__) . '/templates/guidcontrol.php' );
-	}
-
-}
 
 ?>
