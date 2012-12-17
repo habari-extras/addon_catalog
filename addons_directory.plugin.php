@@ -2,7 +2,7 @@
 
 	include('beaconhandler.php');
 
-	class PluginDirectory extends Plugin {
+	class AddonsDirectory extends Plugin {
 
 		// @todo we can do better than this
 		private	$types = array( 'themes' => 'theme', 'plugins' => 'plugin', 'core' => 'core' );
