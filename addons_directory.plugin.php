@@ -38,6 +38,7 @@
 			'severity',
 			'requires',
 			'provides',
+			'conflicts',
 			'recommends',
 		);
 
@@ -410,19 +411,44 @@
 			}
 		}
 
-		protected function save_versions ( $post, $versions = array() ) {
+		public static function save_versions( $post = null, $versions = array() ) {
 
-			$vocabulary = $this->vocabulary;
+			if( isset( $post ) && count( $versions ) !== 0 ) {
 
-			foreach( $versions as $key => $version ) {
-				$term = new Term( array(
-					'term_display' => $post->id . " $key",
-				) );
-				foreach ( $version as $field => $value ) {
-					$term->info->$field = $value;
+				$vocabulary = Vocabulary::get( self::$vocabulary );
+				$extant_terms = $vocabulary->get_associations($post->id, 'addon');
+
+				foreach( $versions as $key => $version ) {
+
+					$term_display = "{$post->id} {$key} {$post->info->repo_url}";
+
+					$found = false;
+					foreach( $extant_terms as $eterm ) {
+						if( $eterm->term_display == $term_display ) {  // This is super-cheesy!
+							$found = true;
+							$term = $eterm;
+							break;
+						}
+					}
+					if(!$found) {
+						$term = new Term( array(
+							'term_display' => $post->id . " $key",
+						) );
+					}
+					foreach ( $version as $field => $value ) {
+						$term->info->$field = $value;
+					}
+					if( $found ) {
+						$term->update();
+					}
+					else {
+						$vocabulary->add_term( $term );
+						$term->associate( 'addon', $post->id );
+					}
 				}
-				$vocabulary->add_term( $term );
-				$term->associate( 'addon', $post->id );
+			}
+			else {
+				// post didn't work or there was no version.
 			}
 		}
 
