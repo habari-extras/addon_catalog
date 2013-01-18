@@ -36,6 +36,8 @@
 			'url', /* download url */
 			'habari_version',
 			'severity',
+
+			/* Features */
 			'requires',
 			'provides',
 			'conflicts',
@@ -153,8 +155,6 @@
 			$ui->append( 'text', 'date_format', 'plugin_directory__date_format', _t( 'Release Date format :', 'plugin_directory' ) );
 
 			$ui->append( 'submit', 'save', _t( 'Save', 'plugin_directory' ) );
-
-//			$ui->on_success( array( $this, 'updated_config' ) );
 
 			$ui->out();
 
@@ -409,6 +409,18 @@
 				}
 				$this->save_versions( $post, array( $form->addon_version_version->value => $version ) );
 			}
+		}
+
+		public static function addon_exists( $guid = null ) {
+
+			return ( isset( $guid ) and (
+				Post::get( array( 'status' => Post::status( 'published' ),  'content_type' => Post::type( 'addon' ), 'all:info' => array( 'guid' => $guid ) ) )
+			!= false ) );
+		}
+
+		public static function get_addon( $guid = null ) {
+/* we don't need an isset() on the guid after all, do we? Do we need addon_exists at all, since this would return false when not found? */
+			return Post::get( array( 'status' => Post::status( 'published' ),  'content_type' => Post::type( 'addon' ), 'all:info' => array( 'guid' => $guid ) ) );
 		}
 
 		public static function save_versions( $post = null, $versions = array() ) {
