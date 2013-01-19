@@ -66,7 +66,7 @@
 			UserGroup::get_by_name( 'anonymous' )->grant( 'post_addon', 'read' );
 
 			// create a permissions token
-			ACL::create_token( 'manage_versions', _t( 'Manage Addon Versions', 'plugin_directory'), 'Addons Directory', false );
+			ACL::create_token( 'manage_versions', _t( 'Manage Addon Versions', 'addon_catalog'), 'Addon Catalog', false );
 
 			// create the addon vocabulary (type)
 			Vocabulary::add_object_type( 'addon' );
@@ -74,7 +74,7 @@
 			// create the addon vocabulary
 			$params = array(
 				'name' => self::$vocabulary,
-				'description' => _t( 'A vocabulary for addon versions in the addons directory', 'plugin_directory' ),
+				'description' => _t( 'A vocabulary for addon versions in the addons catalog', 'addon_catalog' ),
 				);
 			$vocabulary = Vocabulary::create( $params );
 			// @TODO: notification/log of some sort?
@@ -97,10 +97,10 @@
 
 			if ( $type == 'addon' ) {
 				if ( $plurality == 'singular' ) {
-					$type = _t('Addon', 'plugin_directory');
+					$type = _t('Addon', 'addon_catalog');
 				}
 				else {
-					$type = _t('Addons', 'plugin_directory');
+					$type = _t('Addons', 'addon_catalog');
 				}
 			}
 
@@ -110,8 +110,8 @@
 		public function filter_plugin_config ( $actions, $plugin_id ) {
 
 			// we don't use the magic configure() method because then it gets placed below custom actions in the dropbutton
-			$actions['configure'] = _t('Configure', 'plugin_directory');
-			$actions['uninstall'] = _t('Uninstall', 'plugin_directory');
+			$actions['configure'] = _t('Configure', 'addon_catalog');
+			$actions['uninstall'] = _t('Uninstall', 'addon_catalog');
 
 			return $actions;
 
@@ -138,7 +138,7 @@
 			// now deactivate the plugin
 			Plugins::deactivate_plugin( __FILE__ );
 
-			Session::notice( _t("Uninstalled plugin '%s'", array( $this->info->name ), 'plugin_directory' ) );
+			Session::notice( _t("Uninstalled plugin '%s'", array( $this->info->name ), 'addon_catalog' ) );
 
 			// redirect to the plugins page again so the page updates properly - this is what AdminHandler does after plugin deactivation
 			Utils::redirect( URL::get( 'admin', 'page=plugins' ) );
@@ -147,14 +147,14 @@
 
 		public function action_plugin_ui_configure ( ) {
 
-			$ui = new FormUI('plugin_directory');
+			$ui = new FormUI('addon_catalog');
 
 			//$ui->append( 'text', 'licenses', 'option:', _t( 'Licenses to use:', 'Lipsum' ) );
-			$ui->append( 'checkbox', 'use_basepath', 'plugin_directory__keep_pages', _t( 'Use a base path: ', 'plugin_directory' ) );
-			$ui->append( 'text', 'basepath', 'plugin_directory__basepath', _t( 'Base path (without trailing slash), e.g. <em>explore</em> :', 'plugin_directory' ) );
-			$ui->append( 'text', 'date_format', 'plugin_directory__date_format', _t( 'Release Date format :', 'plugin_directory' ) );
+			$ui->append( 'checkbox', 'use_basepath', 'addon_catalog__keep_pages', _t( 'Use a base path: ', 'addon_catalog' ) );
+			$ui->append( 'text', 'basepath', 'addon_catalog__basepath', _t( 'Base path (without trailing slash), e.g. <em>explore</em> :', 'addon_catalog' ) );
+			$ui->append( 'text', 'date_format', 'addon_catalog__date_format', _t( 'Release Date format :', 'addon_catalog' ) );
 
-			$ui->append( 'submit', 'save', _t( 'Save', 'plugin_directory' ) );
+			$ui->append( 'submit', 'save', _t( 'Save', 'addon_catalog' ) );
 
 			$ui->out();
 
@@ -162,8 +162,8 @@
 
 		public function filter_default_rewrite_rules ( $rules ) {
 
-			if ( Options::get( 'plugin_directory__use_basepath', false ) ) {
-				$basepath = Options::get( 'plugin_directory__basepath', 'explore' ) . "/";
+			if ( Options::get( 'addon_catalog__use_basepath', false ) ) {
+				$basepath = Options::get( 'addon_catalog__basepath', 'explore' ) . "/";
 			}
 			else {
 				$basepath = "";
@@ -189,7 +189,7 @@
 				'build_str' => $basepath,
 				'handler' => 'UserThemeHandler',
 				'action' => 'display_basepath',
-				'description' => 'Display addon directory base page',
+				'description' => 'Display addon catalog base page',
 			);
 
 			// add it to the stack
@@ -204,7 +204,7 @@
 				'handler' => 'UserThemeHandler',
 				'action' => 'display_addon',
 				'parameters' => serialize( array( 'require_match' => array( 'Posts', 'rewrite_match_type' ), 'content_type' => 'addon' ) ),
-				'description' => "Display an addon directory post of a particular type",
+				'description' => "Display an addon caralog post of a particular type",
 			);
 
 			// add it to the stack
@@ -218,7 +218,7 @@
 				'handler' => 'UserThemeHandler',
 				'action' => "display_addons",
 				'priority' => 2,
-				'description' => "Display addon directory posts of a particular type",
+				'description' => "Display addon catalog posts of a particular type",
 			);
 
 			// add it to the stack
@@ -230,7 +230,7 @@
 		}
 
 		/**
-		 * Handle requests for addon directory base page
+		 * Handle requests for addon catalog base page
 		 *
 		 * @param Boolean $handled
 		 * @param Theme $post
@@ -284,7 +284,7 @@
 
 		public function filter_template_where_filters( $filters )
 		{
-			$basepath = Options::get( 'plugin_directory__basepath', 'explore' );
+			$basepath = Options::get( 'addon_catalog__basepath', 'explore' );
 			$vars = Controller::get_handler_vars();
 			if( strlen( $vars['entire_match'] ) && strpos( $vars['entire_match'], $basepath . '/' ) !== FALSE ) {
 				$filters['orderby'] = 'title';
@@ -323,20 +323,20 @@
 			}
 
 			// add guid after title
-			$guid = $form->append( 'text', 'addon_details_guid', 'null:null', _t('GUID', 'plugin_directory') );
+			$guid = $form->append( 'text', 'addon_details_guid', 'null:null', _t('GUID', 'addon_catalog') );
 			$guid->value = $post->info->guid;	// populate it, if it exists
 			$guid->template = ( $post->slug ) ? 'admincontrol_text' : 'guidcontrol';
 			$form->move_after( $form->addon_details_guid, $form->title );	// position it after the title
 
 			// add the description after the guid
-			$description = $form->append( 'textarea', 'addon_details_description', 'null:null', _t('Description', 'plugin_directory') );
+			$description = $form->append( 'textarea', 'addon_details_description', 'null:null', _t('Description', 'addon_catalog') );
 			$description->value = $post->info->description;	// populate it, if it exists
 			$description->rows = 2; // Since it's resizable, this doesn't need to start out so big, does it?
 			$description->template = 'admincontrol_textarea';
 			$form->move_after( $form->addon_details_description, $form->addon_details_guid );
 
 			// add the instructions after the content
-			$instructions = $form->append( 'textarea', 'addon_details_instructions', 'null:null', _t('Instructions', 'plugin_directory') );
+			$instructions = $form->append( 'textarea', 'addon_details_instructions', 'null:null', _t('Instructions', 'addon_catalog') );
 			$instructions->value = $post->info->instructions;	// populate it, if it exists
 			$instructions->class[] = 'resizable';
 			$instructions->rows = 4; // Since it's resizable, this doesn't need to start out so big, does it?
@@ -345,32 +345,32 @@
 
 
 			// create the addon details wrapper pane
-			$addon_fields = $form->append( 'fieldset', 'addon_details', _t('Details', 'plugin_directory') );
+			$addon_fields = $form->append( 'fieldset', 'addon_details', _t('Details', 'addon_catalog') );
 			$form->move_after( $form->addon_details, $form->tags );
 
 
 			// add the type: plugin or theme
-			$details_type = $addon_fields->append( 'select', 'addon_details_type', 'null:null', _t('Addon Type', 'plugin_directory') );
+			$details_type = $addon_fields->append( 'select', 'addon_details_type', 'null:null', _t('Addon Type', 'addon_catalog') );
 			$details_type->value = $post->info->type;
 			$details_type->template = 'tabcontrol_select';
 			$details_type->options = array(
 				'' => '',
-				'plugin' => _t('Plugin', 'plugin_directory'),
-				'theme' => _t('Theme', 'plugin_directory'),
+				'plugin' => _t('Plugin', 'addon_catalog'),
+				'theme' => _t('Theme', 'addon_catalog'),
 			);
 			// admins can use the 'core' type for habari itself
 			if ( User::identify()->can('superuser') ) {
-				$details_type->options['core'] = _t('Core', 'plugin_directory');
+				$details_type->options['core'] = _t('Core', 'addon_catalog');
 			}
 			$details_type->add_validator( 'validate_required' );
 
 			// add the url
-			$details_url = $addon_fields->append( 'text', 'addon_details_url', 'null:null', _t('URL', 'plugin_directory') );
+			$details_url = $addon_fields->append( 'text', 'addon_details_url', 'null:null', _t('URL', 'addon_catalog') );
 			$details_url->value = $post->info->url;
 			$details_url->template = 'tabcontrol_text';
 
 			// add the screenshot
-			$details_screenshot = $addon_fields->append( 'text', 'addon_details_screenshot', 'null:null', _t('Screenshot', 'plugin_directory') );
+			$details_screenshot = $addon_fields->append( 'text', 'addon_details_screenshot', 'null:null', _t('Screenshot', 'addon_catalog') );
 			$details_screenshot->value = $post->info->screenshot;
 			$details_screenshot->template = 'tabcontrol_text';
 
@@ -489,16 +489,16 @@
 
 		}
 
-		public function action_ajax_plugindirectory_update ( $handler ) {
+		public function action_ajax_addoncatalog_update ( $handler ) {
 
 			if ( !isset( $_POST['api_key'] ) ) {
-				throw new Exception( _t('No API Key specified!', 'plugin_directory' ) );
+				throw new Exception( _t('No API Key specified!', 'addon_catalog' ) );
 			}
 
 			$api_key = $_POST['api_key'];
 
 			if ( !in_array( $api_key, $this->api_keys ) ) {
-				throw new Exception( _t('Invalid API key!', 'plugin_directory' ) );
+				throw new Exception( _t('Invalid API key!', 'addon_catalog' ) );
 			}
 
 		}
@@ -564,8 +564,8 @@
 			$item_menu = array( 'addons' =>
 				array(
 					'url' => URL::get( 'admin', 'page=addons' ),
-					'title' => _t( 'Addon Versions', 'plugin_directory' ),
-					'text' => _t( 'Addon Versions', 'plugin_directory' ),
+					'title' => _t( 'Addon Versions', 'addon_catalog' ),
+					'text' => _t( 'Addon Versions', 'addon_catalog' ),
 					'hotkey' => 'V',
 					'selected' => false,
 					'access' => array( 'manage_versions', true ),

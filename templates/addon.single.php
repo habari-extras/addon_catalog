@@ -10,11 +10,11 @@
 		$tags = null;
 	}
 
-	include( "directory_header.php" ); // possibly a temporary measure.
+	include( "catalog_header.php" ); // @todo a temporary measure.
 	?>
 		<div id="post-<?php echo $post->id; ?>" class="addon <?php echo $post->info->type; ?>">
 			<h2 class="entry-title">
-				<a href="<?php echo $post->permalink; ?>" title="<?php echo Utils::htmlspecialchars( _t( 'Permalink to %s', array( $post->title ), 'plugin_directory' ) ); ?>"><?php echo $post->title_out; ?></a>
+				<a href="<?php echo $post->permalink; ?>" title="<?php echo Utils::htmlspecialchars( _t( 'Permalink to %s', array( $post->title ), 'addon_catalog' ) ); ?>"><?php echo $post->title_out; ?></a>
 			</h2>
 			<div class="entry-content">
 				<?php echo $post->content_out; ?>
@@ -57,7 +57,7 @@
 
 				<?php foreach ( $post->versions as $v ) {
 					echo "<tr><td>{$v->info->habari_version}-{$v->info->version}<td>" .
-						HabariDateTime::date_create( $v->info->release )->format( Options::get( "plugin_directory__date_format", "F j, Y" ) ) .
+						HabariDateTime::date_create( $v->info->release )->format( Options::get( "addon_catalog__date_format", "F j, Y" ) ) .
 						"<td><a href='{$v->info->info_url}'>{$v->info->info_url}</a><td><a href='{$v->info->url}'>{$v->info->url}</a></tr>";
 				} ?></tbody>
 			</table></div>
@@ -77,7 +77,7 @@
 						?>
 							<span class="meta-sep"> | </span>
 							<span class="edit-link">
-								<a class="post-edit-link" href="<?php echo $post->editlink; ?>" title="<?php echo _t( 'Edit Post', 'plugin_directory' ); ?>"><?php echo _t( 'Edit', 'plugin_directory' ); ?></a>
+								<a class="post-edit-link" href="<?php echo $post->editlink; ?>" title="<?php echo _t( 'Edit Post', 'addon_catalog' ); ?>"><?php echo _t( 'Edit', 'addon_catalog' ); ?></a>
 							</span>
 						<?php
 					}
