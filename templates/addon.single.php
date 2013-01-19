@@ -44,9 +44,9 @@
 
 			<div class="info"><h3>Information <em>(that will)</em></h3>
 				<ul>
-					<li>Author<?php echo _n( " ", "s ", count( $post->info->authors ) ); ?>: <?php echo AddonsDirectory::name_url_list( $post->info->authors ); ?>
+					<li>Author<?php echo _n( " ", "s ", count( $post->info->authors ) ); ?>: <?php echo AddonCatalogPlugin::name_url_list( $post->info->authors ); ?>
 					<li>URL : <a href="<?php echo $post->info->url; ?>"><?php echo $post->info->url; ?></a>
-					<li>License<?php echo _n( " ", "s ", count( $post->info->licenses ) ); ?>: <?php echo AddonsDirectory::name_url_list( $post->info->licenses ); ?>
+					<li>License<?php echo _n( " ", "s ", count( $post->info->licenses ) ); ?>: <?php echo AddonCatalogPlugin::name_url_list( $post->info->licenses ); ?>
 				</ul>
 			</div>
 
