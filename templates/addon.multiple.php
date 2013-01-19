@@ -1,6 +1,6 @@
 <?php if ( !defined( 'HABARI_PATH' ) ) { die('No direct access'); }
 	$theme->display( 'header');
-	include( "directory_header.php" ); // possibly a temporary measure.
+	include( "catalog_header.php" ); // possibly a temporary measure.
 foreach ( $posts as $post ) { ?>
 	<div id="post-<?php echo $post->id; ?>" class="addon <?php echo $post->info->type; ?>">
 		<div class="entry-head">

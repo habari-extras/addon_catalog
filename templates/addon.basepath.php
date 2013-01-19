@@ -1,6 +1,6 @@
 <?php if ( !defined( 'HABARI_PATH' ) ) { die('No direct access'); } 
 	$theme->display( 'header');
-	include( "directory_header.php" ); // possibly a temporary measure.
+	include( "catalog_header.php" ); // possibly a temporary measure.
 ?>
 	<div class="content">
 		<div id="primary">
