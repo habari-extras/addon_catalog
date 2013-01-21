@@ -149,7 +149,6 @@
 
 			$ui = new FormUI('addon_catalog');
 
-			//$ui->append( 'text', 'licenses', 'option:', _t( 'Licenses to use:', 'Lipsum' ) );
 			$ui->append( 'checkbox', 'use_basepath', 'addon_catalog__keep_pages', _t( 'Use a base path: ', 'addon_catalog' ) );
 			$ui->append( 'text', 'basepath', 'addon_catalog__basepath', _t( 'Base path (without trailing slash), e.g. <em>explore</em> :', 'addon_catalog' ) );
 			$ui->append( 'text', 'date_format', 'addon_catalog__date_format', _t( 'Release Date format :', 'addon_catalog' ) );
@@ -421,6 +420,40 @@
 		public static function get_addon( $guid = null ) {
 /* we don't need an isset() on the guid after all, do we? Do we need addon_exists at all, since this would return false when not found? */
 			return Post::get( array( 'status' => Post::status( 'published' ),  'content_type' => Post::type( 'addon' ), 'all:info' => array( 'guid' => $guid ) ) );
+		}
+
+		public static function create_addon( $info = array(), $versions =  array() ) {
+
+			$main_fields = array(
+				/* this is a crosswalk of the items expected in the $info array for create_addon() */
+				'user_id' => 'user_id',
+				'name' => 'title',
+				'description' => 'content',
+				'tags' => 'tags',
+			);
+
+			$post_fields = array(
+				'content_type' => Post::type( 'addon' ),
+				'status' => Post::status( 'published' ),
+				'pubdate' => HabariDateTime::date_create(),
+			);
+
+			foreach( $main_fields as $k => $v ) {
+				$post_fields[ $v ] = $info[ $k ];
+			}
+
+			$post = Post::create( $post_fields );
+
+			// remove the fields that should not become postinfo.
+
+			$info_fields = array_diff_key( $info, $main_fields );
+
+			foreach ( $info_fields  as $k => $v ) { 
+				$post->info->$k = $v;
+			}
+			$post->info->commit();
+
+			self::save_versions( $post, $versions );
 		}
 
 		public static function save_versions( $post = null, $versions = array() ) {
