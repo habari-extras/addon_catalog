@@ -422,10 +422,10 @@
 			return Post::get( array( 'status' => Post::status( 'published' ),  'content_type' => Post::type( 'addon' ), 'all:info' => array( 'guid' => $guid ) ) );
 		}
 
-		public static function create_addon( $info = array(), $versions =  array() ) {
+		public static function handle_addon( $info = array(), $versions =  array() ) {
 
 			$main_fields = array(
-				/* this is a crosswalk of the items expected in the $info array for create_addon() */
+				/* This is a crosswalk of the Post-related items expected in the $info array for create_addon() */
 				'user_id' => 'user_id',
 				'name' => 'title',
 				'description' => 'content',
@@ -438,11 +438,34 @@
 				'pubdate' => HabariDateTime::date_create(),
 			);
 
-			foreach( $main_fields as $k => $v ) {
-				$post_fields[ $v ] = $info[ $k ];
-			}
+			$post = self::get_addon( strtoupper( $info[ 'guid' ] ) ); // strtoupper might not be necessary
+			if ( ! $post ) {
+				/* There is no addon already with the guid. Create a new one. */				
 
-			$post = Post::create( $post_fields );
+				foreach( $main_fields as $k => $v ) {
+					$post_fields[ $v ] = $info[ $k ];
+				}
+
+				unset( $post );
+				$post = Post::create( $post_fields );
+
+				EventLog::log( _t( 'Created post #%s - %s', array( $post->id, $post->title ) ), 'info' );
+			}
+			else {
+				/* Update the existing addon. */
+				$post->modify( array(
+					'title' => $info[ 'name' ],
+					'content' => $info[ 'description' ],
+					'slug' => Utils::slugify( $info[ 'name' ] ),
+					'pubdate' => HabariDateTime::date_create(), // should this use the date from the ping?,
+
+				) );
+				$post->update();
+
+				EventLog::log( _t( 'Edited post #%s - %s', array( $post->id, $post->title ) ), 'info' );
+
+				$info = array_diff_key( $info, array( 'original_repo' => 'should be removed for updates' ) );
+			}
 
 			// remove the fields that should not become postinfo.
 
