@@ -512,7 +512,7 @@
 					}
 					if(!$found) {
 						$term = new Term( array(
-							'term_display' => $post->id . " $key",
+							'term_display' => $term_display,
 						) );
 					}
 					foreach ( $version as $field => $value ) {
