@@ -307,10 +307,10 @@
 
 		/**
 		 * Manipulate the controls on the publish page for Addons
-		 * 
+		 *
 		 * @todo fix tab indexes
 		 * @todo remove settings tab without breaking everything in it?
-		 * 
+		 *
 		 * @param FormUI $form The form that is used on the publish page
 		 * @param Post $post The post that's being edited
 		 */
@@ -419,7 +419,12 @@
 
 		public static function get_addon( $guid = null ) {
 /* we don't need an isset() on the guid after all, do we? Do we need addon_exists at all, since this would return false when not found? */
-			return Post::get( array( 'status' => Post::status( 'published' ),  'content_type' => Post::type( 'addon' ), 'all:info' => array( 'guid' => $guid ) ) );
+			return Post::get( array(
+				'status' => Post::status( 'published' ),
+				'content_type' => Post::type( 'addon' ),
+				'all:info' => array( 'guid' => $guid ),
+				//'fetch_fn' => 'get_query',
+			) );
 		}
 
 		public static function handle_addon( $info = array(), $versions =  array() ) {
@@ -471,8 +476,15 @@
 
 			$info_fields = array_diff_key( $info, $main_fields );
 
-			foreach ( $info_fields  as $k => $v ) { 
-				$post->info->$k = $v;
+			foreach ( $info_fields  as $k => $v ) {
+				switch($k) {
+					case 'guid':
+						$post->info->$k = strtoupper($v);
+						break;
+					default:
+						$post->info->$k = $v;
+						break;
+				}
 			}
 			$post->info->commit();
 
@@ -536,7 +548,7 @@
 
 		/**
 		 * Provide a quick AJAX method to return a GUID for the post page.
-		 * 
+		 *
 		 * @param ActionHandler $handler The handler being executed.
 		 */
 		public function action_auth_ajax_generate_guid ( $handler ) {
