@@ -24,7 +24,7 @@
 				<?php echo $post->info->help;
 			} ?>
 
-			<hr><?php if ( $post->versions !== false ) { ?>
+			<hr><?php if ( $post->versions !== false ) : ?>
 
 			<div class="info"><h3><em>Stuff that won't show up on the finished product</em></h3>
 				<ul>
@@ -51,20 +51,30 @@
 			</div>
 
 			<div class="downloads"><h5>Available Versions</h5><table>
-				<thead><tr><th>Version<th>Release Date<th>Information <em>(What would this be?)</em><th>Download Link</tr>
+				<thead>
+					<tr>
+						<th>Version</th>
+						<th>Release Date</th>
+						<th>Information</th>
+						<th>Download Link</th>
+					</tr>
 				</thead>
 				<tbody>
 
-				<?php foreach ( $post->versions as $v ) {
-					echo "<tr><td>{$v->info->habari_version}-{$v->info->version}<td>" .
-						HabariDateTime::date_create( $v->info->release )->format( Options::get( "addon_catalog__date_format", "F j, Y" ) ) .
-						"<td><a href='{$v->info->info_url}'>{$v->info->info_url}</a><td><a href='{$v->info->url}'>{$v->info->url}</a></tr>";
-				} ?></tbody>
+				<?php foreach ( $post->versions as $v ): ?>
+				<tr>
+					<td><?= "{$v->info->habari_version}-{$v->info->version}" ?></td>
+					<td><?= HabariDateTime::date_create($v->info->release)->format( Options::get( "addon_catalog__date_format", "F j, Y" ) ) ?></td>
+					<td><a href="<?= $v->info->info_url ?>"><?= $v->info->info_url ?></a></td>
+					<td><a href="<?= $v->download_url ?>"><?= $v->download_url ?></a></td>
+				</tr>
+				<?php endforeach; ?>
+
+				</tbody>
 			</table></div>
-			<?php }
-				else {
-					// no versions available
-				} ?>
+			<?php else: ?>
+					<!-- // no versions available -->
+			<?php endif; ?>
 			<div class="entry-utility">
 				<?php
 					if ( $tags != null ) {
