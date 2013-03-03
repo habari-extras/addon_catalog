@@ -95,7 +95,7 @@ class AddonCatalogPlugin extends Plugin {
 
 		// create the addon vocabulary
 		$params = array(
-			'name' => self::$vocabulary,
+			'name' => self::CATALOG_VOCABULARY,
 			'description' => _t( 'A vocabulary for addon versions in the addons catalog', 'addon_catalog' ),
 			);
 		$vocabulary = Vocabulary::create( $params );
@@ -667,15 +667,17 @@ class AddonCatalogPlugin extends Plugin {
 				/**
 				 * @var Term $term
 				 */
-				array_walk($terms, function(&$term) use($post) {
-					array_walk($term->info->getArrayCopy(), function($value, $key) use($term) {
+				$self = $this;
+				array_walk($terms, function(&$term) use($post, $self) {
+					$infos = $term->info->getArrayCopy();
+					array_walk($infos, function($value, $key) use($term, $self) {
 						$term->$key = $value;
 					});
 					$term->download_url = URL::get(
 						'download_addon',
 						array(
 							'slug' => $post->slug,
-							'version' => $this->version_slugify($term),
+							'version' => $self->version_slugify($term),
 							'addon' => $post->info->type
 						)
 					);
