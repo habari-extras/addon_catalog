@@ -265,6 +265,17 @@ class AddonCatalogPlugin extends Plugin {
 			'description' => "Display addon catalog posts of a particular type",
 		);
 
+		// Add an /update endpoint to dispatch to different handlers
+		$rule = array(
+			'name' => "addon_update_ping",
+			'parse_regex' => "#update#",
+			'build_str' => 'update',
+			'handler' => 'PluginHandler',
+			'action' => 'addon_update_ping',
+			'priority' => 2,
+			'description' => 'Receive webservice pings from update services',
+		);
+
 		// add it to the stack
 		$rules[] = $rule;
 
@@ -793,10 +804,10 @@ class AddonCatalogPlugin extends Plugin {
 		$version = $url_args['version'];
 		$terms = $this->vocabulary->get_object_terms( 'addon', $addon->id );
 		foreach($terms as $term) {
-			if($version == $this->version_slugify($term));
+			if($version == $this->version_slugify($term)) {
+				Utils::debug($addon, $term);
+			}
 		}
-
-		Utils::debug($addon, $version);
 	}
 
 	/**
@@ -825,6 +836,10 @@ class AddonCatalogPlugin extends Plugin {
 			$version[] = $addon_version;
 		}
 		return implode('-', $version);
+	}
+
+	public function theme_route_addon_update_ping($theme, $params) {
+		Plugins::act('addon_update_ping');
 	}
 
 }
