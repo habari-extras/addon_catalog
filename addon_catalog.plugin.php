@@ -541,7 +541,7 @@ class AddonCatalogPlugin extends Plugin {
 
 		if( isset( $post ) && count( $versions ) !== 0 ) {
 
-			$vocabulary = Vocabulary::get( self::$vocabulary );
+			$vocabulary = Vocabulary::get( self::CATALOG_VOCABULARY );
 			$extant_terms = $vocabulary->get_associations($post->id, 'addon');
 
 			foreach( $versions as $key => $version ) {
