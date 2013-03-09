@@ -43,6 +43,7 @@ class AddonCatalogPlugin extends Plugin {
 
 	// fields each version should have
 	private $version_fields = array(
+		'hash',
 		'version',
 		'release', /* release date */
 		'description',
