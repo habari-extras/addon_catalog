@@ -802,11 +802,39 @@ class AddonCatalogPlugin extends Plugin {
 
 	public function theme_route_download_addon($theme, $url_args) {
 		$addon = Post::get(array('slug' => $url_args['slug']));
+		if(!$addon) {
+			return; // Don't let people pass weird stuff into here
+		}
+		
 		$version = $url_args['version'];
 		$terms = $this->vocabulary->get_object_terms( 'addon', $addon->id );
 		foreach($terms as $term) {
 			if($version == $this->version_slugify($term)) {
-				Utils::debug($addon, $term);
+				if(!isset($term->info->url)) {
+					Utils::debug($term);
+					return; // We must have a download url
+				}
+		
+				// zip file of the requested version is located in /user/files/repos/{$slug}/{$hash}.zip
+				$dir = Site::get_dir('user') . '/files/repos/' . $addon->slug . '/';
+				$file = $dir . $term->info->hash . '.zip';
+				
+				if(!is_file($file)) {
+					if ( !is_dir( $dir ) ) {
+						if ( is_writable( Site::get_dir('user') . '/files/repos/' ) ) {
+							mkdir( $dir, 0755 );
+						}
+					}
+
+					exec('rm -rf ' . sys_get_temp_dir() . '/' . $addon->slug);
+					exec('git clone ' . $term->info->url . ' ' . sys_get_temp_dir() . '/' . $addon->slug);
+					exec('cd ' . sys_get_temp_dir() . '/' . $addon->slug . '/ && zip -r ' . $file . ' *');
+				}
+				
+				if(is_file($file)) {
+					// Everything worked fine - or the file already existed
+					Utils::redirect(Site::get_url('user') . '/files/repos/' . $addon->slug . '/' . $term->info->hash . '.zip');
+				}
 			}
 		}
 	}
