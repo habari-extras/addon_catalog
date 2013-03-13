@@ -810,30 +810,40 @@ class AddonCatalogPlugin extends Plugin {
 		$terms = $this->vocabulary->get_object_terms( 'addon', $addon->id );
 		foreach($terms as $term) {
 			if($version == $this->version_slugify($term)) {
-				if(!isset($term->info->url)) {
+				if(!isset($term->info->url) || !isset($term->info->hash)) {
 					Utils::debug($term);
-					return; // We must have a download url
+					return; // We must have a download url and a hash to get
 				}
 		
-				// zip file of the requested version is located in /user/files/repos/{$slug}/{$hash}.zip
-				$dir = Site::get_dir('user') . '/files/repos/' . $addon->slug . '/';
-				$file = $dir . $term->info->hash . '.zip';
+				// zip file of the requested version is located in /user/files/addon_downloads/{$addonslug}/{$versionslug}/{$hash}/{$addonslug}_{$versionslug}.zip
+				$versiondir = '/files/addon_downloads/' . $addon->slug . '/' . $version . '/';
+				$dir = $versiondir . $term->info->hash . '/';
+				$file = $dir . $addon->slug . '_' . $version . '.zip';
 				
-				if(!is_file($file)) {
-					if ( !is_dir( $dir ) ) {
-						if ( is_writable( Site::get_dir('user') . '/files/repos/' ) ) {
-							mkdir( $dir, 0755 );
+				if(!is_file(Site::get_dir('user') . $file)) {
+					// File does not yet exist, prepare directories and create it
+					if ( is_writable( Site::get_dir('user') . '/files/' ) ) {
+						if ( !is_dir( Site::get_dir('user') . $versiondir ) ) {
+							mkdir( Site::get_dir('user') . $versiondir, 0755, true );
 						}
+						
+						// Cleanup: Remove copies from older commits
+						exec('rm -rf ' . Site::get_dir('user') . $versiondir . '*');
+						exec('rm -rf ' . sys_get_temp_dir() . '/' . $addon->slug);
+						
+						if ( !is_dir( Site::get_dir('user') . $dir ) ) {
+							mkdir( Site::get_dir('user') . $dir, 0755, true );
+						}
+						
+						// This should be replaced by the according commands for each service
+						exec('git clone ' . $term->info->url . ' ' . sys_get_temp_dir() . '/' . $addon->slug);
+						exec('cd ' . sys_get_temp_dir() . '/' . $addon->slug . '/ && zip -r ' . Site::get_dir('user') . $file . ' *');
 					}
-
-					exec('rm -rf ' . sys_get_temp_dir() . '/' . $addon->slug);
-					exec('git clone ' . $term->info->url . ' ' . sys_get_temp_dir() . '/' . $addon->slug);
-					exec('cd ' . sys_get_temp_dir() . '/' . $addon->slug . '/ && zip -r ' . $file . ' *');
 				}
-				
-				if(is_file($file)) {
+
+				if(is_file(Site::get_dir('user') . $file)) {
 					// Everything worked fine - or the file already existed
-					Utils::redirect(Site::get_url('user') . '/files/repos/' . $addon->slug . '/' . $term->info->hash . '.zip');
+					Utils::redirect(Site::get_url('user') . $file);
 				}
 			}
 		}
