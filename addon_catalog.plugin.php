@@ -500,6 +500,8 @@ class AddonCatalogPlugin extends Plugin {
 
 			unset( $post );
 			$post = Post::create( $post_fields );
+			$post->info->hoster = $info[ 'hoster' ];
+			$post->update();
 
 			EventLog::log( _t( 'Created post #%s - %s', array( $post->id, $post->title ) ), 'info' );
 		}
