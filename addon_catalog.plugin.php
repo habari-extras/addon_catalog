@@ -839,6 +839,10 @@ class AddonCatalogPlugin extends Plugin {
 						
 						// This will get a prepared command string, including the url, leaving space to insert the destination
 						$clonecommand = Plugins::filter( 'addon_download_command', $addon->info->hoster, $term->info->url );
+						if(!isset($clonecommand) || empty($clonecommand)) {
+							Utils::debug($addon, $term);
+							return;
+						}
 						exec(sprintf($clonecommand, sys_get_temp_dir() . '/' . $addon->slug));
 						exec('cd ' . sys_get_temp_dir() . '/' . $addon->slug . '/ && zip -r ' . Site::get_dir('user') . $file . ' *');
 					}
