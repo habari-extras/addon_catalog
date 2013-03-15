@@ -500,6 +500,8 @@ class AddonCatalogPlugin extends Plugin {
 
 			unset( $post );
 			$post = Post::create( $post_fields );
+			$post->info->hoster = $info[ 'hoster' ];
+			$post->update();
 
 			EventLog::log( _t( 'Created post #%s - %s', array( $post->id, $post->title ) ), 'info' );
 		}
@@ -802,11 +804,54 @@ class AddonCatalogPlugin extends Plugin {
 
 	public function theme_route_download_addon($theme, $url_args) {
 		$addon = Post::get(array('slug' => $url_args['slug']));
+		if(!$addon) {
+			return; // Don't let people pass weird stuff into here
+		}
+		
 		$version = $url_args['version'];
 		$terms = $this->vocabulary->get_object_terms( 'addon', $addon->id );
 		foreach($terms as $term) {
 			if($version == $this->version_slugify($term)) {
-				Utils::debug($addon, $term);
+				if(!isset($term->info->url) || !isset($term->info->hash)) {
+					Utils::debug($term);
+					return; // We must have a download url and a hash to get
+				}
+		
+				// zip file of the requested version is located in /user/files/addon_downloads/{$addonslug}/{$versionslug}/{$hash}/{$addonslug}_{$versionslug}.zip
+				$versiondir = '/files/addon_downloads/' . $addon->slug . '/' . $version . '/';
+				$dir = $versiondir . $term->info->hash . '/';
+				$file = $dir . $addon->slug . '_' . $version . '.zip';
+				
+				if(!is_file(Site::get_dir('user') . $file)) {
+					// File does not yet exist, prepare directories and create it
+					if ( is_writable( Site::get_dir('user') . '/files/' ) ) {
+						if ( !is_dir( Site::get_dir('user') . $versiondir ) ) {
+							mkdir( Site::get_dir('user') . $versiondir, 0755, true );
+						}
+						
+						// Cleanup: Remove copies from older commits
+						exec('rm -rf ' . Site::get_dir('user') . $versiondir . '*');
+						exec('rm -rf ' . sys_get_temp_dir() . '/' . $addon->slug);
+						
+						if ( !is_dir( Site::get_dir('user') . $dir ) ) {
+							mkdir( Site::get_dir('user') . $dir, 0755, true );
+						}
+						
+						// This will get a prepared command string, including the url, leaving space to insert the destination
+						$clonecommand = Plugins::filter( 'addon_download_command', $addon->info->hoster, $term->info->url );
+						if(!isset($clonecommand) || empty($clonecommand)) {
+							Utils::debug($addon, $term);
+							return;
+						}
+						exec(sprintf($clonecommand, sys_get_temp_dir() . '/' . $addon->slug));
+						exec('cd ' . sys_get_temp_dir() . '/' . $addon->slug . '/ && zip -r ' . Site::get_dir('user') . $file . ' *');
+					}
+				}
+
+				if(is_file(Site::get_dir('user') . $file)) {
+					// Everything worked fine - or the file already existed
+					Utils::redirect(Site::get_url('user') . $file);
+				}
 			}
 		}
 	}
