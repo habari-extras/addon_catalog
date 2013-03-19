@@ -181,7 +181,7 @@ class AddonCatalogPlugin extends Plugin {
 	public function action_plugin_ui_configure ( ) {
 		$ui = new FormUI('addon_catalog');
 
-		$ui->append( 'checkbox', 'use_basepath', 'addon_catalog__keep_pages', _t( 'Use a base path: ', 'addon_catalog' ) );
+		$ui->append( 'checkbox', 'use_basepath', 'addon_catalog__use_basepath', _t( 'Use a base path: ', 'addon_catalog' ) );
 		$ui->append( 'text', 'basepath', 'addon_catalog__basepath', _t( 'Base path (without trailing slash), e.g. <em>explore</em> :', 'addon_catalog' ) );
 		$ui->append( 'text', 'date_format', 'addon_catalog__date_format', _t( 'Release Date format :', 'addon_catalog' ) );
 
@@ -265,7 +265,9 @@ class AddonCatalogPlugin extends Plugin {
 			'priority' => 2,
 			'description' => "Display addon catalog posts of a particular type",
 		);
-
+		
+		$rules[] = $rule;
+		
 		// Add an /update endpoint to dispatch to different handlers
 		$rule = array(
 			'name' => "addon_update_ping",
