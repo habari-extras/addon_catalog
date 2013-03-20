@@ -39,6 +39,7 @@ class AddonCatalogPlugin extends Plugin {
 		'screenshot',
 		'authors',
 		'licenses',
+		'parent',
 	);
 
 	// fields each version should have
