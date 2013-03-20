@@ -39,6 +39,9 @@
 					<li>parent theme : <?php echo $post->info->parent;
 				} ?>
 					<li>username : <?php echo User::get( $post->user_id )->username; ?>
+<?php			if( $post->info->screenshot_url != false ) { ?>
+					<li>screenshot : <img src="<?php echo $post->info->screenshot_url . '>"';
+				} ?>
 				</ul>
 			</div>
 

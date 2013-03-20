@@ -36,7 +36,7 @@ class AddonCatalogPlugin extends Plugin {
 		'instructions',
 		'type',
 		'url',
-		'screenshot',
+		'screenshot_url',
 		'authors',
 		'licenses',
 		'parent',
@@ -402,7 +402,7 @@ class AddonCatalogPlugin extends Plugin {
 
 		// add the screenshot
 		$details_screenshot = $addon_fields->append( 'text', 'addon_details_screenshot', 'null:null', _t('Screenshot', 'addon_catalog') );
-		$details_screenshot->value = $post->info->screenshot;
+		$details_screenshot->value = $post->info->screenshot_url;
 		$details_screenshot->template = 'tabcontrol_text';
 
 	}
