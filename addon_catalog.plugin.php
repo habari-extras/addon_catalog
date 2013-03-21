@@ -52,7 +52,7 @@ class AddonCatalogPlugin extends Plugin {
 		'url', /* download url */
 		'habari_version',
 		'severity',
-
+		'source', /* github, bitbucket, etc */
 		/* Features */
 		'requires',
 		'provides',
