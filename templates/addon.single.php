@@ -66,7 +66,11 @@
 
 				<?php foreach ( $post->versions as $v ): ?>
 				<tr>
-					<td><?= "{$v->info->habari_version}-{$v->info->version}" ?></td>
+					<td><?= "{$v->info->habari_version}-{$v->info->version}" ?>
+					<?php if(in_array($v->term, $permitted_versions)): ?>
+						<a href="<?php echo Site::get_url('habari') . '/remove_addon_version/' . $post->slug . '/' . $v->term; ?>">[<?php _e('Remove', 'addon_catalog'); ?>]</a>
+					<?php endif; ?>
+					</td>
 					<td><?= HabariDateTime::date_create($v->info->release)->format( Options::get( "addon_catalog__date_format", "F j, Y" ) ) ?></td>
 					<td><a href="<?= $v->info->info_url ?>"><?= $v->info->info_url ?></a></td>
 					<td><a href="<?= $v->download_url ?>"><?= $v->download_url ?></a></td>

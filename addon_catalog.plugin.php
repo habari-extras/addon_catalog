@@ -597,6 +597,7 @@ class AddonCatalogPlugin extends Plugin {
 		$this->add_template( 'versions_admin', dirname( __FILE__ ) . '/addons_admin.php' );
 		$this->add_template( 'version_iframe', dirname( __FILE__ ) . '/version_iframe.php' );
 
+		$this->add_rule( '"remove_addon_version"/slug/version', 'remove_addon_version' );
 	}
 
 	/**
@@ -625,18 +626,79 @@ class AddonCatalogPlugin extends Plugin {
 	}
 
 	/**
+	 * Remove a version if it's owner or a privileged person requested to do so
+	 **/
+	public function theme_route_remove_addon_version ( $theme, $params ) {
+		$theme->post = Post::get(array(
+			'content_type' => Post::type('addon'),
+			'slug' => $params['slug'],
+		));
+		
+		// Check if the current user has access to this addon.
+		$theme->permitted_versions = $this->addon_permitted_versions($theme->post);
+		
+		$vocab = Vocabulary::get(self::CATALOG_VOCABULARY);
+		$term = $vocab->get_term($params['version']);
+		if($term && in_array($term->term, $theme->permitted_versions)) {
+			
+			$term->delete();
+		}
+		
+		$remaining = $vocab->get_object_terms('addon', $theme->post->id);
+		if(count($remaining) == 0)  {
+			// No versions left on this addon, so remove it entirely
+			$theme->post->delete();
+			// We should propably redirect to the $type overview page instead
+			Utils::redirect(Site::get_url('habari'));
+		}
+		
+		// Redirect so the displayed page uses the updated version list
+		Utils::redirect($theme->post->permalink);
+	}
+
+	/**
 	 * @param Theme $theme
 	 * @param array $params
 	 */
 	public function theme_route_display_addon ( $theme, $params ) {
-
 		$theme->post = Post::get(array(
 			'content_type' => Post::type('addon'),
 			'info' => array( 'type' => $params['addon'] ),
 			'slug' => $params['slug'],
 		));
-
+		
+		// Check if the current user has access to this addon.
+		$theme->permitted_versions = $this->addon_permitted_versions($theme->post);
 		$theme->display( 'addon.single' );
+	}
+	
+	/**
+	 * Determine the addon versions the current user has access to
+	 * Returns an array of term slugs
+	 * @param Addon $addon
+	 */
+	private function addon_permitted_versions($addon) {
+		// Users gain access by contributing via a hosting service, aka GitHub.
+		// So we iterate through all the hosting services supported on this install
+		// and check if the user contributed to one of the versions.
+		// If we stored the hosting service in the addon (as postinfo, not as tag), we could get rid of the iteration.
+		$user = User::identify();
+		$services = Plugins::filter('socialauth_services', array());
+		$permitted_versions = array();
+		$versions = $addon->versions;
+		if(!$versions) {
+			return array();
+		}
+
+		foreach($services as $service) {
+			foreach($versions as $versionterm) {
+				if(isset($versionterm->info->{$service . '_user_id'}) && isset($user->info->{'servicelink_' . $service}) && $versionterm->info->{$service . '_user_id'} == $user->info->{'servicelink_' . $service}) {
+					$permitted_versions[] = $versionterm->term;
+				}
+			}
+		}
+		
+		return $permitted_versions;
 	}
 
 	/**
