@@ -592,12 +592,16 @@ class AddonCatalogPlugin extends Plugin {
 		$this->add_template( 'addon.basepath', dirname(__FILE__) . '/templates/addon.basepath.php' );
 		$this->add_template( 'addon.multiple', dirname(__FILE__) . '/templates/addon.multiple.php' );
 		$this->add_template( 'addon.single', dirname(__FILE__) . '/templates/addon.single.php' );
+		$this->add_template( 'addoncart', dirname(__FILE__) . '/templates/addoncart.php' );
 
 		// register admin pages
 		$this->add_template( 'versions_admin', dirname( __FILE__ ) . '/addons_admin.php' );
 		$this->add_template( 'version_iframe', dirname( __FILE__ ) . '/version_iframe.php' );
 
 		$this->add_rule( '"remove_addon_version"/slug/version', 'remove_addon_version' );
+		$this->add_rule( '"add_to_cart"/slug/version', 'add_to_cart' );
+		$this->add_rule( '"remove_from_cart"/index', 'remove_from_cart' );
+		$this->add_rule( '"cart"', 'cart' );
 	}
 
 	/**
@@ -917,6 +921,50 @@ class AddonCatalogPlugin extends Plugin {
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Save an addon version in the session and provide a "cart" for the user
+	 * On "checkout" the plugin list will be transferred to the user's Habari installation
+	 * @param Theme $theme
+	 * @param Array $params Contains the addon and version slugs
+	 */
+	public function theme_route_add_to_cart($theme, $params)
+	{
+		$addon = Post::get(array(
+			'content_type' => Post::type('addon'),
+			'slug' => $params['slug'],
+		));
+		$term = Vocabulary::get(self::CATALOG_VOCABULARY)->get_term($params['version']);
+		
+		Session::add_to_set("addon_cart", array($addon, $term));
+		Session::notice(_t("You added %s v%s to your cart.", array($addon->title, $term->info->habari_version . "-" . $term->info->version), "addon_catalog") . " <a href='" . Site::get_url("habari") . "/cart'>" . _t("Go to cart", "addon_catalog") . "</a>");
+		
+		Utils::redirect($addon->permalink);
+	}
+	
+	/**
+	 * Remove an addon-version-combination from the session and therefore from the cart
+	 */
+	public function theme_route_remove_from_cart($theme, $params)
+	{
+		$oldlist = Session::get_set("addon_cart");
+		for($i=0; $i<count($oldlist); $i++) {
+			if($i == $params["index"]) {
+				continue;
+			}
+			Session::add_to_set("addon_cart", $oldlist[$i]);
+		}
+		
+		Utils::redirect(Site::get_url("habari") . "/cart");
+	}
+	
+	/**
+	 * Display the cart
+	 */
+	public function theme_route_cart($theme, $params)
+	{
+		$theme->display("addoncart");
 	}
 
 	/**

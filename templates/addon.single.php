@@ -60,6 +60,7 @@
 						<th>Release Date</th>
 						<th>Information</th>
 						<th>Download Link</th>
+						<th>Direct Install</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -74,6 +75,7 @@
 					<td><?= HabariDateTime::date_create($v->info->release)->format( Options::get( "addon_catalog__date_format", "F j, Y" ) ) ?></td>
 					<td><a href="<?= $v->info->info_url ?>"><?= $v->info->info_url ?></a></td>
 					<td><a href="<?= $v->download_url ?>"><?= $v->download_url ?></a></td>
+					<td><a href="<?php echo Site::get_url('habari') . '/add_to_cart/' . $post->slug . '/' . $v->term; ?>">[<?php _e('Add to cart', 'addon_catalog'); ?>]</a></td>
 				</tr>
 				<?php endforeach; ?>
 
