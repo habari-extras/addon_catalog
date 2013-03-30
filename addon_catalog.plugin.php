@@ -232,14 +232,14 @@ class AddonCatalogPlugin extends Plugin {
 		$rules[] = $rule;
 
 		// Add a trailing slash for the regex to the basepath if it is set
-		$basepath_regex = ($basepath == "") ? "" : $basepath . "/";
+		$basepath = ($basepath == "") ? "" : $basepath . "/";
 
 		$addon_regex = implode('|', array_keys($this->types));
 		// create the post display rule for one addon
 		$rule = array(
 			'name' => "display_addon",
-			'parse_regex' => "#^{$basepath_regex}(?P<addon>{$addon_regex})/(?P<slug>[^/]+)/?$#i",
-			'build_str' => $basepath . '/{$addon}/{$slug}',
+			'parse_regex' => "#^{$basepath}(?P<addon>{$addon_regex})/(?P<slug>[^/]+)/?$#i",
+			'build_str' => $basepath . '{$addon}/{$slug}',
 			'handler' => 'PluginHandler',
 			'action' => 'display_addon',
 			'parameters' => serialize( array( 'require_match' => array( 'Posts', 'rewrite_match_type' ), 'content_type' => 'addon' ) ),
@@ -250,8 +250,8 @@ class AddonCatalogPlugin extends Plugin {
 		// create the rule for downloading an addon as a zip
 		$rule = array(
 			'name' => "download_addon",
-			'parse_regex' => "#^{$basepath_regex}(?P<addon>{$addon_regex})/(?P<slug>[^/]+)/download/(?P<version>[^/]+)/?$#i",
-			'build_str' => $basepath . '/{$addon}/{$slug}/download/{$version}',
+			'parse_regex' => "#^{$basepath}(?P<addon>{$addon_regex})/(?P<slug>[^/]+)/download/(?P<version>[^/]+)/?$#i",
+			'build_str' => $basepath . '{$addon}/{$slug}/download/{$version}',
 			'handler' => 'PluginHandler',
 			'action' => 'download_addon',
 			'parameters' => '',
@@ -262,8 +262,8 @@ class AddonCatalogPlugin extends Plugin {
 		// create the addon post display rule for multiple addons
 		$rule = array(
 			'name' => "display_addons",
-			'parse_regex' => "%^{$basepath_regex}(?P<addon>{$addon_regex})(?:/page/(?P<page>\d+))?/?$%",
-			'build_str' => $basepath . '/{$addon}(/page/{$page})',
+			'parse_regex' => "%^{$basepath}(?P<addon>{$addon_regex})(?:/page/(?P<page>\d+))?/?$%",
+			'build_str' => $basepath . '{$addon}(/page/{$page})',
 			'handler' => 'PluginHandler',
 			'action' => "display_addons",
 			'priority' => 2,
@@ -776,6 +776,14 @@ class AddonCatalogPlugin extends Plugin {
 		}
 
 		return $post_versions[$post->id];
+	}
+	
+	/**
+	 * Provide a different writing for addon types
+	 */
+	public function filter_post_info_type_out($type)
+	{
+		return $this->_types[$type];
 	}
 
 	/**

@@ -9,7 +9,7 @@
 			<table>
 				<thead>
 					<tr>
-						<th>Type</th>
+						<th>Category</th>
 						<th>Addon name</th>
 						<th>Version</th>
 						<th>Release Date</th>
