@@ -231,11 +231,14 @@ class AddonCatalogPlugin extends Plugin {
 		// add it to the stack
 		$rules[] = $rule;
 
+		// Add a trailing slash for the regex to the basepath if it is set
+		$basepath_regex = ($basepath == "") ? "" : $basepath . "/";
+
 		$addon_regex = implode('|', array_keys($this->types));
 		// create the post display rule for one addon
 		$rule = array(
 			'name' => "display_addon",
-			'parse_regex' => "#^{$basepath}/(?P<addon>{$addon_regex})/(?P<slug>[^/]+)/?$#i",
+			'parse_regex' => "#^{$basepath_regex}(?P<addon>{$addon_regex})/(?P<slug>[^/]+)/?$#i",
 			'build_str' => $basepath . '/{$addon}/{$slug}',
 			'handler' => 'PluginHandler',
 			'action' => 'display_addon',
@@ -247,7 +250,7 @@ class AddonCatalogPlugin extends Plugin {
 		// create the rule for downloading an addon as a zip
 		$rule = array(
 			'name' => "download_addon",
-			'parse_regex' => "#^{$basepath}/(?P<addon>{$addon_regex})/(?P<slug>[^/]+)/download/(?P<version>[^/]+)/?$#i",
+			'parse_regex' => "#^{$basepath_regex}(?P<addon>{$addon_regex})/(?P<slug>[^/]+)/download/(?P<version>[^/]+)/?$#i",
 			'build_str' => $basepath . '/{$addon}/{$slug}/download/{$version}',
 			'handler' => 'PluginHandler',
 			'action' => 'download_addon',
@@ -259,7 +262,7 @@ class AddonCatalogPlugin extends Plugin {
 		// create the addon post display rule for multiple addons
 		$rule = array(
 			'name' => "display_addons",
-			'parse_regex' => "%^{$basepath}/(?P<addon>{$addon_regex})(?:/page/(?P<page>\d+))?/?$%",
+			'parse_regex' => "%^{$basepath_regex}(?P<addon>{$addon_regex})(?:/page/(?P<page>\d+))?/?$%",
 			'build_str' => $basepath . '/{$addon}(/page/{$page})',
 			'handler' => 'PluginHandler',
 			'action' => "display_addons",
