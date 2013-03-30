@@ -10,6 +10,7 @@
 					<h3 class="entry-title"><a href="<?php echo URL::get("display_addons", array('addon' => $type)); ?>" title="<?php echo $label; ?>"><?php echo $label; ?></a></h3>
 				</div>
 			<?php endforeach; ?>
+			<a href="<?= Site::get_url("habari") . "/cart" ?>">Go to cart</a>
 			</div>
 
 		</div>
