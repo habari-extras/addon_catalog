@@ -951,7 +951,7 @@ class AddonCatalogPlugin extends Plugin {
 		$term = Vocabulary::get(self::CATALOG_VOCABULARY)->get_term($params['version']);
 		
 		Session::add_to_set("addon_cart", array($addon, $term));
-		Session::notice(_t("You added %s v%s to your cart.", array($addon->title, $term->info->habari_version . "-" . $term->info->version), "addon_catalog") . " <a href='" . Site::get_url("habari") . "/cart'>" . _t("Go to cart", "addon_catalog") . "</a>");
+		Session::notice(_t("You added %s v%s to your cart.", array($addon->title_out, $term->info->habari_version . "-" . $term->info->version), "addon_catalog") . " <a href='" . Site::get_url("habari") . "/cart'>" . _t("Go to cart", "addon_catalog") . "</a>");
 		
 		Utils::redirect($addon->permalink);
 	}
@@ -964,6 +964,7 @@ class AddonCatalogPlugin extends Plugin {
 		$oldlist = Session::get_set("addon_cart");
 		for($i=0; $i<count($oldlist); $i++) {
 			if($i == $params["index"]) {
+				Session::notice(_t("You removed %s v%s from your cart.", array("<a href='" . $oldlist[$i][0]->permalink . "'>" . $oldlist[$i][0]->title_out . "</a>", $oldlist[$i][1]->info->habari_version . "-" . $oldlist[$i][1]->info->version), "addon_catalog"));
 				continue;
 			}
 			Session::add_to_set("addon_cart", $oldlist[$i]);
