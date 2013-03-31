@@ -1,4 +1,5 @@
 <?php
+namespace Habari;
 
 	include('beaconhandler.php');
 
@@ -242,7 +243,7 @@ class AddonCatalogPlugin extends Plugin {
 			'build_str' => $basepath . '{$addon}/{$slug}',
 			'handler' => 'PluginHandler',
 			'action' => 'display_addon',
-			'parameters' => serialize( array( 'require_match' => array( 'Posts', 'rewrite_match_type' ), 'content_type' => 'addon' ) ),
+			'parameters' => serialize( array( 'require_match' => array( 'Habari\Posts', 'rewrite_match_type' ), 'content_type' => 'addon' ) ),
 			'description' => "Display an addon catalog post of a particular type",
 		);
 		$rules[] = $rule;
@@ -493,7 +494,7 @@ class AddonCatalogPlugin extends Plugin {
 		$post_fields = array(
 			'content_type' => Post::type( 'addon' ),
 			'status' => Post::status( 'published' ),
-			'pubdate' => HabariDateTime::date_create(),
+			'pubdate' => DateTime::date_create(),
 		);
 
 		$post = self::get_addon( strtoupper( $info[ 'guid' ] ) ); // strtoupper might not be necessary
@@ -517,7 +518,7 @@ class AddonCatalogPlugin extends Plugin {
 				'title' => $info[ 'name' ],
 				'content' => $info[ 'description' ],
 				'slug' => Utils::slugify( $info[ 'name' ] ),
-				'pubdate' => HabariDateTime::date_create(), // should this use the date from the ping?,
+				'pubdate' => DateTime::date_create(), // should this use the date from the ping?,
 
 			) );
 			$post->update();
@@ -950,7 +951,13 @@ class AddonCatalogPlugin extends Plugin {
 		));
 		$term = Vocabulary::get(self::CATALOG_VOCABULARY)->get_term($params['version']);
 		
-		Session::add_to_set("addon_cart", array($addon, $term));
+		$data["download_url"] = URL::get('download_addon', array('slug' => $addon->slug, 'version' => $this->version_slugify($term), 'addon' => $addon->info->type));
+		$data["name"] = $addon->title;
+		$data["version"] = $term->info->habari_version . "-" . $term->info->version;
+		$data["type"] = $addon->info->type;
+		$data["permalink"] = $addon->permalink;
+		
+		Session::add_to_set("addon_cart", $data);
 		Session::notice(_t("You added %s v%s to your cart.", array($addon->title_out, $term->info->habari_version . "-" . $term->info->version), "addon_catalog") . " <a href='" . Site::get_url("habari") . "/cart'>" . _t("Go to cart", "addon_catalog") . "</a>");
 		
 		Utils::redirect($addon->permalink);
@@ -964,7 +971,7 @@ class AddonCatalogPlugin extends Plugin {
 		$oldlist = Session::get_set("addon_cart");
 		for($i=0; $i<count($oldlist); $i++) {
 			if($i == $params["index"]) {
-				Session::notice(_t("You removed %s v%s from your cart.", array("<a href='" . $oldlist[$i][0]->permalink . "'>" . $oldlist[$i][0]->title_out . "</a>", $oldlist[$i][1]->info->habari_version . "-" . $oldlist[$i][1]->info->version), "addon_catalog"));
+				Session::notice(_t("You removed %s v%s from your cart.", array("<a href='" . $oldlist[$i]["permalink"] . "'>" . $oldlist[$i]["name"] . "</a>", $oldlist[$i]["version"]), "addon_catalog"));
 				continue;
 			}
 			Session::add_to_set("addon_cart", $oldlist[$i]);
@@ -978,14 +985,31 @@ class AddonCatalogPlugin extends Plugin {
 	 */
 	public function theme_route_cart($theme, $params)
 	{
-		// Generate checkout form
-		$checkout = new FormUI(__CLASS__);
-		$checkout->append("text", "target_site", "null:null", _t("Install addons on this website:"));
-		$checkout->target_site->add_validator("validate_url");
-		$checkout->target_site->add_validator("validate_required");
-		$checkout->append("submit", "submit_cart", _t("Install!"));
-		$checkout->on_success(array($this, "process_checkout"));
-		$theme->cart_form = $checkout;
+		$target_site = isset(Session::get_set('cart_target', false)['target_site']) ? Session::get_set('cart_target', false)['target_site'] : false;
+		$theme->cart_target_site = $target_site;
+		
+		// Build form for setting the target site
+		// @todo Later: If user is logged in, offer saving locations for re-use
+		$target_form = new FormUI(__CLASS__ . "_target");
+		$target_form->append(FormControlLabel::wrap(_t("Install addons on this website:"), FormControlText::create('target_site', 'session:cart_target')));
+		$target_form->target_site->add_validator('validate_required');
+		$target_form->target_site->add_validator('validate_url');
+		$target_form->append(FormControlSubmit::create('save')->set_caption('Save'));
+
+		// Build checkout form
+		if($target_site) {
+			$target_site .= (substr($target_site, -1) == '/' ? '' : '/');
+			$checkout = new FormUI(__CLASS__ . "_checkout");
+			$checkout->append(FormControlLabel::wrap(_t("Install addons on %s", array($target_site)), FormControlSubmit::create('checkout')->set_caption('Proceed')));
+			// Include JSON payload for the target site
+			$cart = Session::get_set("addon_cart", false);
+			$checkout->append(FormControlHidden::create('payload')->set_value(json_encode($cart)));
+			// Point form to target site
+			$checkout->set_properties(array('action' => $target_site . 'install_addons'));
+			$theme->checkout_form = $checkout;
+		}
+
+		$theme->target_form = $target_form;
 		$theme->display("addoncart");
 	}
 	
@@ -994,18 +1018,17 @@ class AddonCatalogPlugin extends Plugin {
 	 */
 	public function process_checkout($form)
 	{
+		
 		$target = $form->target_site->value;
 		$target .= (substr($target, -1) == '/' ? '' : '/');
 		$cart = Session::get_set("addon_cart", false);
-		
-		// Convert data for sending
 		$data = array();
-		
 		foreach($cart as $item) {
 			$itemdata["download_url"] = URL::get('download_addon', array('slug' => $item[0]->slug, 'version' => $this->version_slugify($item[1]), 'addon' => $item[0]->info->type));
 			$itemdata["name"] = $item[0]->title;
 			$itemdata["version"] = $item[1]->info->habari_version . "-" . $item[1]->info->version;
 			$itemdata["type"] = $item[0]->info->type;
+			$itemdata["permalink"] = $item[0]->permalink;
 			$data[] = $itemdata;
 		}
 		

@@ -1,4 +1,4 @@
-<?php if ( !defined( 'HABARI_PATH' ) ) { die('No direct access'); }
+<?php namespace Habari; if ( !defined( 'HABARI_PATH' ) ) { die('No direct access'); }
 	$theme->display('header');
 	include( "catalog_header.php" ); // @todo a temporary measure.
 	?>
@@ -12,8 +12,6 @@
 						<th>Category</th>
 						<th>Addon name</th>
 						<th>Version</th>
-						<th>Release Date</th>
-						<th>Information</th>
 						<th>Remove</th>
 					</tr>
 				</thead>
@@ -21,18 +19,23 @@
 				
 				<?php foreach(Session::get_set("addon_cart", false) as $index => $c): ?>
 					<tr>
-						<td><?= $c[0]->info->type_out ?></td>
-						<td><a href="<?= $c[0]->permalink ?>"><?= $c[0]->title_out ?></a></td>
-						<td><?= $c[1]->info->habari_version . "-" . $c[1]->info->version ?></td>
-						<td><?= HabariDateTime::date_create($c[1]->info->release)->format( Options::get( "addon_catalog__date_format", "F j, Y" ) ) ?></td>
-						<td><a href="<?= $c[1]->info->info_url ?>"><?= $c[1]->info->info_url ?></a></td>
+						<td><?= $c["type"] ?></td>
+						<td><a href="<?= $c["permalink"] ?>"><?= $c["name"] ?></a></td>
+						<td><?= $c["version"] ?></td>
 						<td><a href="<?= Site::get_url('habari') . "/remove_from_cart/" . $index ?>">Remove</a></td>
 					</tr>
 				<?php endforeach; ?>
 			</table>
 			
 			<h2>Checkout</h2>
-			<?php $cart_form->out(); ?>
+			
+			<?php
+			$target_form->out();
+			if($cart_target_site) {
+				$checkout_form->out();
+			}
+			?>
+			
 		</div>
 	</div>
 	
