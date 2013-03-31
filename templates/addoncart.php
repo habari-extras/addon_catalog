@@ -30,6 +30,9 @@
 					</tr>
 				<?php endforeach; ?>
 			</table>
+			
+			<h2>Checkout</h2>
+			<?php $cart_form->out(); ?>
 		</div>
 	</div>
 	
