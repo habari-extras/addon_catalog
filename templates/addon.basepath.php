@@ -1,4 +1,4 @@
-<?php if ( !defined( 'HABARI_PATH' ) ) { die('No direct access'); } 
+<?php namespace Habari; if ( !defined( 'HABARI_PATH' ) ) { die('No direct access'); } 
 	$theme->display( 'header');
 	include( "catalog_header.php" ); // possibly a temporary measure.
 ?>

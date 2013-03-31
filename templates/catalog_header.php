@@ -1,3 +1,4 @@
+<?php namespace Habari; ?>
 <div id="addons-header">
 <small><a href="<?php URL::out( array( "display_addon_basepath", "display_basepath" ) ); ?>"><?php Options::out( 'addon_catalog__basepath', 'explore' ); ?></a>
 <?php
