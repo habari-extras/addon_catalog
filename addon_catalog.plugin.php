@@ -985,7 +985,8 @@ class AddonCatalogPlugin extends Plugin {
 	 */
 	public function theme_route_cart($theme, $params)
 	{
-		$target_site = isset(Session::get_set('cart_target', false)['target_site']) ? Session::get_set('cart_target', false)['target_site'] : false;
+		$data = Session::get_set('cart_target', false);
+		$target_site = isset($data['target_site']) ? $data['target_site'] : false;
 		$theme->cart_target_site = $target_site;
 		
 		// Build form for setting the target site
