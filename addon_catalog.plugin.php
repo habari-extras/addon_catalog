@@ -636,6 +636,7 @@ class AddonCatalogPlugin extends Plugin {
 		$target_form->target_site->add_validator('validate_required');
 		$target_form->target_site->add_validator('validate_url');
 		$target_form->append(FormControlSubmit::create('save')->set_caption('Save'));
+		$target_form->on_success(array($this, "cart_callback"));
 
 		// Build checkout form
 		if($target_site) {
@@ -651,6 +652,15 @@ class AddonCatalogPlugin extends Plugin {
 		}
 
 		$block->target_form = $target_form;
+	}
+	
+	/**
+	 * Do a full reload again after processing the form with the target site to make it available when the checkout form displays
+	 */
+	function cart_callback($form)
+	{
+		$form->save();
+		Utils::redirect();
 	}
 
 	/**
