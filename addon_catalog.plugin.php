@@ -1010,6 +1010,8 @@ class AddonCatalogPlugin extends Plugin {
 		$data["habari_version"] = $term->info->habari_version;
 		$data["type"] = $addon->info->type;
 		$data["permalink"] = $addon->permalink;
+		$data["description"] = $term->info->description;
+		$data["slug"] = $term->term;
 		
 		Session::add_to_set("addon_cart", $data);
 		Session::notice(_t("You added %s v%s for Habari %s to your cart.", array($addon->title_out, $data["version"], $data["habari_version"]), "addon_catalog"));
