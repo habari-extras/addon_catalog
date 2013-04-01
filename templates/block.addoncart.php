@@ -16,7 +16,7 @@
 					<tr>
 						<td><?= $c["type"] ?></td>
 						<td><a href="<?= $c["permalink"] ?>"><?= $c["name"] ?></a></td>
-						<td><?= $c["version"] ?></td>
+						<td><?= $c["habari_version"] . "-" . $c["version"] ?></td>
 						<td><a href="<?= Site::get_url('habari') . "/remove_from_cart/" . $index ?>">Remove</a></td>
 					</tr>
 				<?php endforeach; ?>

@@ -1006,12 +1006,13 @@ class AddonCatalogPlugin extends Plugin {
 		
 		$data["download_url"] = URL::get('download_addon', array('slug' => $addon->slug, 'version' => $this->version_slugify($term), 'addon' => $addon->info->type));
 		$data["name"] = $addon->title;
-		$data["version"] = $term->info->habari_version . "-" . $term->info->version;
+		$data["version"] = $term->info->version;
+		$data["habari_version"] = $term->info->habari_version;
 		$data["type"] = $addon->info->type;
 		$data["permalink"] = $addon->permalink;
 		
 		Session::add_to_set("addon_cart", $data);
-		Session::notice(_t("You added %s v%s to your cart.", array($addon->title_out, $data["version"]), "addon_catalog"));
+		Session::notice(_t("You added %s v%s for Habari %s to your cart.", array($addon->title_out, $data["version"], $data["habari_version"]), "addon_catalog"));
 		
 		Utils::redirect($addon->permalink);
 	}
@@ -1025,7 +1026,7 @@ class AddonCatalogPlugin extends Plugin {
 		$oldlist = Session::get_set("addon_cart");
 		for($i=0; $i<count($oldlist); $i++) {
 			if($i == $params["index"]) {
-				Session::notice(_t("You removed %s v%s from your cart.", array("<a href='" . $oldlist[$i]["permalink"] . "'>" . $oldlist[$i]["name"] . "</a>", $oldlist[$i]["version"]), "addon_catalog"));
+				Session::notice(_t("You removed %s v%s for Habari %s from your cart.", array("<a href='" . $oldlist[$i]["permalink"] . "'>" . $oldlist[$i]["name"] . "</a>", $oldlist[$i]["version"], $oldlist[$i]["habari_version"]), "addon_catalog"));
 				$type = $oldlist[$i]["type"];
 				continue;
 			}
