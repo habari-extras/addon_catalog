@@ -1001,7 +1001,7 @@ class AddonCatalogPlugin extends Plugin {
 		$data["permalink"] = $addon->permalink;
 		
 		Session::add_to_set("addon_cart", $data);
-		Session::notice(_t("You added %s v%s to your cart.", array($addon->title_out, $term->info->habari_version . "-" . $term->info->version), "addon_catalog"));
+		Session::notice(_t("You added %s v%s to your cart.", array($addon->title_out, $data["version"], "addon_catalog"));
 		
 		Utils::redirect($addon->permalink);
 	}
