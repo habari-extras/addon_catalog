@@ -1035,53 +1035,6 @@ class AddonCatalogPlugin extends Plugin {
 		
 		Utils::redirect(URL::get("display_addons", array('addon' => $type)));
 	}
-	
-	/**
-	 * Process the checkout: Send the selected addons to the user's site.
-	 */
-	public function process_checkout($form)
-	{
-		
-		$target = $form->target_site->value;
-		$target .= (substr($target, -1) == '/' ? '' : '/');
-		$cart = Session::get_set("addon_cart", false);
-		$data = array();
-		foreach($cart as $item) {
-			$itemdata["download_url"] = URL::get('download_addon', array('slug' => $item[0]->slug, 'version' => $this->version_slugify($item[1]), 'addon' => $item[0]->info->type));
-			$itemdata["name"] = $item[0]->title;
-			$itemdata["version"] = $item[1]->info->habari_version . "-" . $item[1]->info->version;
-			$itemdata["type"] = $item[0]->info->type;
-			$itemdata["permalink"] = $item[0]->permalink;
-			$data[] = $itemdata;
-		}
-		
-		// Send data to target site where it will be stored in the cache
-		$request = new RemoteRequest($target . "retrieve_addonlist", "POST");
-		$request->set_postdata(array("payload" => $data));
-		$request->execute();
-		
-		if ( ! $request->executed() ) {
-			Session::error("Something went wrong when trying to contact the target site.");
-			return false;
-		}
-		
-		// If the target site responded, redirect there.
-		$json_response = $request->get_response_body();
-		$jsondata = json_decode($json_response);
-		try {
-			$response = $jsondata->{'status'};
-			if($response == "OK") {
-				Utils::redirect($target . "install_addons");
-			}
-			else {
-				Session::error($jsondata);
-				return false;
-			}
-		}
-		catch(Exception $e) {
-			Session::error($jsonresponse);
-		}
-	}
 
 	/**
 	 * Prepare a version string for use in display and URLs
