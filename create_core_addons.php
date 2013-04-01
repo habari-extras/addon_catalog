@@ -1,4 +1,5 @@
 <?php
+namespace Habari;
 $habari_addon = Posts::get( array( 'content_type' => 'addon', 'slug' => 'habari' ) );
 
 if ( count( $habari_addon ) == 0 ) {
@@ -8,7 +9,7 @@ if ( count( $habari_addon ) == 0 ) {
 		'content' => file_get_contents( dirname( __FILE__ ) . '/addon.habari.txt' ),
 		'status' => Post::status('published'),
 		'tags' => array( 'habari' ),
-		'pubdate' => HabariDateTime::date_create(),
+		'pubdate' => DateTime::date_create(),
 		'user_id' => User::identify()->id,
 		'slug' => 'habari',
 	) );
@@ -31,7 +32,7 @@ if ( count( $habari_addon ) == 0 ) {
 			'requires' => '',
 			'provides' => '',
 			'recommends' => '',
-			'release' => HabariDateTime::date_create( '2012-11-20' )->sql,
+			'release' => DateTime::date_create( '2012-11-20' )->sql,
 		),
 	);
 
@@ -43,7 +44,7 @@ if ( count( $habari_addon ) == 0 ) {
 		'content' => file_get_contents( Site::$config_path . '/system/themes/wazi/README' ),
 		'status' => Post::status('published'),
 		'tags' => array( 'habari', 'theme' ),
-		'pubdate' => HabariDateTime::date_create(),
+		'pubdate' => DateTime::date_create(),
 		'user_id' => User::identify()->id,
 		'slug' => 'wazi',
 	) );
@@ -66,7 +67,7 @@ if ( count( $habari_addon ) == 0 ) {
 			'requires' => '',
 			'provides' => '',
 			'recommends' => '',
-			'release' => HabariDateTime::date_create( '2012-11-20' )->sql,
+			'release' => DateTime::date_create( '2012-11-20' )->sql,
 		),
 	);
 

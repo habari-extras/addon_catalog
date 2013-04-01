@@ -1,4 +1,4 @@
-<?php if ( !defined( 'HABARI_PATH' ) ) { die('No direct access'); }
+<?php namespace Habari; if ( !defined( 'HABARI_PATH' ) ) { die('No direct access'); }
 
 	$theme->display('header');
 
@@ -72,7 +72,7 @@
 						<a href="<?php echo Site::get_url('habari') . '/remove_addon_version/' . $post->slug . '/' . $v->term; ?>">[<?php _e('Remove', 'addon_catalog'); ?>]</a>
 					<?php endif; ?>
 					</td>
-					<td><?= HabariDateTime::date_create($v->info->release)->format( Options::get( "addon_catalog__date_format", "F j, Y" ) ) ?></td>
+					<td><?= DateTime::date_create($v->info->release)->format( Options::get( "addon_catalog__date_format", "F j, Y" ) ) ?></td>
 					<td><a href="<?= $v->info->info_url ?>"><?= $v->info->info_url ?></a></td>
 					<td><a href="<?= $v->download_url ?>"><?= $v->download_url ?></a></td>
 					<td><a href="<?php echo Site::get_url('habari') . '/add_to_cart/' . $post->slug . '/' . $v->term; ?>">[<?php _e('Add to cart', 'addon_catalog'); ?>]</a></td>

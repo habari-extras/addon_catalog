@@ -1,5 +1,5 @@
 <?php
-
+namespace Habari;
 	class BeaconHandler extends ActionHandler {
 		
 		public function __construct ( ) {
