@@ -1,9 +1,4 @@
-<?php namespace Habari; if ( !defined( 'HABARI_PATH' ) ) { die('No direct access'); }
-	$theme->display('header');
-	include( "catalog_header.php" ); // @todo a temporary measure.
-	?>
-	
-	<div id="cart">
+<?php namespace Habari; ?>
 		<h2><?php _e("Cart"); ?></h2>
 		<div class="downloads"><h3>Addons in your cart</h3>
 			<table>
@@ -30,12 +25,8 @@
 			<h2>Checkout</h2>
 			
 			<?php
-			$target_form->out();
-			if($cart_target_site) {
-				$checkout_form->out();
+			$content->target_form->out();
+			if($content->cart_target_site) {
+				$content->checkout_form->out();
 			}
 			?>
-			
-		</div>
-	</div>
-	

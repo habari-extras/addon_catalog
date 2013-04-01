@@ -598,16 +598,59 @@ class AddonCatalogPlugin extends Plugin {
 		$this->add_template( 'addon.basepath', dirname(__FILE__) . '/templates/addon.basepath.php' );
 		$this->add_template( 'addon.multiple', dirname(__FILE__) . '/templates/addon.multiple.php' );
 		$this->add_template( 'addon.single', dirname(__FILE__) . '/templates/addon.single.php' );
-		$this->add_template( 'addoncart', dirname(__FILE__) . '/templates/addoncart.php' );
 
 		// register admin pages
 		$this->add_template( 'versions_admin', dirname( __FILE__ ) . '/addons_admin.php' );
 		$this->add_template( 'version_iframe', dirname( __FILE__ ) . '/version_iframe.php' );
+		
+		$this->add_template( 'block.addoncart', dirname( __FILE__ ) . '/templates/block.addoncart.php' );
 
 		$this->add_rule( '"remove_addon_version"/slug/version', 'remove_addon_version' );
 		$this->add_rule( '"add_to_cart"/slug/version', 'add_to_cart' );
 		$this->add_rule( '"remove_from_cart"/index', 'remove_from_cart' );
 		$this->add_rule( '"cart"', 'cart' );
+	}
+	
+	/**
+	 * Add cart block
+	 */
+	public function filter_block_list( $blocklist )
+	{
+		$blocklist[ 'addoncart' ] = _t( 'Addon Cart' );
+		return $blocklist;
+	}
+	
+	/**
+	 * Add target site and checkout forms to cart block
+	 */
+	public function action_block_content_addoncart( $block )
+	{
+		$data = Session::get_set('cart_target', false);
+		$target_site = isset($data['target_site']) ? $data['target_site'] : false;
+		$block->cart_target_site = $target_site;
+		
+		// Build form for setting the target site
+		// @todo Later: If user is logged in, offer saving locations for re-use
+		$target_form = new FormUI(__CLASS__ . "_target");
+		$target_form->append(FormControlLabel::wrap(_t("Install addons on this website:"), FormControlText::create('target_site', 'session:cart_target')));
+		$target_form->target_site->add_validator('validate_required');
+		$target_form->target_site->add_validator('validate_url');
+		$target_form->append(FormControlSubmit::create('save')->set_caption('Save'));
+
+		// Build checkout form
+		if($target_site) {
+			$target_site .= (substr($target_site, -1) == '/' ? '' : '/');
+			$checkout = new FormUI(__CLASS__ . "_checkout");
+			$checkout->append(FormControlLabel::wrap(_t("Install addons on %s", array($target_site)), FormControlSubmit::create('checkout')->set_caption('Proceed')));
+			// Include JSON payload for the target site
+			$cart = Session::get_set("addon_cart", false);
+			$checkout->append(FormControlHidden::create('payload')->set_value(json_encode($cart)));
+			// Point form to target site
+			$checkout->set_properties(array('action' => $target_site . 'install_addons'));
+			$block->checkout_form = $checkout;
+		}
+
+		$block->target_form = $target_form;
 	}
 
 	/**
@@ -958,13 +1001,14 @@ class AddonCatalogPlugin extends Plugin {
 		$data["permalink"] = $addon->permalink;
 		
 		Session::add_to_set("addon_cart", $data);
-		Session::notice(_t("You added %s v%s to your cart.", array($addon->title_out, $term->info->habari_version . "-" . $term->info->version), "addon_catalog") . " <a href='" . Site::get_url("habari") . "/cart'>" . _t("Go to cart", "addon_catalog") . "</a>");
+		Session::notice(_t("You added %s v%s to your cart.", array($addon->title_out, $term->info->habari_version . "-" . $term->info->version), "addon_catalog"));
 		
 		Utils::redirect($addon->permalink);
 	}
 	
 	/**
 	 * Remove an addon-version-combination from the session and therefore from the cart
+	 * After removing, redirect to the overview page for that type of addon
 	 */
 	public function theme_route_remove_from_cart($theme, $params)
 	{
@@ -972,46 +1016,13 @@ class AddonCatalogPlugin extends Plugin {
 		for($i=0; $i<count($oldlist); $i++) {
 			if($i == $params["index"]) {
 				Session::notice(_t("You removed %s v%s from your cart.", array("<a href='" . $oldlist[$i]["permalink"] . "'>" . $oldlist[$i]["name"] . "</a>", $oldlist[$i]["version"]), "addon_catalog"));
+				$type = $oldlist[$i]["type"];
 				continue;
 			}
 			Session::add_to_set("addon_cart", $oldlist[$i]);
 		}
 		
-		Utils::redirect(Site::get_url("habari") . "/cart");
-	}
-	
-	/**
-	 * Display the cart
-	 */
-	public function theme_route_cart($theme, $params)
-	{
-		$data = Session::get_set('cart_target', false);
-		$target_site = isset($data['target_site']) ? $data['target_site'] : false;
-		$theme->cart_target_site = $target_site;
-		
-		// Build form for setting the target site
-		// @todo Later: If user is logged in, offer saving locations for re-use
-		$target_form = new FormUI(__CLASS__ . "_target");
-		$target_form->append(FormControlLabel::wrap(_t("Install addons on this website:"), FormControlText::create('target_site', 'session:cart_target')));
-		$target_form->target_site->add_validator('validate_required');
-		$target_form->target_site->add_validator('validate_url');
-		$target_form->append(FormControlSubmit::create('save')->set_caption('Save'));
-
-		// Build checkout form
-		if($target_site) {
-			$target_site .= (substr($target_site, -1) == '/' ? '' : '/');
-			$checkout = new FormUI(__CLASS__ . "_checkout");
-			$checkout->append(FormControlLabel::wrap(_t("Install addons on %s", array($target_site)), FormControlSubmit::create('checkout')->set_caption('Proceed')));
-			// Include JSON payload for the target site
-			$cart = Session::get_set("addon_cart", false);
-			$checkout->append(FormControlHidden::create('payload')->set_value(json_encode($cart)));
-			// Point form to target site
-			$checkout->set_properties(array('action' => $target_site . 'install_addons'));
-			$theme->checkout_form = $checkout;
-		}
-
-		$theme->target_form = $target_form;
-		$theme->display("addoncart");
+		Utils::redirect(URL::get("display_addons", array('addon' => $type)));
 	}
 	
 	/**
