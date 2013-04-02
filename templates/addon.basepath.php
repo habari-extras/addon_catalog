@@ -1,18 +1,41 @@
-<?php namespace Habari; if ( !defined( 'HABARI_PATH' ) ) { die('No direct access'); } 
+<?php namespace Habari; ?>
+<?php if ( !defined( 'HABARI_PATH' ) ) { die('No direct access'); } 
 	$theme->display( 'header');
-	include( "catalog_header.php" ); // possibly a temporary measure.
 ?>
-	<div class="content">
-		<div id="primary">
-			<div id="primarycontent" class="hfeed">
-			<?php foreach ( $types as $type => $label): ?>
-				<div class="addon-type addon-type-<?php echo $type; ?>">
-					<h3 class="entry-title"><a href="<?php echo URL::get("display_addons", array('addon' => $type)); ?>" title="<?php echo $label; ?>"><?php echo $label; ?></a></h3>
-				</div>
-			<?php endforeach; ?>
-			<a href="<?= Site::get_url("habari") . "/cart" ?>">Go to cart</a>
-			</div>
-
-		</div>
+<?php $theme->display('directory_header'); ?>
+<div id="intro_header">
+	<div class="container">
+		<h3>Recently updated Plugins, Themes and Bundles.</h3>
 	</div>
+</div>
+<div id="article" class="addons">
+	<div class="container">
+		<?php foreach( $addons as $addon ) { ?>
+			<div class="addon_block sixteen columns">
+				<div class="block columns three">
+					<?php echo AddonCatalogPlugin::screenshot( $addon ); ?>
+				</div>
+				<div class="body columns three">
+					<h4><a href="<?php echo $addon->permalink; ?>" title="View <?php echo $addon->title; ?>"><?php echo $addon->title_out; ?></a></h4>
+					<span>by <?php echo AddonCatalogPlugin::name_url_list( $addon->info->authors ); ?></span>
+					<?php if( $addon->versions ) { ?>
+					<hr>						
+					<span class="meta">Habari <?php echo $addon->versions[0]->info->habari_version; ?> or higher</span>
+					<?php } ?>
+				</div>
+				<div class="body columns eight">
+					<p>
+					<?php 
+						if ( count( $addon->tags ) > 0 ) {
+							echo _t( 'Tagged %s', array( Format::tag_and_list( $addon->tags, ', ', ', ' ) ) );
+						}
+					?>
+					</p>
+					<p><?php echo $addon->content_excerpt; ?></p>
+				</div>
+			</div>
+		<?php } ?>
+		</div>
+</div>
+<?php $theme->display ('quicklinks'); ?>
 <?php $theme->display ('footer'); ?>
