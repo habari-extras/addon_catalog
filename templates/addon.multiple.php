@@ -2,28 +2,28 @@
 <?php if ( !defined( 'HABARI_PATH' ) ) { die('No direct access'); }
 	$theme->display( 'header');
 ?>
-<div id="involved" class="docpage">
+<div id="involved" class="docpage <?php echo $posts[0]->info->type; ?>">
 	<div class="container">
 		<div class="row">
-			<div class="area four columns selected alpha">
+			<div id="theme" class="area four columns alpha">
 				<a href="<?php echo URL::get("display_addons", array('addon' => 'theme')); ?>">
 					<i class="icon-code">a</i>
 					<p><strong>Themes</strong></p>
 				</a>
 			</div>
-			<div class="area four columns">
+			<div id="plugin" class="area four columns">
 				<a href="<?php echo URL::get("display_addons", array('addon' => 'plugin')); ?>">
 					<i class="icon-code">P</i>
 					<p><strong>Plugins</strong></p>
 				</a>
 			</div>
-			<div class="area four columns">
+			<div id="bundle" class="area four columns">
 				<a href="<?php echo URL::get("display_addons", array('addon' => 'bundle')); ?>">
 					<i class="icon-code">b</i>
 					<p><strong>Bundles</strong></p>
 				</a>
 			</div>
-			<div class="area four columns omega">
+			<div id="core" class="area four columns omega">
 				<a href="<?php echo URL::get("display_addons", array('addon' => 'core')); ?>">
 					<i class="icon-code">C</i>
 					<p><strong>Core</strong></p>

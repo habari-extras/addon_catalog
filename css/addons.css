@@ -104,9 +104,16 @@ pre {
 			margin-top: -10px;
 			margin-bottom: -5px;
 		}
-			#involved.docpage .area.selected {
+			
+			#involved.plugin #plugin, #involved.theme #theme, #involved.bundle #bundle, #involved.core #core {
 				background: rgb( 183, 86, 84 );
-			}			
+			}
+			
+			#involved.plugin #plugin i, #involved.theme #theme i, #involved.bundle #bundle i, #involved.core #core i {
+				background: #fff;
+				color: rgb( 183, 86, 84 );
+			}
+			
 			#involved.docpage .area i {
 				text-align: center;
 				opacity: 1.0;
