@@ -1,3 +1,285 @@
+b {
+	font-weight: bold;
+}
+
+i {
+	font-style: italic;
+}
+
+code {
+	font-family: Courier;
+	background: rgb(224, 221, 214);
+	border-radius: 3px;
+	padding: 3px;
+}
+
+pre code {
+	background: none;
+	border-radius: none;
+	padding: auto;
+}
+
+pre {
+	padding: 10px;
+	margin-bottom: 20px;
+	word-wrap: break-word;
+	white-space: pre-wrap; 
+	font-size: 14px;
+}
+
+#edit_content .editable, #edit_content h2 {
+	outline: none;
+	padding: 5px 5px;
+	border: 1px dashed #ddd;
+}
+	#edit_content .editable {
+		font-size: 13px;
+		padding: 10px 10px;
+	}
+
+#edit_content #create_document {
+	margin-top: 0px;
+}
+
+#edit_content.single h2, #edit_content.single .editable {
+	border:0px;
+}
+
+#sidebar h4, #edit_content h4, #edit_content h5, .docpage h4 {
+	font-family: "Montserrat";
+	font-weight: normal;
+	opacity: 0.85;
+}
+
+#sidebar ul {
+	margin-top: 5px;
+	margin-left: 10px;
+}
+
+#sidebar ul li {
+	margin:0px;
+}
+
+.button {
+	border:0px;
+	display: block;
+	text-decoration: none;
+	padding: 10px 15px;
+	background-color: rgb( 87, 154, 169 );
+	font-size: 13px;
+	font-family: "Montserrat";
+	font-weight: bold;
+	color: rgb( 255, 255, 255 );
+	text-transform: uppercase;
+	text-align: center;
+}
+	.button:active {
+		background-color: rgb( 87, 164, 169 );
+	}
+
+#intro_header.docpage {
+	padding: 20px 0px 5px;
+}
+	#intro_header.docpage ul {
+		margin-top:-30px;
+		margin-left: -15px;
+	}
+	
+	#intro_header.docpage ul li {
+		float:left;
+		font-size: 12px;
+		margin: 10px 5px;
+	}
+
+#involved.docpage {
+		border-top: 0px solid rgb( 183, 86, 84 );
+		border-bottom: 1px solid rgb( 183, 86, 84 );	
+	}
+	
+	#involved.docpage .container {
+		padding-top: 80px;
+		padding-bottom: 0px;
+	}
+		#involved.docpage .area {
+			margin-top: -10px;
+			margin-bottom: -5px;
+		}
+			#involved.docpage .area.selected {
+				background: rgb( 183, 86, 84 );
+			}			
+			#involved.docpage .area i {
+				text-align: center;
+				opacity: 1.0;
+				font-size: 35px;
+				line-height: 54px;
+				height: 45px;
+				width: 45px;
+				color: rgb( 255, 255, 255 );
+				border-radius: 50%;
+				background-color: rgb( 183, 86, 84 );
+				margin-left: -10px;
+			}
+				#involved.docpage .area a:hover i {
+					background-color: rgb( 255, 255, 255 );
+					color: rgb( 183, 86, 84 );
+				}
+
+				#involved.docpage .area.selected i {
+					background-color: rgb( 255, 255, 255 );
+					color: rgb( 183, 86, 84 );
+				}
+			
+		#involved.docpage .area p {
+			display:inline;
+			float:auto;
+		}
+			#involved.docpage .area p strong {
+				position:relative;
+				top: 4px;
+			}
+			
+.icon-edit {
+	font-size: 35px;
+	margin-right: 5px;
+	margin-top: 21px;
+}
+	.icon-edit:hover {
+		opacity: 1.0;
+	}
+
+#sidebar {
+	margin-top: 10px;
+}
+	#sidebar ul {
+		width: 200px;
+		position:fixed;
+	}
+		#sidebar ul li {
+			text-align: right;
+			margin-bottom: 10px;
+		}
+	
+/*
+	HUMANIZED MESSAGES 1.0 - Habari Edition
+	idea - http://www.humanized.com/weblog/2006/09/11/monolog_boxes_and_transparent_messages
+	home - http://humanmsg.googlecode.com
+*/
+
+html, body {
+	height: 100%; /* Damn you IE! */
+}
+
+.humanMsg {
+	font: normal 12px Helvetica, Arial, Sans-Serif;
+	position: fixed;
+	top: 40px;
+	left: 10px;
+	width: 30%;
+	color: white;
+	text-align: left;
+	z-index: 90;
+	display: none;
+	padding: 0px;
+}
+
+.humanMsg .imsgs .msg {
+	padding: 10px;
+	background-color: black;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	box-shadow: 0px 1px 5px #333;
+	-webkit-box-shadow: 0px 1px 5px #333;
+	-moz-box-shadow: 0px 1px 5px #333;
+	margin-bottom: 5px;
+	}
+
+.humanMsg p {
+	display: inline;
+	}
+
+.humanMsg p a {
+	color: #19a5d1;
+	}
+
+.humanMsg .imsgs .msg {
+	display: none;
+	opacity: 0;
+	}
+
+#humanMsgLog {
+	font: normal 10px Helvetica, Arial, Sans-Serif;
+	color: white;
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	max-height: 200px;
+	display: none;
+	z-index: 10000;
+	}
+
+#humanMsgLog p {
+	position: relative;
+	left: 50%;
+	width: 200px;
+	margin: 0;
+	margin-left: -100px;
+	padding: 0 10px;
+	line-height: 20px;
+	background: #333;
+	text-align: center;
+	white-space: pre;
+	cursor: pointer;
+	}
+
+#humanMsgLog p:hover {
+	background: #222;
+	}
+
+#humanMsgLog ul {
+	background: #eee url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAARCAIAAACaSvE/AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAE1JREFUeNqEjVEKACAIQ516Ee//5wVNCjIjaB/iY5vC3YkoIgDkVDOjQ5pqLCI3r2bLFzNzyydvM4uKqfJPKN4vyl9LO/7o3/6PhwADAIWkFPjc5eRrAAAAAElFTkSuQmCC) repeat-x;
+	margin: 0;
+	padding: 0;
+	position: relative;
+	max-height: 180px;
+	overflow: auto;
+	display: none;
+	}
+
+#humanMsgLog ul li {
+	color: #555;
+	font-size: 12px;
+	list-style-type: none;
+	border-bottom: 1px solid #ddd;
+	line-height: 40px;
+	display: none;
+	padding: 0 20px;
+	position: relative;
+	overflow: hidden;
+	white-space: pre;
+	}
+
+#humanMsgLog ul li:hover {
+	background: #f2f2f2;
+	}
+
+#humanMsgLog ul li:first-child {
+	margin-top: 1px;
+	}
+
+#humanMsgLog ul li .error {
+	color: orangered;
+	}
+
+#humanMsgLog ul li .indent {
+	position: absolute;
+	top: 0;
+	left: 100px;
+	margin-right: 200px;
+	height: inherit;
+	}
+	
 #intro_header.addon .container h3 {
 	font-size: 23px;
 }
