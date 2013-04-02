@@ -292,6 +292,14 @@ class AddonCatalogPlugin extends Plugin {
 
 	}
 
+	public static function screenshot($addon) {
+		if( $addon->info->screenshot != '' ) {
+			return '<img class="" src="' . $addon->info->screenshot . '" alt="' . $addon->title . '">';
+		} else {
+			return '<i class="icon-' . $addon->info->type .'">' . self::get_type_icon( $addon->info->type ) . '</i>';
+		}
+	}
+
 	public static function get_type_icon($type) {
 			$out = '';
 			switch( $type ) {
