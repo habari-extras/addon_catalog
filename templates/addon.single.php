@@ -87,6 +87,10 @@
 							<div style="float:left;width:185px;"><a href="<?php echo $post->info->url; ?>">Developer Site</a></div>
 						</li>
 						<li>
+							<div style="float:left;margin-right: 5px;"><i class="icon-link">g</i></div>
+							<div style="float:left;width:185px;"><a href="<?php echo $post->info->repo_url; ?>"><?php echo ucfirst($post->info->type); ?> Repo</a></div>
+						</li>
+						<li>
 							<div style="float:left;margin-right: 5px;"><i class="icon-license">l</i></div>
 							<div style="float:left;width:185px;"><?php echo _n( " ", "", count( $post->info->licenses ) ); ?> <?php echo AddonCatalogPlugin::name_url_list( $post->info->licenses ); ?></div>
 						</li>
