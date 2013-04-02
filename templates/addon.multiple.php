@@ -55,7 +55,7 @@
 					<div>
 						<?php
 						for ($z = 0; $z < 5; $z++):
-							if ( $addon->rating <= $z || 0 == $addon->rating) {
+							if ( $addon->rating <= $z * 20 || 0 == $addon->rating) {
 								$class1 = '';
 								$class2 = 'zero';
 							}
