@@ -53,26 +53,26 @@
 					<span>by <?php echo AddonCatalogPlugin::name_url_list( $addon->info->authors ); ?></span>
 					<hr>						
 					<div>
-						<div class="rating">
-							<i class="icon-rating bottom hide">s</i>
-							<i class="icon-rating top"><span class="amount hundred">s</span></i>
-						</div>
-						<div class="rating">
-							<i class="icon-rating bottom hide">s</i>
-							<i class="icon-rating top"><span class="amount hundred">s</span></i>
-						</div>
-						<div class="rating">
-							<i class="icon-rating bottom">s</i>
-							<i class="icon-rating top"><span class="amount fifty">s</span></i>
-						</div>
-						<div class="rating">
-							<i class="icon-rating bottom">s</i>
-							<i class="icon-rating top"><span class="amount zero">s</span></i>
-						</div>
-						<div class="rating">
-							<i class="icon-rating bottom">s</i>
-							<i class="icon-rating top"><span class="amount zero">s</span></i>
-						</div>
+						<?php
+						for ($z = 0; $z < 5; $z++):
+							if ( $post->rating <= $z || 0 == $post->rating) {
+								$class1 = '';
+								$class2 = 'zero';
+							}
+							elseif ( $post->rating > $z * 20 && $post->rating < $z * 20 + 10 ) {
+								$class1 = '';
+								$class2 = 'fifty';
+							}
+							else {
+								$class1 = 'hide';
+								$class2 = 'hundred';
+							}
+							?>
+							<div class="rating">
+								<i class="icon-rating bottom <?php echo $class1; ?>">s</i>
+								<i class="icon-rating top"><span class="amount <?php echo $class2; ?>">s</span></i>
+							</div>
+						<?php endfor; ?>
 					</div>
 				</div>
 				<div class="body columns eight">
