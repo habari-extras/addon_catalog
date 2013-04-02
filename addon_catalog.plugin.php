@@ -670,7 +670,7 @@ class AddonCatalogPlugin extends Plugin {
 		if($target_site) {
 			$target_site .= (substr($target_site, -1) == '/' ? '' : '/');
 			$checkout = new FormUI(__CLASS__ . "_checkout");
-			$checkout->append(FormControlLabel::wrap(_t("Install addons to <span>%s</span>", array($target_site)), FormControlSubmit::create('checkout')->set_caption('Proceed')->add_class('proceed_button')));
+			$checkout->append(FormControlLabel::wrap(_t("Install addons to <span>%s</span>", array($target_site)), FormControlSubmit::create('checkout')->set_caption('Install')->add_class('proceed_button')));
 			// Include JSON payload for the target site
 			$cart = Session::get_set("addon_cart", false);
 			$checkout->append(FormControlHidden::create('payload')->set_value(json_encode($cart)));

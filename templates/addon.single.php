@@ -195,7 +195,7 @@
 <script>
 $(document).ready(function() {
 	$('.execute a').click(function() {
-		$('.installer').fadeToggle();
+		$('form:last').fadeToggle();
 		return false;
 	})
 });

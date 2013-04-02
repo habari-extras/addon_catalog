@@ -1,6 +1,6 @@
 <?php namespace Habari; ?>
 <div id="cart">
-	<div class="rate_title"><span><?php _e('Your Cart'); ?></span><span class="execute"><a href="" title="">Checkout</a></span></div>
+	<div class="rate_title"><span><?php _e('Your Cart'); ?></span><span class="execute"><a href="#install" title="install your addons">Install</a></span></div>
 	<hr>
 	<div class="installer">
 	<?php
