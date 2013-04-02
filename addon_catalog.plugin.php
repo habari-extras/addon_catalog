@@ -79,6 +79,10 @@ class AddonCatalogPlugin extends Plugin {
 		return null;
 	}
 
+	public function action_template_header() {
+		Stack::add('template_stylesheet', array($this->get_url('/assets/css/addons.css'), 'screen, projection'), 'addons');
+	}
+
 	/**
 	 * Hook on activation of this plugin
 	 */

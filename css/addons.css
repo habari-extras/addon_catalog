@@ -1,0 +1,239 @@
+#intro_header.addon .container h3 {
+	font-size: 23px;
+}
+
+#addon_versions {
+	margin-top: 10px;
+}
+
+#addon_versions th {
+	width: auto;
+	text-align: left;
+}
+
+#addon_versions td {
+	padding: 10px 0px;
+}
+
+.addon #edit_content.single h2 {
+	padding-left: 0px !important;
+}
+
+#article.addon .info ul {
+	float:left;
+	margin-left: 10px;
+	margin-bottom: 5px;
+	width: 100%;
+}
+
+#article.addon .info ul li {
+	float:left;
+	margin: 5px 0px;
+	width: 100%;
+	clear:both;
+
+}
+	#article.addon .info ul li hr {
+		margin-bottom: 10px;
+	}
+	
+	#article.addon .info ul li i {
+		font-size: 20px;
+		opacity: 0.75;
+		margin-top: 0px;
+	}
+		#article.addon .info ul li ol {
+			margin-top: -5px;
+			list-style: none;
+			margin-left: 5px;
+		}
+			#article.addon .info ul li ol li span {
+				float:left;
+			}
+				#article.addon .info ul li ol li span.number {
+					line-height: 25px;
+					width: 60px;					
+				}
+				
+				#article.addon .info ul li ol li span.bar {
+					background: rgb(224, 221, 214);
+					width: 150px;
+					height: 25px;
+				}
+
+				#article.addon .info ul li ol li span.color {
+					background: rgb( 222, 134, 80 );
+					height: 25px;
+				}
+	
+#article.addons i {
+	font-size: 80px;
+	color: #fff;
+	opacity: 1.0;
+	margin-left: 17px;
+	line-height: 130px;
+}
+
+.addon_block {
+	padding: 10px 0px;
+	background: #fff;
+	margin-bottom: 0px;
+	border-bottom: 1px solid #eee;
+}
+	.addon_block .body {
+		padding: 10px 10px;
+	}
+		.addon_block .body.copy {
+			padding: 20px 10px 0px;
+		}
+		.addon_block .body h4 {
+			font-family: "Montserrat";
+		}
+	
+	.addon_block .block {
+		padding: 0px;
+		margin: 0px;
+		height: 100%;
+		vertical-align: middle;
+	}
+		.addon_block .block i {
+			font-size: 120px !important;
+			color: #555 !important;
+			margin-top: 30px;
+			margin-bottom: 0px !important;
+			margin-left: 30px !important;
+		}
+		.addon_block .block img {
+			background: #eee;
+			padding: 3px;
+			margin: 15px 15px 10px;
+			width: 125px;
+			height: 125px;
+		}
+	
+	.addon_block hr {
+		margin-bottom: 10px;
+	}
+	
+	.addon_block .meta {
+		margin: 0px;
+	}
+	
+	.addon_block .download_link {
+		float:right;
+		opacity: 1.0;
+	}
+		
+	#addon_sidebar .download {
+		margin-bottom: 15px;
+	}
+	
+	#addon_sidebar .download a {
+		font-size: 17px;
+		padding: 13px;
+	}
+	
+	#addon_sidebar p {
+		float:left;
+		margin-left: 10px;
+	}
+	
+#page-selector {
+	margin: 0px 5px;
+}
+	#page-selector a {
+		padding: 5px 10px;
+		background: rgb(224, 221, 214);
+	}
+		#page-selector a.current-page {
+			background: rgb(0, 0, 0);
+			opacity: 0.65;
+			color: #fff;
+		}
+		
+		#page-selector a.prev-page, #page-selector a.next-page {
+			background:none;
+		}
+	#page-selector.top {
+		margin-bottom: 15px;
+	}
+	
+	#page-selector.bottom {
+		margin-top: 15px;
+	}
+	
+.rating {
+	float:left !important;
+}
+	.rating i {
+		font-size: 23px !important;
+		line-height: 30px !important;
+		opacity: 1.0 !important;
+	}
+		
+	.rating .bottom {
+		z-index: 1;
+		position: absolute !important;
+		color: #ccc !important;
+	}
+		.rating .top {
+			position:relative !important;
+			z-index: 100;
+			color: rgb( 222, 134, 80 ) !important;
+			font-size: 24px !important;
+			margin-top: -1px !important;
+			opacity: 1.0 !important;
+		}
+				
+		.rating .amount {
+			float:left;
+			overflow: hidden;
+		}
+			.zero {
+				width: 0%;
+			}
+			
+			.fifty {
+				width: 50%;
+			}
+			
+			.hundred {
+				width: 100%;
+			}
+	.rating .hide {
+		display:none !important;
+	}
+	
+.rate_title {
+	float:left;
+	margin-top: 20px;
+	padding: 3px 0px;
+}
+
+.rateit {
+	float:right;
+	color: #fff;
+	background: rgb( 87, 154, 169 );
+	padding:3px 6px;
+	margin-top: 20px;
+	margin-bottom: 5px;
+	font-size: 12px;
+}
+
+#overview .rating {
+	margin-left: -8px;
+}
+
+#overview .rating .bottom {
+	z-index: 1;
+	position: absolute !important;
+	color: #ccc !important;
+	margin-top: 0px;
+}
+
+#my_rating {
+	margin-left: 55px;
+}
+	#my_rating div .bottom:hover {
+		color: rgb( 222, 134, 80 );
+	}
