@@ -98,6 +98,17 @@ pre {
 	
 	#involved.docpage .container {
 		padding-bottom: 0px;
+		padding-top: 5px;
+	}
+	
+	#involved.docpage .container .row {
+		margin-top:0px;
+		padding-top: 10px;
+	}
+	
+	#involved.docpage .container {
+		padding-top: 80px;
+		padding-bottom: 0px;
 	}
 		#involved.docpage .area {
 			margin-top: -10px;
