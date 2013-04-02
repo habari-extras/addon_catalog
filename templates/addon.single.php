@@ -75,7 +75,7 @@
 			<div id="addon_sidebar" class="columns four offset-by-one">
 			<?php if ( $post->versions !== false ) { ?>
 				<div class="download four columns"><a href="<?php echo $post->versions[0]->download_url; ?>" title="download 1.0">Download <?php echo $post->versions[0]->info->version; ?></a></div>
-				<div class="take_tour four columns"><a href="<?php URL::out('add_to_cart', array('slug' => $post->slug, 'version' => $post->versions[0]->info->version)); ?>" title="download 1.0">Add To Cart</a></div>
+				<div class="take_tour four columns"><a href="<?php URL::out('add_to_cart', array('slug' => $post->slug, 'version' => $post->version_slugify($post->versions[0]))); ?>" title="download 1.0">Add To Cart</a></div>
 			<?php } ?>
 				<div class="info">
 					<ul>

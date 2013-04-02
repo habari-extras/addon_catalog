@@ -1044,20 +1044,29 @@ class AddonCatalogPlugin extends Plugin {
 			'content_type' => Post::type('addon'),
 			'slug' => $params['slug'],
 		));
-		$term = Vocabulary::get(self::CATALOG_VOCABULARY)->get_term($params['version']);
-		
-		$data["download_url"] = URL::get('download_addon', array('slug' => $addon->slug, 'version' => $this->version_slugify($term), 'addon' => $addon->info->type));
-		$data["name"] = $addon->title;
-		$data["version"] = $term->info->version;
-		$data["habari_version"] = $term->info->habari_version;
-		$data["type"] = $addon->info->type;
-		$data["permalink"] = $addon->permalink;
-		$data["description"] = $term->info->description;
-		$data["slug"] = $term->term;
-		
-		Session::add_to_set("addon_cart", $data);
-		Session::notice(_t("You added %s v%s for Habari %s to your cart.", array($addon->title_out, $data["version"], $data["habari_version"]), "addon_catalog"));
-		
+		if(!$addon) {
+			return; // Don't let people pass weird stuff into here
+		}
+
+		$version = $params['version'];
+		$terms = $this->vocabulary->get_object_terms( 'addon', $addon->id );
+		foreach($terms as $term) {
+			if($version == $this->version_slugify($term)) {
+
+				$data["download_url"] = URL::get('download_addon', array('slug' => $addon->slug, 'version' => $this->version_slugify($term), 'addon' => $addon->info->type));
+				$data["name"] = $addon->title;
+				$data["version"] = $term->info->version;
+				$data["habari_version"] = $term->info->habari_version;
+				$data["type"] = $addon->info->type;
+				$data["permalink"] = $addon->permalink;
+				$data["description"] = $term->info->description;
+				$data["slug"] = $term->term;
+
+				Session::add_to_set("addon_cart", $data);
+				Session::notice(_t("You added %s v%s for Habari %s to your cart.", array($addon->title_out, $data["version"], $data["habari_version"]), "addon_catalog"));
+			}
+		}
+
 		Utils::redirect($addon->permalink);
 	}
 	
@@ -1078,6 +1087,12 @@ class AddonCatalogPlugin extends Plugin {
 		}
 		
 		Utils::redirect(URL::get("display_addons", array('addon' => $type)));
+	}
+
+
+	public function filter_post_call_version_slugify($unused, $post, $habari, $addon = null)
+	{
+		return $this->version_slugify($habari, $addon);
 	}
 
 	/**
