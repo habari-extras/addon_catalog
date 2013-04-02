@@ -417,10 +417,18 @@ html, body {
 		margin-bottom: 15px;
 	}
 	
-	#addon_sidebar .download a {
+	#addon_sidebar .download a, #addon_sidebar .take_tour a {
 		font-size: 17px;
 		padding: 13px;
 	}
+		#addon_sidebar .take_tour {
+			margin-bottom: 15px;
+			margin-top: -10px;
+		}
+			#addon_sidebar .take_tour a {
+				font-size: 15px;
+				padding: 5px;
+			}
 	
 	#addon_sidebar p {
 		float:left;
@@ -526,3 +534,66 @@ html, body {
 	#my_rating div .bottom:hover {
 		color: rgb( 222, 134, 80 );
 	}
+
+#cart label input[type=text] {
+	margin-top: 5px;
+}
+
+#cart input[type=submit] {
+	float:left;
+	clear:both;
+	margin-top: -10px;
+	margin-bottom: 10px;
+}
+
+#cart i {
+	margin-left: -10px;
+}
+
+#cart .installer {
+	display:block;
+}
+
+#cart .rate_title {
+	width: 100%;
+}
+
+#cart .rate_title span {
+	float:left;
+}
+	#cart .rate_title span.execute {
+		float:right;
+		margin-top: -3px;
+	}
+	
+	#cart .rate_title span.execute a {
+		font-size: 11px;
+		text-transform: uppercase;
+		background: #333;
+		color: #fff;
+		padding: 3px 5px;
+	}
+		#cart .rate_title span.execute a:hover {
+			background:rgb( 87, 154, 169 );
+		}
+		
+#cart label {
+	float:left;
+}
+
+#cart form {
+	float:left;
+}
+	#cart form + form {
+		width: 100%;
+		border-top: 1px solid #ddd;
+		margin-top: -20px;
+		padding-top: 10px;
+		margin-bottom:10px;
+	}
+		#cart form + form span {
+			display:block;
+		}
+		#cart form + form input[type=submit] {
+			margin-top: 10px;
+		}

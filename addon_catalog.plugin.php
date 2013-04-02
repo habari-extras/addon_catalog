@@ -660,17 +660,17 @@ class AddonCatalogPlugin extends Plugin {
 		// Build form for setting the target site
 		// @todo Later: If user is logged in, offer saving locations for re-use
 		$target_form = new FormUI(__CLASS__ . "_target");
-		$target_form->append(FormControlLabel::wrap(_t("Install addons on this website:"), FormControlText::create('target_site', 'session:cart_target')));
+		$target_form->append(FormControlLabel::wrap(_t("Install addons on this website"), FormControlText::create('target_site', 'session:cart_target')));
 		$target_form->target_site->add_validator('validate_required');
 		$target_form->target_site->add_validator('validate_url');
-		$target_form->append(FormControlSubmit::create('save')->set_caption('Save'));
+		$target_form->append(FormControlSubmit::create('save')->set_caption('Save')->add_class('save_button'));
 		$target_form->on_success(array($this, "cart_callback"));
 
 		// Build checkout form
 		if($target_site) {
 			$target_site .= (substr($target_site, -1) == '/' ? '' : '/');
 			$checkout = new FormUI(__CLASS__ . "_checkout");
-			$checkout->append(FormControlLabel::wrap(_t("Install addons on %s", array($target_site)), FormControlSubmit::create('checkout')->set_caption('Proceed')));
+			$checkout->append(FormControlLabel::wrap(_t("Install addons to <span>%s</span>", array($target_site)), FormControlSubmit::create('checkout')->set_caption('Proceed')->add_class('proceed_button')));
 			// Include JSON payload for the target site
 			$cart = Session::get_set("addon_cart", false);
 			$checkout->append(FormControlHidden::create('payload')->set_value(json_encode($cart)));
