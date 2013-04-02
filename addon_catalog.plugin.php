@@ -80,7 +80,7 @@ class AddonCatalogPlugin extends Plugin {
 	}
 
 	public function action_template_header() {
-		Stack::add('template_stylesheet', array($this->get_url('/assets/css/addons.css'), 'screen, projection'), 'addons');
+		Stack::add('template_stylesheet', array($this->get_url('/css/addons.css'), 'screen, projection'), 'addons');
 	}
 
 	/**
