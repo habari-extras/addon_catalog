@@ -1,6 +1,11 @@
 <?php namespace Habari; ?>
-		<h2><?php _e("Cart"); ?></h2>
-		<div class="downloads"><h3>Addons in your cart</h3>
+<div id="cart">
+		<h2><?php _e("Your Cart"); ?></h2>
+<?php if(count(Session::get_set("addon_cart", false)) == 0): ?>
+<div class="empty_cart">Your cart is empty</div>
+<?php else: ?>
+
+		<div id="cart_downloads"><h3>Addons in your cart</h3>
 			<table>
 				<thead>
 					<tr>
@@ -10,6 +15,7 @@
 						<th>Remove</th>
 					</tr>
 				</thead>
+
 				<tbody>
 				
 				<?php foreach(Session::get_set("addon_cart", false) as $index => $c): ?>
@@ -21,7 +27,9 @@
 					</tr>
 				<?php endforeach; ?>
 			</table>
-			
+		</div>
+<?php endif; ?>
+		<div id="checkout">	
 			<h2>Checkout</h2>
 			
 			<?php
@@ -30,3 +38,5 @@
 				$content->checkout_form->out();
 			}
 			?>
+		</div>
+</div>

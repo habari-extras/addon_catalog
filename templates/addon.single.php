@@ -102,6 +102,7 @@
 							</div>
 						</li>
 						<?php } ?>
+<?php /*
 						<li>
 							<span class="rate_title">Ratings</span>
 							<hr>
@@ -178,8 +179,10 @@
 								</div>
 							</div>
 						</li>
+*/ ?>
 					</ul>
 				</div>
+<?php echo $theme->area('plugin_sidebar'); ?>
 			</div>
 		</div>
 	</div>
