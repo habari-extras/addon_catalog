@@ -74,7 +74,7 @@
 			</div>
 			<div id="addon_sidebar" class="columns four offset-by-one">
 			<?php if ( $post->versions !== false ) { ?>
-				<div class="download four columns"><a href="<?php echo $post->versions[0]->info->url; ?>" title="download 1.0">Download <?php echo $post->versions[0]->info->version; ?></a></div>
+				<div class="download four columns"><a href="<?php echo $post->versions[0]->download_url; ?>" title="download 1.0">Download <?php echo $post->versions[0]->info->version; ?></a></div>
 			<?php } ?>
 				<div class="info">
 					<ul>
