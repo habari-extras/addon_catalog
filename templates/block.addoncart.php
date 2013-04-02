@@ -20,10 +20,19 @@
 			<li>
 				<span><i class="icon-<?php echo $c["type"]; ?>"><?php echo AddonCatalogPlugin::get_type_icon($c["type"]); ?></i></span>
 				<span><a href="<?php echo $c["permalink"] ?>"><?php echo $c["name"]; ?></a></span>
-				<span style="margin-right:5px;float:right;"><a href="<?php echo Site::get_url('habari') . "/remove_from_cart/" . $index; ?>"><i class="icon-remove">R</i></a></span>
+				<span style="margin-right:5px;float:right;"><a class="remove_addon" href="<?php echo Site::get_url('site') . "/remove_from_cart/" . $index; ?>"><i class="icon-remove">R</i></a></span>
 			</li>
 		<?php endforeach; ?>
 		</ul>
 	</div>
 <?php endif; ?>
 </div>
+
+<script>
+	$(function(){
+		$('body').on('click', '.remove_addon', function(){
+			$('#cart_downloads').load($(this).attr('href') + ' #cart_download');
+			return false;
+		})
+	})
+</script>
