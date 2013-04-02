@@ -831,7 +831,7 @@ class AddonCatalogPlugin extends Plugin {
 
 			$terms = $vocabulary->get_object_terms( 'addon', $post->id );
 			if ( count( $terms ) > 0 ) {
-				// @TODO: order them here?
+				$terms = $terms->getArrayCopy();
 				/**
 				 * @var Term $term
 				 */
@@ -860,7 +860,7 @@ class AddonCatalogPlugin extends Plugin {
 					return ($a->info->version < $b->info->version) ? -1 : 1;
 				});
 
-				$post_versions[$post->id] = $terms;
+				$post_versions[$post->id] = new Terms($terms);
 			}
 			else {
 				$post_versions[$post->id] = false;
