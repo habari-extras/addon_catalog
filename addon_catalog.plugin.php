@@ -187,11 +187,11 @@ class AddonCatalogPlugin extends Plugin {
 	public function action_plugin_ui_configure ( ) {
 		$ui = new FormUI('addon_catalog');
 
-		$ui->append( 'checkbox', 'use_basepath', 'addon_catalog__use_basepath', _t( 'Use a base path: ', 'addon_catalog' ) );
-		$ui->append( 'text', 'basepath', 'addon_catalog__basepath', _t( 'Base path (without trailing slash), e.g. <em>explore</em> :', 'addon_catalog' ) );
-		$ui->append( 'text', 'date_format', 'addon_catalog__date_format', _t( 'Release Date format :', 'addon_catalog' ) );
+		$ui->append( FormControlCheckbox::create('use_basepath', 'addon_catalog__use_basepath')->label( _t( 'Use a base path: ', 'addon_catalog' ) ) );
+		$ui->append( FormControlText::create('basepath', 'addon_catalog__basepath')->label( _t( 'Base path (without trailing slash), e.g. <em>explore</em> :', 'addon_catalog' ) ) );
+		$ui->append( FormControlText::create('date_format', 'addon_catalog__date_format')->label( _t( 'Release Date format :', 'addon_catalog' ) ) );
 
-		$ui->append( 'submit', 'save', _t( 'Save', 'addon_catalog' ) );
+		$ui->append( FormControlSubmit::create('save')->set_caption( _t( 'Save', 'addon_catalog' ) ) );
 
 		$ui->out();
 	}
@@ -850,6 +850,16 @@ class AddonCatalogPlugin extends Plugin {
 						)
 					);
 				});
+				usort($terms, function(Term $a, Term $b) {
+					if($a->info->version == $b->info->version) {
+						if($a->info->habari_version == $b->info->habari_version) {
+							return 0;
+						}
+						return ($a->info->habari_version < $b->info->habari_version) ? -1 : 1;
+					}
+					return ($a->info->version < $b->info->version) ? -1 : 1;
+				});
+
 				$post_versions[$post->id] = $terms;
 			}
 			else {
@@ -858,6 +868,10 @@ class AddonCatalogPlugin extends Plugin {
 		}
 
 		return $post_versions[$post->id];
+	}
+
+	public function filter_post_call_download_version($output, $post) {
+		return reset($post->versions);
 	}
 	
 	/**
