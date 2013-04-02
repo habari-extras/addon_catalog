@@ -55,11 +55,11 @@
 					<div>
 						<?php
 						for ($z = 0; $z < 5; $z++):
-							if ( $post->rating <= $z || 0 == $post->rating) {
+							if ( $addon->rating <= $z || 0 == $addon->rating) {
 								$class1 = '';
 								$class2 = 'zero';
 							}
-							elseif ( $post->rating > $z * 20 && $post->rating < $z * 20 + 10 ) {
+							elseif ( $addon->rating > $z * 20 && $addon->rating < $z * 20 + 10 ) {
 								$class1 = '';
 								$class2 = 'fifty';
 							}
