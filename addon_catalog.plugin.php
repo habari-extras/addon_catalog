@@ -854,13 +854,16 @@ class AddonCatalogPlugin extends Plugin {
 					);
 				});
 				usort($terms, function(Term $a, Term $b) {
-					if($a->info->version == $b->info->version) {
-						if($a->info->habari_version == $b->info->habari_version) {
-							return 0;
-						}
-						return ($a->info->habari_version < $b->info->habari_version) ? -1 : 1;
+					if(($result = version_compare($a->info->habari_version, $b->info->habari_version)) == 0) {
+						return version_compare($a->info->version, $b->info->version);
 					}
-					return ($a->info->version < $b->info->version) ? -1 : 1;
+					if($a->info->habari_version = '?.?.?') {
+						return -1;
+					}
+					if($b->info->habari_version = '?.?.?') {
+						return -1;
+					}
+					return $result;
 				});
 
 				$post_versions[$post->id] = new Terms($terms);
