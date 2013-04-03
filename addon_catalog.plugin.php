@@ -19,6 +19,7 @@ class AddonCatalogPlugin extends Plugin {
 	protected $_types = array(
 		'theme' => 'Themes',
 		'plugin' => 'Plugins',
+		'bundle' => 'Bundles',
 		'core' => 'Core',
 	);
 
@@ -353,6 +354,8 @@ class AddonCatalogPlugin extends Plugin {
 			'limit' => 20,
 			'page' => $theme->page,
 		));
+		$theme->addon_type = $params['addon'];
+		$theme->addon_type_name = $this->_types[$params['addon']];
 		$theme->display('addon.multiple');
 	}
 
