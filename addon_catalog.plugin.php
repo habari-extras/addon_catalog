@@ -425,14 +425,9 @@ class AddonCatalogPlugin extends Plugin {
 	 */
 	public function action_publish_post ( $post, $form ) {
 		if ( $post->content_type == Post::type( 'addon' ) ) {
-			foreach ( $this->addon_fields as $field ) {
-				if ( $form->{'addon_details_' . $field}->value ) {
-					$post->info->$field = $form->{'addon_details_' . $field}->value;
-				}
-			}
 
 			// save version information
-			$this->prepare_versions( $post, $form );
+			//$this->prepare_versions( $post, $form );  // @todo Implement this UI better
 		}
 	}
 
