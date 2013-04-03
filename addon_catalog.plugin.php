@@ -390,8 +390,8 @@ class AddonCatalogPlugin extends Plugin {
 		}
 
 		// add guid after title
-		$guid = $form->append( FormControlText::create('guid', $post)->label( _t('GUID', 'addon_catalog') ) );
-		$form->move_after( $guid, $form->title );	// position it after the title
+		$guid = $form->append( FormControlText::create('guid', new ControlStorage(function($name) use ($post) { return $post->info->guid; }, function($name, $value) use ($post) { $post->info->guid = $value; }))->label( _t('GUID', 'addon_catalog') ) );
+		$form->move_after( $guid, $form->label_for_title );	// position it after the title
 
 		// add the description after the guid
 		$description = $form->append( FormControlTextArea::create('description', $post, array('rows'=>2))->label( _t('Description', 'addon_catalog') ) );
@@ -399,12 +399,12 @@ class AddonCatalogPlugin extends Plugin {
 
 		// add the instructions after the content
 		$instructions = $form->append( FormControlTextArea::create('instructions')->add_class('resizable')->set_properties(array('rows'=>4))->label( _t('Instructions', 'addon_catalog') ) );
-		$form->move_after( $instructions, $form->content );	// position it after the content box
+		$form->move_after( $instructions, $form->label_for_content );	// position it after the content box
 
 
 		// create the addon details wrapper pane
 		$addon_fields = $form->append( FormControlFieldset::create('addon_details')->set_caption( _t('Details', 'addon_catalog') ) );
-		$form->move_after( $addon_fields, $form->tags );
+		$form->move_after( $addon_fields, $form->label_for_tags );
 
 
 		// add the type: plugin or theme
