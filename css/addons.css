@@ -36,6 +36,11 @@ pre {
 		font-size: 13px;
 		padding: 10px 10px;
 	}
+	
+	#edit_content .body ul {
+		margin-left: 10px;
+		list-style: disc;
+	}
 
 #edit_content #create_document {
 	margin-top: 0px;
