@@ -390,56 +390,31 @@ class AddonCatalogPlugin extends Plugin {
 		}
 
 		// add guid after title
-		$guid = $form->append( 'text', 'addon_details_guid', 'null:null', _t('GUID', 'addon_catalog') );
-		$guid->value = $post->info->guid;	// populate it, if it exists
-		$guid->template = ( $post->slug ) ? 'admincontrol_text' : 'guidcontrol';
-		$form->move_after( $form->addon_details_guid, $form->title );	// position it after the title
+		$guid = $form->append( FormControlText::create('guid', $post)->label( _t('GUID', 'addon_catalog') ) );
+		$form->move_after( $guid, $form->title );	// position it after the title
 
 		// add the description after the guid
-		$description = $form->append( 'textarea', 'addon_details_description', 'null:null', _t('Description', 'addon_catalog') );
-		$description->value = $post->info->description;	// populate it, if it exists
-		$description->rows = 2; // Since it's resizable, this doesn't need to start out so big, does it?
-		$description->template = 'admincontrol_textarea';
-		$form->move_after( $form->addon_details_description, $form->addon_details_guid );
+		$description = $form->append( FormControlTextArea::create('description', $post, array('rows'=>2))->label( _t('Description', 'addon_catalog') ) );
+		$form->move_after( $description, $guid );
 
 		// add the instructions after the content
-		$instructions = $form->append( 'textarea', 'addon_details_instructions', 'null:null', _t('Instructions', 'addon_catalog') );
-		$instructions->value = $post->info->instructions;	// populate it, if it exists
-		$instructions->class[] = 'resizable';
-		$instructions->rows = 4; // Since it's resizable, this doesn't need to start out so big, does it?
-		$instructions->template = 'admincontrol_textarea';
-		$form->move_after( $form->addon_details_instructions, $form->content );	// position it after the content box
+		$instructions = $form->append( FormControlTextArea::create('instructions')->add_class('resizable')->set_properties(array('rows'=>4))->label( _t('Instructions', 'addon_catalog') ) );
+		$form->move_after( $instructions, $form->content );	// position it after the content box
 
 
 		// create the addon details wrapper pane
-		$addon_fields = $form->append( 'fieldset', 'addon_details', _t('Details', 'addon_catalog') );
-		$form->move_after( $form->addon_details, $form->tags );
+		$addon_fields = $form->append( FormControlFieldset::create('addon_details')->set_caption( _t('Details', 'addon_catalog') ) );
+		$form->move_after( $addon_fields, $form->tags );
 
 
 		// add the type: plugin or theme
-		$details_type = $addon_fields->append( 'select', 'addon_details_type', 'null:null', _t('Addon Type', 'addon_catalog') );
-		$details_type->value = $post->info->type;
-		$details_type->template = 'tabcontrol_select';
-		$details_type->options = array(
-			'' => '',
-			'plugin' => _t('Plugin', 'addon_catalog'),
-			'theme' => _t('Theme', 'addon_catalog'),
-		);
-		// admins can use the 'core' type for habari itself
-		if ( User::identify()->can('superuser') ) {
-			$details_type->options['core'] = _t('Core', 'addon_catalog');
-		}
-		$details_type->add_validator( 'validate_required' );
+		$details_type = $addon_fields->append( FormControlSelect::create('type', $post)->set_options($this->_types)->add_validator( 'validate_required' )->label( _t('Addon Type', 'addon_catalog') ) );
 
 		// add the url
-		$details_url = $addon_fields->append( 'text', 'addon_details_url', 'null:null', _t('URL', 'addon_catalog') );
-		$details_url->value = $post->info->url;
-		$details_url->template = 'tabcontrol_text';
+		$details_url = $addon_fields->append( FormControlText::create('url', $post)->label( _t('URL', 'addon_catalog') ) );
 
 		// add the screenshot
-		$details_screenshot = $addon_fields->append( 'text', 'addon_details_screenshot', 'null:null', _t('Screenshot', 'addon_catalog') );
-		$details_screenshot->value = $post->info->screenshot_url;
-		$details_screenshot->template = 'tabcontrol_text';
+		$details_screenshot = $addon_fields->append( FormControlText::create('screenshot_url', $post)->label( _t('Screenshot', 'addon_catalog') ) );
 
 	}
 
