@@ -2,7 +2,7 @@
 <?php if ( !defined( 'HABARI_PATH' ) ) { die('No direct access'); }
 	$theme->display( 'header');
 ?>
-<div id="involved" class="docpage <?php echo $posts[0]->info->type; ?>">
+<div id="involved" class="docpage <?php echo $addon_type; ?>">
 	<div class="container">
 		<div class="row">
 			<div id="theme" class="area four columns alpha">
@@ -34,7 +34,7 @@
 </div>
 <div id="intro_header">
 	<div class="container">
-		<h3>Recently updated <?php echo ucfirst( $posts[0]->info->type ); ?>s.</h3>
+		<h3>Recently updated <?php echo ucfirst( $addon_type_name ); ?>.</h3>
 	</div>
 </div>
 <div id="article" class="addons">
