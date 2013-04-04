@@ -350,7 +350,7 @@ class AddonCatalogPlugin extends Plugin {
 		$theme->posts = Posts::get(array(
 			'content_type' => Post::type( 'addon' ),
 			'info' => array( 'type' => $params['addon'] ),
-			'orderby' => 'title ASC',
+			'orderby' => 'updated DESC',
 			'limit' => 20,
 			'page' => $theme->page,
 		));
