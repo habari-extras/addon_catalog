@@ -256,8 +256,8 @@ class AddonCatalogPlugin extends Plugin {
 		// create the rule for downloading an addon as a zip
 		$rule = array(
 			'name' => "download_addon",
-			'parse_regex' => "#^{$basepath}(?P<addon>{$addon_regex})/(?P<slug>[^/]+)/download/(?P<version>[^/]+)/?$#i",
-			'build_str' => $basepath . '{$addon}/{$slug}/download/{$version}',
+			'parse_regex' => "#^{$basepath}(?P<addon>{$addon_regex})/(?P<slug>[^/]+)/download/(?P<version>[^/]+)(?:/(?P<refresh>refresh))?/?$#i",
+			'build_str' => $basepath . '{$addon}/{$slug}/download/{$version}(/{$refresh})',
 			'handler' => 'PluginHandler',
 			'action' => 'download_addon',
 			'parameters' => '',
@@ -482,6 +482,8 @@ class AddonCatalogPlugin extends Plugin {
 	}
 
 	public static function handle_addon( $info = array(), $versions =  array() ) {
+		// Allow plugins to modify a new addon before it is created.
+		Plugins::act( 'handle_addon_before', $info, $versions );
 
 		$main_fields = array(
 			/* This is a crosswalk of the Post-related items expected in the $info array for create_addon() */
@@ -494,7 +496,7 @@ class AddonCatalogPlugin extends Plugin {
 		$post_fields = array(
 			'content_type' => Post::type( 'addon' ),
 			'status' => Post::status( 'published' ),
-			'pubdate' => DateTime::date_create(),
+			'pubdate' => DateTime::create(),
 		);
 
 		$post = self::get_addon( strtoupper( $info[ 'guid' ] ) ); // strtoupper might not be necessary
@@ -545,6 +547,9 @@ class AddonCatalogPlugin extends Plugin {
 		$post->info->commit();
 
 		self::save_versions( $post, $versions );
+
+		// Allow plugins to act after a new addon has been created.
+		Plugins::act( 'handle_addon_after', $info, $versions );
 	}
 
 	public static function save_versions( $post = null, $versions = array() ) {
@@ -972,37 +977,37 @@ class AddonCatalogPlugin extends Plugin {
 				// zip file of the requested version is located in /user/files/addon_downloads/{$addonslug}/{$versionslug}/{$hash}/{$addonslug}_{$versionslug}.zip
 				$versiondir = '/files/addon_downloads/' . $addon->slug . '/' . $version . '/';
 				$dir = $versiondir . $term->info->hash . '/';
-				$file = $dir . $addon->slug . '_' . $version . '.zip';
-				
-				if(!is_file(Site::get_dir('user') . $file)) {
+				$zipfile = Site::get_dir('user') . $dir . $addon->slug . '_' . $version . '.zip';
+				$zipurl = Site::get_url('user') . $dir . $addon->slug . '_' . $version . '.zip';
+
+				if(!is_file($zipfile) || $url_args['refresh'] == 'refresh') {
 					// File does not yet exist, prepare directories and create it
 					if ( is_writable( Site::get_dir('user') . '/files/' ) ) {
 						if ( !is_dir( Site::get_dir('user') . $versiondir ) ) {
 							mkdir( Site::get_dir('user') . $versiondir, 0755, true );
 						}
+
+						$tmp_dir = sys_get_temp_dir() . '/' . $addon->slug;
 						
 						// Cleanup: Remove copies from older commits
 						exec('rm -rf ' . Site::get_dir('user') . $versiondir . '*');
-						exec('rm -rf ' . sys_get_temp_dir() . '/' . $addon->slug);
+						exec('rm -rf ' . $tmp_dir);
+						exec('rm -rf ' . $zipfile);
 						
 						if ( !is_dir( Site::get_dir('user') . $dir ) ) {
 							mkdir( Site::get_dir('user') . $dir, 0755, true );
 						}
 						
-						// This will get a prepared command string, including the url, leaving space to insert the destination
-						$clonecommand = Plugins::filter( 'addon_download_command', $addon->info->hoster, $term->info->url );
-						if(!isset($clonecommand) || empty($clonecommand)) {
-							Utils::debug($addon, $term);
-							return;
+						Plugins::act('addon_download', $term->info->source, $addon, $term, $tmp_dir);
+						if(count(scandir($tmp_dir)) > 2) {
+							exec('cd ' . $tmp_dir . ' && zip -9 -r ' . $zipfile . ' *');
 						}
-						exec(sprintf($clonecommand, sys_get_temp_dir() . '/' . $addon->slug));
-						exec('cd ' . sys_get_temp_dir() . '/' . $addon->slug . '/ && zip -r ' . Site::get_dir('user') . $file . ' *');
 					}
 				}
 
-				if(is_file(Site::get_dir('user') . $file)) {
+				if(is_file($zipfile)) {
 					// Everything worked fine - or the file already existed
-					Utils::redirect(Site::get_url('user') . $file);
+					Utils::redirect($zipurl);
 				}
 			}
 		}
