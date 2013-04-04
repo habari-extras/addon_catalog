@@ -13,7 +13,7 @@
 		<?php foreach( $addons as $addon ) { ?>
 			<div class="addon_block sixteen columns">
 				<div class="block columns three">
-					<?php echo AddonCatalogPlugin::screenshot( $addon ); ?>
+					<a href="<?php echo $addon->permalink; ?>" title="View <?php echo $addon->title; ?>"><?php echo AddonCatalogPlugin::screenshot( $addon ); ?></a>
 				</div>
 				<div class="body columns three">
 					<h4><a href="<?php echo $addon->permalink; ?>" title="View <?php echo $addon->title; ?>"><?php echo $addon->title_out; ?></a></h4>
