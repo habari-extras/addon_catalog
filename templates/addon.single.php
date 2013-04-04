@@ -57,6 +57,9 @@
 								<th>Version</th>
 								<th>Release Date</th>
 								<th>Download Link</th>
+								<?php if(count($permitted_versions) > 0): ?>
+								<th>Manage</th>
+								<?php endif; ?>
 							</tr>
 						</thead>
 						<tbody>
@@ -65,6 +68,13 @@
 								<td><?php echo $v->info->habari_version; ?>-<?php echo $v->info->version; ?></td>
 								<td><?php echo DateTime::date_create( $v->info->release )->format( Options::get( "plugin_directory__date_format", "F j, Y" ) ); ?></td>
 								<td><a href="<?php echo $v->download_url; ?>">Download <?php echo $v->info->version; ?></a></td>
+								<?php if(count($permitted_versions) > 0): ?>
+								<td>
+								<?php if(in_array($v->term, $permitted_versions)): ?>
+									<a href="<?php echo Site::get_url('habari') . '/remove_addon_version/' . $post->slug . '/' . $v->term; ?>">[<?php _e('Remove', 'addon_catalog'); ?>]</a>
+								<?php endif; ?>
+								</td>
+								<?php endif; ?>
 							</tr>
 						<?php } ?>
 						</tbody>
