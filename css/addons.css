@@ -466,6 +466,7 @@ html, body {
 	
 .rating {
 	float:left !important;
+	cursor:pointer;
 }
 	.rating i {
 		font-size: 23px !important;
