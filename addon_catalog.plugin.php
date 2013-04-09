@@ -761,7 +761,14 @@ class AddonCatalogPlugin extends Plugin {
 
 		foreach($services as $service) {
 			foreach($versions as $versionterm) {
-				if(isset($versionterm->info->{$service . '_user_id'}) && isset($user->info->{'servicelink_' . $service}) && $versionterm->info->{$service . '_user_id'} == $user->info->{'servicelink_' . $service}) {
+				if(
+					$user->can('manage_versions') ||
+					(
+						isset($versionterm->info->{$service . '_user_id'})
+						&& isset($user->info->{'servicelink_' . $service})
+						&& $versionterm->info->{$service . '_user_id'} == $user->info->{'servicelink_' . $service}
+					)
+				) {
 					$permitted_versions[] = $versionterm->term;
 				}
 			}
