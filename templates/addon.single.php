@@ -66,7 +66,7 @@
 						<?php foreach ( $post->versions as $v ) { ?>
 							<tr>
 								<td><?php echo $v->info->habari_version; ?>-<?php echo $v->info->version; ?></td>
-								<td><?php echo DateTime::date_create( $v->info->release )->format( Options::get( "plugin_directory__date_format", "F j, Y" ) ); ?></td>
+								<td><?php echo DateTime::create( $v->info->release )->format( Options::get( "plugin_directory__date_format", "F j, Y" ) ); ?></td>
 								<td><a href="<?php echo $v->download_url; ?>">Download <?php echo $v->info->version; ?></a></td>
 								<?php if(count($permitted_versions) > 0): ?>
 								<td>
