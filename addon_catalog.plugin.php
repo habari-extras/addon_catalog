@@ -359,6 +359,20 @@ class AddonCatalogPlugin extends Plugin {
 		$theme->display('addon.multiple');
 	}
 
+	public function theme_route_display_addon_tag($theme, $params) {		
+		$theme->page = isset($params['page']) ? $params['page'] : 1;
+		$theme->posts = Posts::get(array(
+			'content_type' => 'addon',
+			'orderby' => 'updated DESC',
+			'limit' => 20,
+			'page' => $theme->page,
+			'vocabulary' => array( 'tags:term' => $params['slug'] )
+		));
+				
+		$theme->display_tag = $params['slug'];
+		$theme->display( 'addon.tag' );
+	}
+
 	/**
 	 * Manipulate the controls on the publish page
 	 *
