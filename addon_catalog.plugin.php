@@ -382,6 +382,8 @@ class AddonCatalogPlugin extends Plugin {
 		));
 				
 		$theme->display_tag = $params['slug'];
+		$theme->addon_type = $params['slug'];
+		
 		$theme->display( 'addon.tag' );
 	}
 
