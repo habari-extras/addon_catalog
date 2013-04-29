@@ -278,6 +278,18 @@ class AddonCatalogPlugin extends Plugin {
 		
 		$rules[] = $rule;
 		
+		$rule = array(
+			'name' => "display_addon_tag",
+			'parse_regex' => "#^{$basepath}tag/(?P<slug>[^/]+)(?:/page/(?P<page>\d+))?/?$#",
+			'build_str' => $basepath . 'tag/{$slug}(/page/{$page})',
+			'handler' => 'PluginHandler',
+			'action' => 'display_addon_tag',
+			'parameters' => serialize( array( 'content_type' => 'addon' ) ),
+			'description' => "Display an add on catalog tag of a particular type",
+		);
+		
+		$rules[] = $rule;
+		
 		// Add an /update endpoint to dispatch to different handlers
 		$rule = array(
 			'name' => "addon_update_ping",
