@@ -589,11 +589,15 @@ class AddonCatalogPlugin extends Plugin {
 
 			foreach( $versions as $key => $version ) {
 
-				$term_display = "{$post->id} {$key} {$post->info->repo_url}";
+				$version_display = "{$version['habari_version']}-{$version['version']}";
+echo "Incoming Version: {$version_display}\n\n";
 
 				$found = false;
 				foreach( $extant_terms as $eterm ) {
-					if( $eterm->term_display == $term_display ) {  // This is super-cheesy!
+					$extant_display = "{$eterm->info->habari_version}-{$eterm->info->version}";
+echo ">> Extant Version: {$extant_display}\n\n";
+
+					if( $extant_display == $version_display ) {
 						$found = true;
 						$term = $eterm;
 						break;
@@ -601,7 +605,8 @@ class AddonCatalogPlugin extends Plugin {
 				}
 				if(!$found) {
 					$term = new Term( array(
-						'term_display' => $term_display,
+						'term_display' => $version_display,
+						'term' => Utils::slugify("{$post->id} {$version_display} {$post->info->repo_url}", '-'),
 					) );
 				}
 				foreach ( $version as $field => $value ) {

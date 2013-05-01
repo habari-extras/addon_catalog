@@ -19,8 +19,18 @@
 					<h4><a href="<?php echo $addon->permalink; ?>" title="View <?php echo $addon->title; ?>"><?php echo $addon->title_out; ?></a></h4>
 					<span>by <?php echo AddonCatalogPlugin::name_url_list( $addon->info->authors ); ?></span>
 					<?php if( $addon->versions ) { ?>
+					<?php 
+						$hvers = array();
+						foreach($addon->versions as $version) {
+							$hvers[$version->info->habari_version] = $version->info->habari_version;
+						}
+						unset($hvers['?.?.?']);
+						if(count($hvers)>0) :
+							$hvers = Format::and_list($hvers);
+					?>
 					<hr>						
-					<span class="meta">Habari <?php echo $addon->versions[0]->info->habari_version; ?> or higher</span>
+					<span class="meta">Habari <?php echo $hvers; ?></span>
+					<?php endif; ?>
 					<?php } ?>
 				</div>
 				<div class="body columns eight">
