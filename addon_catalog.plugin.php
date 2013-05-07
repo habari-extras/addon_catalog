@@ -983,6 +983,8 @@ echo ">> Extant Version: {$extant_display}\n\n";
 	{
 		$array = array();
 
+		if(!is_array($items)) { return ''; }
+
 		foreach ( $items as $item ) {
 			$array[ $item[ 'name' ] ] = $item[ 'url' ];
 		}
@@ -1021,7 +1023,7 @@ echo ">> Extant Version: {$extant_display}\n\n";
 				$zipfile = Site::get_dir('user') . $dir . $addon->slug . '_' . $version . '.zip';
 				$zipurl = Site::get_url('user') . $dir . $addon->slug . '_' . $version . '.zip';
 
-				if(!is_file($zipfile) || $url_args['refresh'] == 'refresh') {
+				if(!is_file($zipfile) || (isset($url_args['refresh']) && $url_args['refresh'] == 'refresh')) {
 					// File does not yet exist, prepare directories and create it
 					if ( is_writable( Site::get_dir('user') . '/files/' ) ) {
 						if ( !is_dir( Site::get_dir('user') . $versiondir ) ) {
