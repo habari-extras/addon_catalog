@@ -40,7 +40,7 @@
 <div id="article" class="addons">
 	<div class="container">
 		<div id="page-selector" class="top sixteen columns">
-			<?php echo $theme->prev_page_link(); ?> <?php echo $theme->page_selector( null, array( 'leftSide' => 2, 'rightSide' => 2 ) ); ?> <?php echo $theme->next_page_link(); ?>
+			<?php echo $theme->prev_page_link(); ?> <?php echo $theme->page_selector( null, array( 'leftSide' => 2, 'rightSide' => 2, 'hideIfSinglePage' => true ) ); ?> <?php echo $theme->next_page_link(); ?>
 		</div>
 		<div>
 		<?php foreach( $posts as $addon ) { ?>
@@ -89,7 +89,7 @@
 		<?php } ?>
 		</div>
 		<div id="page-selector" class="bottom sixteen columns">
-			<?php echo $theme->prev_page_link(); ?> <?php echo $theme->page_selector( null, array( 'leftSide' => 2, 'rightSide' => 2 ) ); ?> <?php echo $theme->next_page_link(); ?>
+			<?php echo $theme->prev_page_link(); ?> <?php echo $theme->page_selector( null, array( 'leftSide' => 2, 'rightSide' => 2, 'hideIfSinglePage' => true ) ); ?> <?php echo $theme->next_page_link(); ?>
 		</div>
 	</div>
 </div>
