@@ -366,8 +366,10 @@ class AddonCatalogPlugin extends Plugin {
 			'limit' => 20,
 			'page' => $theme->page,
 		));
+				
 		$theme->addon_type = $params['addon'];
 		$theme->addon_type_name = $this->_types[$params['addon']];
+		$theme->title = ' &raquo; ' . ucfirst( $theme->addon_type_name );
 		$theme->display('addon.multiple');
 	}
 
@@ -380,7 +382,9 @@ class AddonCatalogPlugin extends Plugin {
 			'page' => $theme->page,
 			'vocabulary' => array( 'tags:term' => $params['slug'] )
 		));
-				
+
+		$theme->title = ' &raquo; Addons tagged with ' . $display_tag;
+
 		$theme->display_tag = $params['slug'];
 		$theme->addon_type = $params['slug'];
 		
@@ -772,6 +776,7 @@ echo ">> Extant Version: {$extant_display}\n\n";
 		
 		// Check if the current user has access to this addon.
 		$theme->permitted_versions = $this->addon_permitted_versions($theme->post);
+		$theme->title = ' &raquo; ' . $theme->post->title;
 		$theme->display( 'addon.single' );
 	}
 	
